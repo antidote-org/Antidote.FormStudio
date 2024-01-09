@@ -10,11 +10,7 @@ nuget Feliz.Markdown
 nuget Feliz.UseElmish
 nuget FsToolkit.ErrorHandling
 nuget Thoth.Json
-nuget Fable.Form.Antidote
-nuget Antidote.Bindings 2.0.5
-
-source /Users/luisfx/code/antidote-org/Fable.Form.Antidote.View/bin/Release
-nuget Fable.Form.Antidote.View
-
-source /Users/luisfx/code/antidote-org/Antidote.FormStudioSpec/bin/Release
-nuget Antidote.FormStudioSpec
+nuget Fable.Form.Antidote ~> 2.0.6
+nuget Fable.Form.Antidote.View ~> 2.0.6
+nuget Antidote.Bindings ~> 2.0.6
+nuget Antidote.FormStudioSpec ~> 2.0.6
