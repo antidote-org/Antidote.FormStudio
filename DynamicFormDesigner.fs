@@ -866,7 +866,7 @@ let FormSpecLayout(props: FormSpecLayoutProps) =
             ]
         ]
 
-            // Navbar Menu
+        // Navbar Menu
         Html.nav [
             prop.className [if props.ActiveField.State = AddingDependantKeys then classes.disabled]
 
@@ -1554,11 +1554,15 @@ type StateV2 =
 
 let init() = ()
 
-type FormStudioProps = {|
+type FormStudioToolDelegation = {|
     FormStudioFieldTools: ReactElement -> unit
     FormStudioPropertyEditor: ReactElement -> unit
     SetFormStudioPropertyEditorActive: unit -> unit
 |}
+
+type FormStudioProps = 
+    | StandAlone
+    | DelegateTools of FormStudioToolDelegation
 
 [<ReactComponent>]
 let DynamicFormDesigner(props: FormStudioProps) =
@@ -1581,7 +1585,11 @@ let DynamicFormDesigner(props: FormStudioProps) =
         if activeField.FormFieldNumber < 1 then
             setActiveField defaultActiveField
         else
-            props.SetFormStudioPropertyEditorActive ()
+            match props with
+            | DelegateTools formStudioToolDelegation ->
+                formStudioToolDelegation.SetFormStudioPropertyEditorActive ()
+            | _ -> ()
+
             setActiveField activeField
 
     let isPreviewing, setIsPreviewing = React.useState false
@@ -1591,26 +1599,30 @@ let DynamicFormDesigner(props: FormStudioProps) =
 
     React.useEffect (
         fun _ ->
-            printfn $"Active Field: {activeField}"
-            props.FormStudioFieldTools (
-                FormSpecTools {|
-                    FormSpec = formSpec
-                    SelectedStepNumber = selectedStepNumber
-                    IsPreview = isPreviewing
-                    FormSpecChanged = setFormSpecWrapper
-                    ActiveField = activeField
-                |}
-            )
+            match props with
 
-            props.FormStudioPropertyEditor (
-                PropertyEditor {|
-                    IsPreview = isPreviewing
-                    FormSpec = formSpec
-                    ActiveField = activeField
-                    SetActiveField = setActiveFieldWrapper
-                    FormSpecChanged = setFormSpecWrapper
-                |}
-            )
+            | DelegateTools formStudioToolDelegation ->
+                printfn $"Active Field: {activeField}"
+                formStudioToolDelegation.FormStudioFieldTools (
+                    FormSpecTools {|
+                        FormSpec = formSpec
+                        SelectedStepNumber = selectedStepNumber
+                        IsPreview = isPreviewing
+                        FormSpecChanged = setFormSpecWrapper
+                        ActiveField = activeField
+                    |}
+                )
+
+                formStudioToolDelegation.FormStudioPropertyEditor (
+                    PropertyEditor {|
+                        IsPreview = isPreviewing
+                        FormSpec = formSpec
+                        ActiveField = activeField
+                        SetActiveField = setActiveFieldWrapper
+                        FormSpecChanged = setFormSpecWrapper
+                    |}
+                )
+            | _ -> ()
 
         , [| box formSpec; box activeField; |]
     )
@@ -1624,35 +1636,61 @@ let DynamicFormDesigner(props: FormStudioProps) =
                 SetIsPreview = setIsPreviewing
             |}
         else
-            FormSpecLayout {|
-                FormSpec = formSpec
-                OnChange = setFormSpecWrapper
-                SetIsPreview = setIsPreviewing
-                SelectedStepNumber = selectedStepNumber
-                SetStepNumber = setSelectedStepNumber
-                ActiveField = activeField
-                SetActiveField = setActiveFieldWrapper
-                SaveFormSpec =
-                    fun isPublish ->
-                            // let validationRes = Antidote.Core.V2.Validator.FormSpec.validateFormSpec formSpec
-                            // match validationRes with
-                            // | Ok formSpec ->
-                            //     Antidote.FormDesigner.Helper.saveFormSpec
-                            //         formSpec
-                            //         {
-                            //             IsPrivate = false
-                            //             Status =
-                            //                 if isPublish
-                            //                 then SpecStatus.Types.SpecStatus.Published
-                            //                 else SpecStatus.Types.SpecStatus.Draft
-                            //         }
-                            //         setFormSpecWrapper
+            Html.div [
+                prop.className "columns"
+                prop.children [
+                    match props with
+                    | DelegateTools _ -> Html.none
+                    | _ ->
+                        Html.div [
+                            prop.className "colum is-4"
+                            prop.children [
+                                FormSpecTools {|
+                                    FormSpec = formSpec
+                                    SelectedStepNumber = selectedStepNumber
+                                    IsPreview = isPreviewing
+                                    FormSpecChanged = setFormSpecWrapper
+                                    ActiveField = activeField
+                                |}
+                            ]
+                        ]
 
-                            // | Error errs ->
-                            //     for err in errs do
-                            //         toast ( Html.div $"Validation error: {err}" ) |> ignore
-                            printfn "IMPLEMENT SAVE!!!#"
-                IsFieldDragging = isFieldDragging
-                SetFieldDragging = setFieldDragging
-            |}
+                    Html.div [
+                        prop.className "column is-8"
+                        prop.children [
+                            FormSpecLayout {|
+                                FormSpec = formSpec
+                                OnChange = setFormSpecWrapper
+                                SetIsPreview = setIsPreviewing
+                                SelectedStepNumber = selectedStepNumber
+                                SetStepNumber = setSelectedStepNumber
+                                ActiveField = activeField
+                                SetActiveField = setActiveFieldWrapper
+                                SaveFormSpec =
+                                    fun isPublish ->
+                                            // let validationRes = Antidote.Core.V2.Validator.FormSpec.validateFormSpec formSpec
+                                            // match validationRes with
+                                            // | Ok formSpec ->
+                                            //     Antidote.FormDesigner.Helper.saveFormSpec
+                                            //         formSpec
+                                            //         {
+                                            //             IsPrivate = false
+                                            //             Status =
+                                            //                 if isPublish
+                                            //                 then SpecStatus.Types.SpecStatus.Published
+                                            //                 else SpecStatus.Types.SpecStatus.Draft
+                                            //         }
+                                            //         setFormSpecWrapper
+
+                                            // | Error errs ->
+                                            //     for err in errs do
+                                            //         toast ( Html.div $"Validation error: {err}" ) |> ignore
+                                            printfn "IMPLEMENT SAVE!!!#"
+                                IsFieldDragging = isFieldDragging
+                                SetFieldDragging = setFieldDragging
+                            |}
+                        ]
+                    ]
+                ]
+            ]
     ]
