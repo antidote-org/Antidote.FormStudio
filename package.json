@@ -1,0 +1,16 @@
+{
+  "name": "antidote.formstudio",
+  "version": "2.0.6",
+  "description": "Form Studio for Fable.Form",
+  "scripts": {},
+  "author": "LuisFX",
+  "license": "ISC",
+  "dependencies": {
+    "@leeoniya/ufuzzy": "^1.0.11",
+    "bulma": "^0.9.4",
+    "papaparse": "^5.4.1",
+    "react-markdown": "^8.0.4",
+    "react-signature-canvas": "^1.0.6",
+    "use-sync-external-store": "^1.2.0"
+  }
+}

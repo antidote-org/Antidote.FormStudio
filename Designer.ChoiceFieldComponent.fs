@@ -12,7 +12,7 @@ open Antidote.FormDesigner.Types
 
 let private classes : CssModules.DynamicFormDesigner = import "default" "./DynamicFormDesigner.module.scss"
 
-let papa : obj = import "*" "papaparse"
+// let papa : obj = import "*" "papaparse"
 
 let parserOptions =
     {|
@@ -196,7 +196,7 @@ let ChoiceFieldComponent(props: TextFieldComponentProps) =
                                 let filesArray:Browser.Types.FileList = unbox filesArray?target?files
                                 let fileReader = Browser.Dom.FileReader.Create()
                                 fileReader.onload <- (fun (e:Browser.Types.Event) ->
-                                    let parserResult = papa?parse$(fileReader.result, parserOptions)
+                                    let parserResult = "" //papa?parse$(fileReader.result, parserOptions)
 
                                     let options =
                                         unbox<string array array> parserResult?data

@@ -6,9 +6,6 @@ NUGET
       Fable.Elmish (>= 4.1) - restriction: >= netstandard2.0
       Fable.React (>= 9.3) - restriction: >= netstandard2.0
       Feliz (>= 2.7) - restriction: >= netstandard2.0
-    Antidote.FormStudioSpec (2.0.3)
-      Thoth.Json (>= 10.2) - restriction: >= netstandard2.0
-      Thoth.Json.Net (>= 11.0) - restriction: >= netstandard2.0
     Antidote.uFuzzy (1.0.1) - restriction: >= netstandard2.0
       Fable.Core (>= 3.6.2) - restriction: >= netstandard2.0
       FSharp.Core (>= 5.0.2) - restriction: >= netstandard2.0
@@ -51,16 +48,6 @@ NUGET
       Fable.Elmish (>= 4.1) - restriction: >= netstandard2.0
       Fable.Form (>= 2.0) - restriction: >= netstandard2.0
       Feliz (>= 2.7) - restriction: >= netstandard2.0
-    Fable.Form.Antidote.View (2.0.5)
-      Antidote.uFuzzy (>= 1.0.1) - restriction: >= netstandard2.0
-      Fable.Core (>= 4.2) - restriction: >= netstandard2.0
-      Fable.Fetch (>= 2.6) - restriction: >= netstandard2.0
-      Fable.Form (>= 2.0) - restriction: >= netstandard2.0
-      Fable.Form.Antidote (>= 2.0.5) - restriction: >= netstandard2.0
-      Feliz (>= 2.7) - restriction: >= netstandard2.0
-      Feliz.Bulma (>= 3.0) - restriction: >= netstandard2.0
-      Feliz.Bulma.Switch (>= 3.0) - restriction: >= netstandard2.0
-      Glutinum.Fuse (>= 1.0.1) - restriction: >= netstandard2.0
     Fable.I18Next (0.15.2)
       Fable.Promise (>= 2.2.2) - restriction: >= netstandard2.0
       Newtonsoft.Json (>= 13.0.1) - restriction: >= netstandard2.0
@@ -113,3 +100,18 @@ NUGET
       Fable.Core (>= 3.1.6) - restriction: && (< net46) (>= netstandard2.0)
       FSharp.Core (>= 4.7.2) - restriction: || (>= net46) (>= netstandard2.0)
       Newtonsoft.Json (>= 11.0.2) - restriction: || (>= net46) (>= netstandard2.0)
+  remote: /Users/luisfx/code/antidote-org/Antidote.FormStudioSpec/bin/Release
+    Antidote.FormStudioSpec (2.0.6)
+      Thoth.Json (>= 10.2) - restriction: >= netstandard2.0
+      Thoth.Json.Net (>= 11.0) - restriction: >= netstandard2.0
+  remote: /Users/luisfx/code/antidote-org/Fable.Form.Antidote.View/bin/Release
+    Fable.Form.Antidote.View (2.0.7)
+      Antidote.uFuzzy (>= 1.0.1) - restriction: >= netstandard2.0
+      Fable.Core (>= 4.2) - restriction: >= netstandard2.0
+      Fable.Fetch (>= 2.6) - restriction: >= netstandard2.0
+      Fable.Form (>= 2.0) - restriction: >= netstandard2.0
+      Fable.Form.Antidote (>= 2.0.5) - restriction: >= netstandard2.0
+      Feliz (>= 2.7) - restriction: >= netstandard2.0
+      Feliz.Bulma (>= 3.0) - restriction: >= netstandard2.0
+      Feliz.Bulma.Switch (>= 3.0) - restriction: >= netstandard2.0
+      Glutinum.Fuse (>= 1.0.1) - restriction: >= netstandard2.0
