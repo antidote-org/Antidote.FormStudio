@@ -8,6 +8,7 @@
   "dependencies": {
     "@leeoniya/ufuzzy": "^1.0.11",
     "bulma": "^0.9.4",
+    "i18next": "^23.7.6",
     "papaparse": "^5.4.1",
     "react-markdown": "^8.0.4",
     "react-signature-canvas": "^1.0.6",

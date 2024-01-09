@@ -810,6 +810,298 @@ let LoadExistingForm(props: LoadExistingFormProps) =
         ]
     ]
 
+
+type NavigationMenuProps = {|
+    FormSpec: FormSpec
+    OnChange: FormSpec -> unit
+    SetIsPreview: bool -> unit
+    ActiveField: ActiveField
+    SaveFormSpec: bool -> unit
+    SetIsLoadExistingFormShowing: bool -> unit
+|}
+
+[<ReactComponent>]
+let NavigationMenu (props: NavigationMenuProps) =
+    let navbarBurgerIsActive, setNavbarBurgerIsActive = React.useState false
+    // let showLoadExistingForm, setShowLoadExistingForm = React.useState false
+
+    Html.nav [
+        prop.className [if props.ActiveField.State = AddingDependantKeys then classes.disabled]
+
+        prop.className "navbar is-dark"
+        prop.style [
+            style.custom ("zIndex", "unset")
+        ]
+        prop.children [
+            Html.div [
+                prop.className "container"
+                prop.children [
+
+                    Html.div [
+                        prop.className "navbar-brand"
+                        prop.children [
+                            // Html.a [
+                            //     prop.className "navbar-item"
+                            //     prop.href "https://bulma.io"
+                            //     prop.children [
+                            //         Html.img [
+                            //             prop.src "https://bulma.io/images/bulma-logo.png"
+                            //             prop.alt "Bulma: a modern CSS framework based on Flexbox"
+                            //             prop.width 112
+                            //             prop.height 28
+                            //         ]
+                            //     ]
+                            // ]
+                            Html.a [
+                                prop.text "NEW"
+                                prop.onClick (fun _ ->
+                                    props.OnChange defaultFormSpec
+                                )
+                                prop.classes [ "navbar-item"; "is-hidden-desktop" ]
+                            ]
+                            Html.a [
+                                prop.text "SAVE"
+                                prop.onClick (fun _ ->
+                                    props.SaveFormSpec false
+                                )
+                                prop.classes [ "navbar-item"; "is-hidden-desktop" ]
+                            ]
+
+                            Html.a [
+                                prop.text "PUBLISH"
+                                prop.onClick (fun _ ->
+                                    props.SaveFormSpec true
+                                )
+                                prop.classes [ "navbar-item"; "is-hidden-desktop" ]
+                            ]
+
+                            Html.a [
+                                prop.onClick (fun _ ->
+                                    props.SetIsLoadExistingFormShowing true
+                                )
+                                prop.text "LOAD"
+                                prop.classes [ "navbar-item"; "is-hidden-desktop" ]
+                            ]
+
+                            Html.div [
+                                prop.classes ["navbar-item"; "is-hidden-desktop" ]
+                                prop.children [
+                                    Html.div [
+                                        prop.classes [ "field"; "is-grouped" ]
+                                        prop.children [
+                                            Html.p [
+                                                prop.className "control"
+                                                prop.children [
+                                                    Html.a [
+                                                        prop.classes [ "button"; "is-primary" ]
+                                                        if props.FormSpec.Steps |> allStepsHaveFields then
+                                                            prop.onClick (fun _ ->
+                                                                props.SetIsPreview true
+                                                            )
+                                                        else
+                                                            prop.disabled true
+
+                                                        prop.children [
+                                                            Html.span [
+                                                                prop.className "icon"
+                                                                prop.children [
+                                                                    Html.i [
+                                                                        prop.classes [ "fas"; "fa-eye" ]
+                                                                    ]
+                                                                ]
+                                                            ]
+                                                            Html.span "PREVIEW"
+                                                        ]
+                                                    ]
+                                                ]
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+
+                            // Html.div [
+                            //     prop.onClick (fun _ -> setNavbarBurgerIsActive (not navbarBurgerIsActive) )
+                            //     prop.classes [
+                            //         "navbar-burger"
+                            //         "burger"
+
+                            //         if navbarBurgerIsActive
+                            //         then "is-active"
+                            //         else ""
+                            //     ]
+                            //     prop.children [
+                            //         Html.span []
+                            //         Html.span []
+                            //         Html.span []
+                            //     ]
+                            // ]
+                        ]
+                    ]
+                    Html.div [
+                        prop.className "navbar-menu"
+                        prop.id "navMenuExample11"
+                        prop.children [
+                            Html.div [
+                                prop.classes [
+                                    "navbar-start"
+                                    if navbarBurgerIsActive
+                                    then "is-active"
+                                    else ""
+                                ]
+                                prop.children [
+                                    Html.a [
+                                        prop.text "NEW"
+                                        prop.onClick (fun _ ->
+                                            props.OnChange defaultFormSpec
+                                        )
+                                        prop.classes [ "navbar-item"; "" ]
+
+                                    ]
+
+                                    Html.a [
+                                        prop.text "SAVE"
+                                        prop.onClick (fun _ ->
+                                            props.SaveFormSpec false
+                                        )
+                                        prop.classes [ "navbar-item"; "" ]
+                                    ]
+
+                                    Html.a [
+                                        prop.text "PUBLISH"
+                                        prop.onClick (fun _ ->
+                                            props.SaveFormSpec true
+                                        )
+                                        prop.classes [ "navbar-item"; "" ]
+                                    ]
+
+                                    Html.a [
+                                        prop.onClick (fun _ ->
+                                            props.SetIsLoadExistingFormShowing true
+                                        )
+                                        prop.text "LOAD"
+                                        prop.classes [ "navbar-item"; "" ]
+                                    ]
+
+                                    Html.div [
+                                        prop.classes [ "navbar-item"; "has-dropdown"; "is-hoverable" ]
+                                        prop.children [
+                                            Html.div [
+                                                prop.className "navbar-link"
+                                                prop.text "More "
+                                            ]
+                                            Html.div [
+                                                prop.classes [ "navbar-dropdown"; "" ]
+                                                prop.id "moreDropdown"
+                                                prop.children [
+                                                    Html.a [
+                                                        prop.text "Log Spec"
+                                                        prop.onClick (fun _ ->
+                                                            printfn $"FormSpec: {Thoth.Json.Encode.Auto.toString(props.FormSpec)}"
+                                                            // printfn $"Encoded: {Base64.encode(Thoth.Json.Encode.Auto.toString(props.FormSpec))}"
+                                                        )
+                                                        prop.classes [ "navbar-item"; "" ]
+                                                    ]
+                                                ]
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                            Html.div [
+                                prop.className "navbar-end"
+                                prop.children [
+                                    Html.div [
+                                        prop.className "navbar-item"
+                                        prop.children [
+                                            Html.div [
+                                                prop.classes [ "field"; "is-grouped" ]
+                                                prop.children [
+                                                    Html.p [
+                                                        prop.className "control"
+                                                        prop.children [
+                                                            Html.a [
+                                                                prop.classes [ "button"; "is-primary" ]
+                                                                if props.FormSpec.Steps |> allStepsHaveFields then
+                                                                    prop.onClick (fun _ ->
+                                                                        props.SetIsPreview true
+                                                                    )
+                                                                else
+                                                                    prop.disabled true
+
+                                                                prop.children [
+                                                                    Html.span [
+                                                                        prop.className "icon"
+                                                                        prop.children [
+                                                                            Html.i [
+                                                                                prop.classes [ "fas"; "fa-eye" ]
+                                                                            ]
+                                                                        ]
+                                                                    ]
+                                                                    Html.span "PREVIEW"
+                                                                ]
+                                                            ]
+                                                        ]
+                                                    ]
+                                                ]
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    ]
+
+type LoadExistingFormModalProps = {|
+    IsShowing: bool
+    SetIsShowing: bool -> unit
+    SetStepNumber: int -> unit
+    SetFormSpec: FormSpec -> unit
+|}
+
+[<ReactComponent>]
+let LoadExistingFormModal (props: LoadExistingFormModalProps) =
+    Html.div [
+        prop.classes [
+            "modal"
+            if props.IsShowing
+            then "is-active"
+            else "is-hidden"
+        ]
+        prop.children [
+            Html.div [
+                prop.className "modal-background"
+                prop.onClick (fun _ ->
+                    props.SetIsShowing false
+                )
+            ]
+            Html.div [
+                prop.className "modal-content"
+                prop.style [ style.backgroundColor "white" ]
+
+                prop.children [
+                    LoadExistingForm {|
+                        FormSpecCategory =
+                            FormSpecCategory.Draft
+                        SetFormSpec =
+                            fun formSpec ->
+                                props.SetStepNumber 1
+                                props.SetIsShowing false
+                                props.SetFormSpec formSpec
+                    |}
+                ]
+            ]
+            Html.button [
+                prop.classes [ "modal-close"; "is-large" ]
+                prop.ariaLabel "close"
+            ]
+        ]
+    ]
+
 type FormSpecLayoutProps = {|
     FormSpec: FormSpec
     OnChange: FormSpec -> unit
@@ -825,282 +1117,12 @@ type FormSpecLayoutProps = {|
 
 [<ReactComponent>]
 let FormSpecLayout(props: FormSpecLayoutProps) =
-    let showLoadExistingForm, setShowLoadExistingForm = React.useState false
-    let navbarBurgerIsActive, setNavbarBurgerIsActive = React.useState false
-
     React.fragment [
-        Html.div [
-            prop.classes [
-                "modal"
-                if showLoadExistingForm
-                then "is-active"
-                else "is-hidden"
-            ]
-            prop.children [
-                Html.div [
-                    prop.className "modal-background"
-                    prop.onClick (fun _ ->
-                        setShowLoadExistingForm false
-                    )
-                ]
-                Html.div [
-                    prop.className "modal-content"
-                    prop.style [ style.backgroundColor "white" ]
-
-                    prop.children [
-                        LoadExistingForm {|
-                            FormSpecCategory =
-                                FormSpecCategory.Draft
-                            SetFormSpec =
-                                fun formSpec ->
-                                    props.SetStepNumber 1
-                                    setShowLoadExistingForm false
-                                    props.OnChange formSpec
-                        |}
-                    ]
-                ]
-                Html.button [
-                    prop.classes [ "modal-close"; "is-large" ]
-                    prop.ariaLabel "close"
-                ]
-            ]
-        ]
-
-        // Navbar Menu
-        Html.nav [
-            prop.className [if props.ActiveField.State = AddingDependantKeys then classes.disabled]
-
-            prop.className "navbar is-dark"
-            prop.style [
-                style.custom ("zIndex", "unset")
-            ]
-            prop.children [
-                Html.div [
-                    prop.className "navbar-brand"
-                    prop.children [
-
-                        // Html.a [
-                        //     prop.className "navbar-item"
-                        //     prop.href "https://bulma.io"
-                        //     prop.children [
-                        //         Html.img [
-                        //             prop.src "https://bulma.io/images/bulma-logo.png"
-                        //             prop.alt "Bulma: a modern CSS framework based on Flexbox"
-                        //             prop.width 112
-                        //             prop.height 28
-                        //         ]
-                        //     ]
-                        // ]
-                        Html.a [
-                            prop.text "NEW"
-                            prop.onClick (fun _ ->
-                                props.OnChange defaultFormSpec
-                            )
-                            prop.classes [ "navbar-item"; "is-hidden-desktop" ]
-                        ]
-                        Html.a [
-                            prop.text "SAVE"
-                            prop.onClick (fun _ ->
-                                props.SaveFormSpec false
-                            )
-                            prop.classes [ "navbar-item"; "is-hidden-desktop" ]
-                        ]
-
-                        Html.a [
-                            prop.text "PUBLISH"
-                            prop.onClick (fun _ ->
-                                props.SaveFormSpec true
-                            )
-                            prop.classes [ "navbar-item"; "is-hidden-desktop" ]
-                        ]
-
-                        Html.a [
-                            prop.onClick (fun _ ->
-                                setShowLoadExistingForm true
-                            )
-                            prop.text "LOAD"
-                            prop.classes [ "navbar-item"; "is-hidden-desktop" ]
-                        ]
-
-                        Html.div [
-                            prop.classes ["navbar-item"; "is-hidden-desktop" ]
-                            prop.children [
-                                Html.div [
-                                    prop.classes [ "field"; "is-grouped" ]
-                                    prop.children [
-                                        Html.p [
-                                            prop.className "control"
-                                            prop.children [
-                                                Html.a [
-                                                    prop.classes [ "button"; "is-primary" ]
-                                                    if props.FormSpec.Steps |> allStepsHaveFields then
-                                                        prop.onClick (fun _ ->
-                                                            props.SetIsPreview true
-                                                        )
-                                                    else
-                                                        prop.disabled true
-
-                                                    prop.children [
-                                                        Html.span [
-                                                            prop.className "icon"
-                                                            prop.children [
-                                                                Html.i [
-                                                                    prop.classes [ "fas"; "fa-eye" ]
-                                                                ]
-                                                            ]
-                                                        ]
-                                                        Html.span "PREVIEW"
-                                                    ]
-                                                ]
-                                            ]
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-
-                        // Html.div [
-                        //     prop.onClick (fun _ -> setNavbarBurgerIsActive (not navbarBurgerIsActive) )
-                        //     prop.classes [
-                        //         "navbar-burger"
-                        //         "burger"
-
-                        //         if navbarBurgerIsActive
-                        //         then "is-active"
-                        //         else ""
-                        //     ]
-                        //     prop.children [
-                        //         Html.span []
-                        //         Html.span []
-                        //         Html.span []
-                        //     ]
-                        // ]
-                    ]
-                ]
-                Html.div [
-                    prop.className "navbar-menu"
-                    prop.id "navMenuExample11"
-                    prop.children [
-                        Html.div [
-                            prop.classes [
-                                "navbar-start"
-                                if navbarBurgerIsActive
-                                then "is-active"
-                                else ""
-                            ]
-                            prop.children [
-                                Html.a [
-                                    prop.text "NEW"
-                                    prop.onClick (fun _ ->
-                                        props.OnChange defaultFormSpec
-                                    )
-                                    prop.classes [ "navbar-item"; "" ]
-
-                                ]
-
-                                Html.a [
-                                    prop.text "SAVE"
-                                    prop.onClick (fun _ ->
-                                        props.SaveFormSpec false
-                                    )
-                                    prop.classes [ "navbar-item"; "" ]
-                                ]
-
-                                Html.a [
-                                    prop.text "PUBLISH"
-                                    prop.onClick (fun _ ->
-                                        props.SaveFormSpec true
-                                    )
-                                    prop.classes [ "navbar-item"; "" ]
-                                ]
-
-                                Html.a [
-                                    prop.onClick (fun _ ->
-                                        setShowLoadExistingForm true
-                                    )
-                                    prop.text "LOAD"
-                                    prop.classes [ "navbar-item"; "" ]
-                                ]
-
-                                Html.div [
-                                    prop.classes [ "navbar-item"; "has-dropdown"; "is-hoverable" ]
-                                    prop.children [
-                                        Html.div [
-                                            prop.className "navbar-link"
-                                            prop.text "More "
-                                        ]
-                                        Html.div [
-                                            prop.classes [ "navbar-dropdown"; "" ]
-                                            prop.id "moreDropdown"
-                                            prop.children [
-                                                Html.a [
-                                                    prop.text "Log Spec"
-                                                    prop.onClick (fun _ ->
-                                                        printfn $"FormSpec: {Thoth.Json.Encode.Auto.toString(props.FormSpec)}"
-                                                        // printfn $"Encoded: {Base64.encode(Thoth.Json.Encode.Auto.toString(props.FormSpec))}"
-                                                    )
-                                                    prop.classes [ "navbar-item"; "" ]
-                                                ]
-                                            ]
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                        Html.div [
-                            prop.className "navbar-end"
-                            prop.children [
-                                Html.div [
-                                    prop.className "navbar-item"
-                                    prop.children [
-                                        Html.div [
-                                            prop.classes [ "field"; "is-grouped" ]
-                                            prop.children [
-                                                Html.p [
-                                                    prop.className "control"
-                                                    prop.children [
-                                                        Html.a [
-                                                            prop.classes [ "button"; "is-primary" ]
-                                                            if props.FormSpec.Steps |> allStepsHaveFields then
-                                                                prop.onClick (fun _ ->
-                                                                    props.SetIsPreview true
-                                                                )
-                                                            else
-                                                                prop.disabled true
-
-                                                            prop.children [
-                                                                Html.span [
-                                                                    prop.className "icon"
-                                                                    prop.children [
-                                                                        Html.i [
-                                                                            prop.classes [ "fas"; "fa-eye" ]
-                                                                        ]
-                                                                    ]
-                                                                ]
-                                                                Html.span "PREVIEW"
-                                                            ]
-                                                        ]
-                                                    ]
-                                                ]
-                                            ]
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
-            ]
-        ]
-
-
         DynamicFormSpecDetails {|
             FormSpec = props.FormSpec
             OnChange = props.OnChange
             ActiveField = props.ActiveField
         |}
-
-        Html.hr []
 
         props.FormSpec.Steps
         |> List.sortBy (fun s -> s.StepOrder)
@@ -1119,7 +1141,7 @@ let FormSpecLayout(props: FormSpecLayoutProps) =
                     | [] ->
                         // Empty Fields. Show the dashed box to drop fields.
                         Html.article [
-                            prop.classes [ "message"; classes.dropFieldsContainer ]
+                            prop.classes [ classes.dropFieldsContainer ]
                             prop.onDragOver (  fun (e: Types.DragEvent) -> e.preventDefault()  )
                             prop.onDrop (fun (e: Types.DragEvent) ->
                                 e.preventDefault();
@@ -1135,7 +1157,7 @@ let FormSpecLayout(props: FormSpecLayoutProps) =
                             prop.children [
 
                                 Html.div [
-                                    prop.className "message-body"
+                                    prop.className ""
                                     prop.style [
                                         style.display.flex
                                         style.flexDirection.column
@@ -1597,6 +1619,8 @@ let DynamicFormDesigner(props: FormStudioProps) =
     let setFormSpecWrapper spec =
         setFormSpec spec
 
+    let isLoadExistingFormShowing, setIsLoadExistingFormShowing = React.useState false
+
     React.useEffect (
         fun _ ->
             match props with
@@ -1629,67 +1653,114 @@ let DynamicFormDesigner(props: FormStudioProps) =
 
 
     React.fragment [
-        // formStudioTools component here *IF PART OF STUDIO*
+        LoadExistingFormModal {|
+            IsShowing = isLoadExistingFormShowing
+            SetIsShowing = setIsLoadExistingFormShowing
+            SetStepNumber = setSelectedStepNumber
+            SetFormSpec = setFormSpec
+        |}
+        
         if isPreviewing then
             DynamicFormPreview {|
                 FormSpec = formSpec
                 SetIsPreview = setIsPreviewing
             |}
         else
-            Html.div [
-                prop.className "columns"
+            Html.header [
                 prop.children [
-                    match props with
-                    | DelegateTools _ -> Html.none
-                    | _ ->
-                        Html.div [
-                            prop.className "colum is-4"
-                            prop.children [
-                                FormSpecTools {|
-                                    FormSpec = formSpec
-                                    SelectedStepNumber = selectedStepNumber
-                                    IsPreview = isPreviewing
-                                    FormSpecChanged = setFormSpecWrapper
-                                    ActiveField = activeField
-                                |}
-                            ]
-                        ]
+                    NavigationMenu {|
+                        FormSpec = formSpec
+                        OnChange = setFormSpecWrapper
+                        SetIsPreview = setIsPreviewing
+                        ActiveField = activeField
+                        SetIsLoadExistingFormShowing = setIsLoadExistingFormShowing
+                        SaveFormSpec =
+                            fun isPublish ->
+                                    // let validationRes = Antidote.Core.V2.Validator.FormSpec.validateFormSpec formSpec
+                                    // match validationRes with
+                                    // | Ok formSpec ->
+                                    //     Antidote.FormDesigner.Helper.saveFormSpec
+                                    //         formSpec
+                                    //         {
+                                    //             IsPrivate = false
+                                    //             Status =
+                                    //                 if isPublish
+                                    //                 then SpecStatus.Types.SpecStatus.Published
+                                    //                 else SpecStatus.Types.SpecStatus.Draft
+                                    //         }
+                                    //         setFormSpecWrapper
 
+                                    // | Error errs ->
+                                    //     for err in errs do
+                                    //         toast ( Html.div $"Validation error: {err}" ) |> ignore
+                                    printfn "IMPLEMENT SAVE!!!#"
+                    |}
+                ]
+            ]
+            Html.section [
+                prop.className "section"
+                prop.children [
                     Html.div [
-                        prop.className "column is-8"
+                        prop.className "container"
                         prop.children [
-                            FormSpecLayout {|
-                                FormSpec = formSpec
-                                OnChange = setFormSpecWrapper
-                                SetIsPreview = setIsPreviewing
-                                SelectedStepNumber = selectedStepNumber
-                                SetStepNumber = setSelectedStepNumber
-                                ActiveField = activeField
-                                SetActiveField = setActiveFieldWrapper
-                                SaveFormSpec =
-                                    fun isPublish ->
-                                            // let validationRes = Antidote.Core.V2.Validator.FormSpec.validateFormSpec formSpec
-                                            // match validationRes with
-                                            // | Ok formSpec ->
-                                            //     Antidote.FormDesigner.Helper.saveFormSpec
-                                            //         formSpec
-                                            //         {
-                                            //             IsPrivate = false
-                                            //             Status =
-                                            //                 if isPublish
-                                            //                 then SpecStatus.Types.SpecStatus.Published
-                                            //                 else SpecStatus.Types.SpecStatus.Draft
-                                            //         }
-                                            //         setFormSpecWrapper
+                            Html.div [
+                                prop.className "columns"
+                                prop.children [
+                                    match props with
+                                    | DelegateTools _ -> Html.none
+                                    | _ ->
+                                        Html.div [
+                                            prop.className "colum is-4"
+                                            prop.children [
+                                                FormSpecTools {|
+                                                    FormSpec = formSpec
+                                                    SelectedStepNumber = selectedStepNumber
+                                                    IsPreview = isPreviewing
+                                                    FormSpecChanged = setFormSpecWrapper
+                                                    ActiveField = activeField
+                                                |}
+                                            ]
+                                        ]
 
-                                            // | Error errs ->
-                                            //     for err in errs do
-                                            //         toast ( Html.div $"Validation error: {err}" ) |> ignore
-                                            printfn "IMPLEMENT SAVE!!!#"
-                                IsFieldDragging = isFieldDragging
-                                SetFieldDragging = setFieldDragging
-                            |}
-                        ]
+                                    Html.div [
+                                        prop.className "column is-8"
+                                        prop.children [
+                                            FormSpecLayout {|
+                                                FormSpec = formSpec
+                                                OnChange = setFormSpecWrapper
+                                                SetIsPreview = setIsPreviewing
+                                                SelectedStepNumber = selectedStepNumber
+                                                SetStepNumber = setSelectedStepNumber
+                                                ActiveField = activeField
+                                                SetActiveField = setActiveFieldWrapper
+                                                SaveFormSpec =
+                                                    fun isPublish ->
+                                                            // let validationRes = Antidote.Core.V2.Validator.FormSpec.validateFormSpec formSpec
+                                                            // match validationRes with
+                                                            // | Ok formSpec ->
+                                                            //     Antidote.FormDesigner.Helper.saveFormSpec
+                                                            //         formSpec
+                                                            //         {
+                                                            //             IsPrivate = false
+                                                            //             Status =
+                                                            //                 if isPublish
+                                                            //                 then SpecStatus.Types.SpecStatus.Published
+                                                            //                 else SpecStatus.Types.SpecStatus.Draft
+                                                            //         }
+                                                            //         setFormSpecWrapper
+
+                                                            // | Error errs ->
+                                                            //     for err in errs do
+                                                            //         toast ( Html.div $"Validation error: {err}" ) |> ignore
+                                                            printfn "IMPLEMENT SAVE!!!#"
+                                                IsFieldDragging = isFieldDragging
+                                                SetFieldDragging = setFieldDragging
+                                            |}
+                                        ]
+                                    ]
+                                ]
+                            ]
+                                    ]
                     ]
                 ]
             ]
