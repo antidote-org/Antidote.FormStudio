@@ -1,0 +1,9 @@
+
+.step-marker a[title]:hover:after {
+    content: attr(title);
+    background: #000;
+    color: #fff;
+    padding: 4px;
+    position: absolute;
+    z-index: 9999;
+  }

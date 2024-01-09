@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Drag-and-drop Sortable List Demo</title>
+    <meta charset="utf-8">
+    <style>
+        .slist {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .slist li {
+            margin: 10px;
+            padding: 15px;
+            border: 1px solid #dfdfdf;
+            background: #f5f5f5;
+        }
+
+        .slist li.hint {
+            border: 1px solid #ffc49a;
+            background: #feffb4;
+        }
+
+        .slist li.active {
+            border: 1px solid #ffa5a5;
+            background: #ffe7e7;
+        }
+
+    </style>
+    <script>
+
+    </script>
+</head>
+
+<body>
+    <ul id="sortlist">
+        <li>A</li>
+        <li>B</li>
+        <li>C</li>
+        <li>D</li>
+        <li>E</li>
+    </ul>
+
+    <script>
+        function slist(target) {
+            // (A) SET CSS + GET ALL LIST ITEMS
+            target.classList.add("slist");
+            let items = target.getElementsByTagName("li"), current = null;
+
+            for (let i of items) {
+                i.draggable = true;
+
+                // DRAG START - YELLOW HIGHLIGHT DROPZONES
+                i.ondragstart = e => {
+                    current = i;
+                    for (let it of items) {
+                        if (it != current) { it.classList.add("hint"); }
+                    }
+                };
+
+                // DRAG ENTER - RED HIGHLIGHT DROPZONE
+                i.ondragenter = e => {
+                    if (i != current) { i.classList.add("active"); }
+                };
+
+                // DRAG LEAVE - REMOVE RED HIGHLIGHT
+                i.ondragleave = () => i.classList.remove("active");
+
+                // DRAG END - REMOVE ALL HIGHLIGHTS
+                i.ondragend = () => {
+                    for (let it of items) {
+                        it.classList.remove("hint");
+                        it.classList.remove("active");
+                    }
+                };
+
+                // DRAG OVER - PREVENT THE DEFAULT "DROP", SO WE CAN DO OUR OWN
+                i.ondragover = e => e.preventDefault();
+
+                // ON DROP - DO SOMETHING
+                i.ondrop = e => {
+                    e.preventDefault();
+                    if (i != current) {
+                        let currentpos = 0, droppedpos = 0;
+                        for (let it = 0; it < items.length; it++) {
+                            if (current == items[it]) { currentpos = it; }
+                            if (i == items[it]) { droppedpos = it; }
+                        }
+                        if (currentpos < droppedpos) {
+                            i.parentNode.insertBefore(current, i.nextSibling);
+                        } else {
+                            i.parentNode.insertBefore(current, i);
+                        }
+                    }
+                };
+            }
+        }
+
+        slist(document.getElementById("sortlist"));
+    </script>
+</body>
+
+</html>

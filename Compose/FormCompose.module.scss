@@ -1,0 +1,10 @@
+.form-container {
+    // Make the form content vertically center
+    // and push the forgot password link to the bottom is there are place
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    background-color: white;
+    // Horizontally center the form
+    padding: 0 10%;
+}

@@ -1,0 +1,15 @@
+source https://api.nuget.org/v3/index.json
+
+storage: none
+
+nuget Fable.I18Next
+nuget Feliz.Bulma
+nuget Feliz.Markdown
+nuget Feliz.UseElmish
+nuget Antidote.FormStudioSpec
+nuget FsToolkit.ErrorHandling
+nuget Thoth.Json
+nuget Fable.Form.Antidote 2.0.5
+nuget Fable.Form.Antidote.View 2.0.5
+nuget Antidote.Bindings 2.0.5
+nuget Antidote.FormStudioSpec

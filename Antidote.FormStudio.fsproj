@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="CssModules.fs" />
+    <Compile Include="i18n/Types.fs" />
+    <Compile Include="i18n/Languages/cr.fs" />
+    <Compile Include="i18n/Languages/fr.fs" />
+    <Compile Include="i18n/Languages/en.fs" />
+    <Compile Include="i18n/Languages/es.fs" />
+    <Compile Include="i18n/Resources.fs" />
+    <Compile Include="i18n/Keys.fs" />
+    <Compile Include="i18n/i18n.fs" />
+
+    <Compile Include="Designer.Types.fs" />
+    <Compile Include="Designer.SpecStatus.fs" />
+    <Compile Include="Designer.Helper.fs" />
+
+    <Compile Include="Compose/Types.fs" />
+    <Compile Include="ComponentFields/FormMessage.fs" />
+    <Compile Include="ComponentFields/SignatureCanvas.fs" />
+    <Compile Include="ComponentFields/SpeechToText.fs" />
+    <Compile Include="Compose/FormActions.fs" />
+    <Compile Include="Compose/Composer.fs" />
+    <Compile Include="Compose/FormCompose.fs" />
+    <Compile Include="Compose/SinglePageReview.fs" />
+    <Compile Include="Compose/DynamicFormAsComponent.fs" />
+    
+    <!-- <Compile Include="Compose/Editor.fs" /> -->
+    <!-- <Compile Include="FormDesigner/Designer.Context.fs" /> -->
+
+    <Compile Include="Designer.SpecScore.fs" />
+    <Compile Include="Designer.AssociatedCodes.fs" />
+    <Compile Include="Designer.CategoryTags.fs" />
+    <Compile Include="Designer.FormStepTools.fs" />
+    <Compile Include="Designer.PropertyEditor.fs" />
+    <Compile Include="Designer.ChoiceFieldComponent.fs" />
+    <Compile Include="Designer.MockField.fs" />
+    <Compile Include="DynamicFormDesigner.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Shared/Antidote.Core.FormProcessor/Antidote.Core.FormProcessor.fsproj" />
+    <ProjectReference Include="../Antidote.AI/Antidote.AI.fsproj" />
+    <ProjectReference Include="../Shared/Fable.Form.Antidote/Fable.Form.Antidote.fsproj" />
+    <ProjectReference Include="../Shared/Fable.Form.Antidote.View/Fable.Form.Antidote.View.fsproj" />
+    <ProjectReference Include="../Shared/Antidote.Libraries/Antidote.Libraries.fsproj" />
+    <ProjectReference Include="../Shared/Antidote.Core.V2/Antidote.Core.V2.fsproj" />
+    <ProjectReference Include="../Shared/Antidote.Client/Antidote.Client.fsproj" />
+    <ProjectReference Include="../Shared/Antidote.React.TS/Antidote.React.TS.fsproj" />
+  </ItemGroup>
+  <Import Project=".paket\Paket.Restore.targets" />
+</Project>
