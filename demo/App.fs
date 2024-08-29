@@ -8,6 +8,7 @@ open Fable.Form.Studio
 open Fable.Form.Studio.Bulma
 open Fable.Form.Studio.View
 open Antidote.FormStudio
+open Browser
 
 type FieldValues =
     {
@@ -19,6 +20,7 @@ type private Values =
     {
         Title: string
         Fields: FieldValues list
+        IsChecked : bool
     }
 
 type private Model = Form.View.Model<Values>
@@ -27,12 +29,14 @@ type private Msg =
     // Used when a change occure in the form
     | FormChanged of Model
     // Used when the user submit the form
-    | LogIn of Specification.Form
+    // | LogIn of Specification.Form
+    | LogIn of bool
 
 let private init () =
     {
         Title = ""
         Fields = []
+        IsChecked = false
     }
     |> Form.View.idle,
     Cmd.none
@@ -65,160 +69,49 @@ module private FieldType =
         | "checkbox" -> Ok FieldType.Checkbox
         | _ -> Error "Invalid field type"
 
-let private inputFieldForm: Form.Form<FieldValues, Specification.Fields, IReactProperty> =
-    let labelField =
-        Form.textField
-            {
-                Parser = Ok
-                Value = fun values -> values.Label
-                Update =
-                    fun newValue values ->
-                        { values with
-                            Label = newValue
-                        }
-                Error = fun _ -> None
-                Attributes =
-                    {
-                        Label = "Label"
-                        Placeholder = ""
-                        HtmlAttributes = []
-                    }
-            }
-
-    // let onSubmit guid label isOptional condition =
-    let onSubmit label =
-        Specification.Fields.Input
-            {
-                Guid = System.Guid.NewGuid()
-                Label = label
-                IsRequired = false
-                Condition = None
-            }
-
-    Form.succeed onSubmit |> Form.append labelField
-
-let private checkboxFieldForm: Form.Form<FieldValues, Specification.Fields, IReactProperty> =
-    let labelField =
-        Form.textField
-            {
-                Parser = Ok
-                Value = fun values -> values.Label
-                Update =
-                    fun newValue values ->
-                        { values with
-                            Label = newValue
-                        }
-                Error = fun _ -> None
-                Attributes =
-                    {
-                        Label = "Label"
-                        Placeholder = ""
-                        HtmlAttributes = []
-                    }
-            }
-
-    // let onSubmit guid label isOptional condition =
-    let onSubmit label =
-        Specification.Fields.Checkbox
-            {
-                Guid = System.Guid.NewGuid()
-                Label = label
-                IsRequired = false
-                Condition = None
-            }
-
-    Form.succeed onSubmit |> Form.append labelField
-
-let private fieldForm (index: int) =
-    let formTypeField =
-        Form.selectField
-            {
-                Parser = FieldType.tryParse
-                Value = fun values -> values.FieldType
-                Update =
-                    fun newValue values ->
-                        { values with
-                            FieldType = newValue
-                        }
-                Error = fun _ -> None
-                Attributes =
-                    {
-                        Label = ""
-                        Placeholder = "Choose a field type"
-                        Options =
-                            [
-                                "input", "Input"
-                                "checkbox", "Checkbox"
-                            ]
-                    }
-            }
-
-    formTypeField
-    |> Form.andThen (
-        function
-        | FieldType.Input -> inputFieldForm
-        | FieldType.Checkbox -> checkboxFieldForm
-    )
-
-let private listOfFieldForm: Form.Form<Values, Specification.Fields list, IReactProperty> =
-    Form.list
-        {
-            Default =
-                {
-                    FieldType = ""
-                    Label = ""
-                }
-            Value = fun values -> values.Fields
-            Update =
-                fun newValue values ->
-                    { values with
-                        Fields = newValue
-                    }
-            Attributes =
-                {
-                    Label = "Fields"
-                    Add = Some "Add field"
-                    Delete = Some "Remove field"
-                }
-        }
-        fieldForm
-
 let private form: Form.Form<Values, Msg, _> =
-    let titleField =
-        Form.textField
+    let checkField =
+        Form.checkboxField
             {
                 Parser = Ok
-                Value = fun values -> values.Title
+                Value = fun values -> values.IsChecked
                 Update =
                     fun newValue values ->
                         { values with
-                            Title = newValue
+                            IsChecked = newValue
                         }
                 Error = fun _ -> None
                 Attributes =
                     {
-                        Label = "Title"
-                        Placeholder = ""
-                        HtmlAttributes = []
+                        Text = "This is a checkbox"
                     }
             }
 
-    let onSubmit =
-        fun title fields ->
-            ({
-                Title = title
-                Fields = fields
-            }
-            : Specification.Form)
-            |> LogIn
 
-    Form.succeed onSubmit |> Form.append titleField |> Form.append listOfFieldForm
+    // let onSubmit =
+    //     fun title fields ->
+    //         ({
+    //             Title = title
+    //             Fields = fields
+    //         }
+    //         : Specification.Form)
+    //         |> LogIn
+    let onSubmit =
+        fun isChecked ->
+            LogIn isChecked
+
+    Form.succeed onSubmit |> Form.append checkField
 
 [<ReactComponent>]
 let App () =
     let model, dispatch = React.useElmish (init, update)
 
-    let portalDest = React.useElementRef ()
+    let portalDest =
+        let dest = document.getElementById("field-properties-portal")
+        if isNull dest then
+            None
+        else
+            Some dest
 
     Bulma.container [
         Bulma.section []
@@ -231,19 +124,64 @@ let App () =
             }
             form
             model
+
+        if portalDest.IsSome then
+            ReactDOM.createPortal(
+                Html.div "Hello from portal", portalDest.Value
+            )
+
+
+        if portalDest.IsSome then
+            ReactDOM.createPortal(
+                Html.div "Hello from portal2sqsq", portalDest.Value
+            )
+
         Html.div [
-            prop.id "test-portal"
-            prop.ref portalDest
+            prop.draggable true
+            prop.children [
+                Html.div "Hello"
+                Html.div "World"
+            ]
         ]
-
-        if portalDest.current.IsSome then
-            ReactDOM.createPortal(
-                Html.div "Hello from portal", portalDest.current.Value
-            )
-
-
-        if portalDest.current.IsSome then
-            ReactDOM.createPortal(
-                Html.div "Hello from portal2sqsq", portalDest.current.Value
-            )
     ]
+
+// type IFieldDesigner =
+//     abstract PropertyEditor : Specification.Fields -> ReactElement
+//     abstract ToSpecification : obj -> Specification.Fields
+//     abstract ComponentSelector : unit -> ReactElement
+
+// type IMapValues =
+//     abstract MapValues : obj -> obj
+
+// type TextFieldDesigner () =
+//     interface IFieldDesigner with
+
+//         member this.PropertyEditor field =
+//             Html.div [
+//                 prop.children [
+//                     Html.div "Label"
+//                     Html.input [
+//                         // prop.value field.Label
+//                         // prop.onChange (fun e -> field.Label <- e.target?value)
+//                     ]
+//                 ]
+//             ]
+
+//         member this.ToSpecification obj =
+//             Specification.Fields.Input
+//                 {
+//                     Guid = System.Guid.NewGuid()
+//                     Label = "Hello"
+//                     IsRequired = false
+//                     Condition = None
+//                 }
+
+//         member this.ComponentSelector () =
+//             Html.div "TextField"
+
+// let test = TextFieldDesigner()
+
+// let test2 (field : IFieldDesigner) =
+//     match field with
+//     | :? IMapValues as designer -> ()
+//     | _ -> ()

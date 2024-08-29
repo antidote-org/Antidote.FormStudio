@@ -10,3 +10,19 @@ input[type="checkbox"],
 input[type="radio"] {
     margin-right: 0.5em;
 }
+
+.form-designer {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+
+    form {
+        flex: 1;
+    }
+
+    #field-properties-portal {
+        border: 1px solid #dbdbdb;
+        padding: .5rem;
+        width: 400px;
+    }
+}
