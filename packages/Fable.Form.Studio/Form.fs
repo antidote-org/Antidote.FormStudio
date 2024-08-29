@@ -9,59 +9,133 @@ open Fable.Form.Studio.Field
 type RadioField<'Values> = RadioField.RadioField<'Values>
 type CheckboxField<'Values> = CheckboxField.CheckboxField<'Values>
 
+open Elmish
+
+[<NoComparison; NoEquality>]
+type CommonFieldConfig<'Msg, 'Input, 'Attributes> =
+    {
+        Dispatch: Dispatch<'Msg>
+        OnChange: 'Input -> 'Msg
+        OnBlur: 'Msg option
+        Disabled: bool
+        Value: bool
+        Error: Error.Error option
+        ShowError: bool
+        Attributes: 'Attributes
+    }
+
+// type IExtensibleField<'Values, 'Attributes> =
+//     abstract RenderField:
+//         (string -> option<'Msg>) ->
+//         Form.View.FieldConfig<'Values, 'Msg> ->
+//         Dispatch<'Msg> ->
+//         FilledField<'Values, 'Attributes> ->
+//         ReactElement
+
+//     abstract MapFieldValues : unit -> unit
+
+// /// <summary>
+// /// DUs used to represents the different of Field supported by Fable.Form.Studio
+// /// </summary>
+// and Field<'Values, 'Attributes> =
+//     | List of Field<'Values, 'Attributes> list
+//     | Group of Field<'Values, 'Attributes> list
+//     | Setion of title : string * Field<'Values, 'Attributes> list
+//     | ExtensibleField of IExtensibleField<'Values, 'Attributes>
+    // | TextInput of TextInputField<'Values>
+
+    // abstract ToForm<'Field, 'Input, 'Output> :
+    //     'Field ->
+    //         (('Field -> Field<'Values, 'Attributes>)
+    //             -> Base.FieldConfig<'Attributes, 'Input, 'Values, 'Output>
+    //             -> Base.Form<'Values, 'Output, 'Field>)
+// abstract FieldInfo<'Input> : unit -> Field.Field<'Attributes, 'Input, 'Values>
+
+// | Checkbox of CheckboxField<'Values>
+// | Radio of RadioField<'Values>
+// | Section of title: string * FilledField<'Values, 'Attributes> list
+
 /// <summary>
 /// DUs used to represents the different of Field supported by Fable.Form.Studio
 /// </summary>
-[<RequireQualifiedAccess; NoComparison; NoEquality>]
-type Field<'Values, 'Attributes> =
-    abstract RenderField : 'Attributes -> ReactElement
-    abstract ToForm<'Field, 'Input, 'Output> : 'Field -> (('Field -> Field<'Values, 'Attributes>)
-        -> Base.FieldConfig<'Attributes, 'Input, 'Values, 'Output>
-        -> Base.Form<'Values, 'Output, 'Field>)
-    abstract FieldInfo<'Input> : unit -> Field.Field<'Attributes, 'Input, 'Values>
-
-    // | Checkbox of CheckboxField<'Values>
-    // | Radio of RadioField<'Values>
-    // | Section of title: string * FilledField<'Values, 'Attributes> list
-
+and Field<'Values, 'Attributes> =
+    abstract RenderField:
+        (string -> option<'Msg>) ->
+        Form.View.FieldConfig<'Values, 'Msg> ->
+        Dispatch<'Msg> ->
+        FilledField<'Values, 'Attributes> ->
+        ReactElement
 
 /// <summary>
 /// Represents a FilledField using Fable.Form.Studio representation
 /// </summary>
 and FilledField<'Values, 'Attributes> = Base.FilledField<Field<'Values, 'Attributes>>
 
+[<NoComparison; NoEquality>]
+type CheckboxFieldConfig<'Msg> =
+    {
+        Dispatch: Dispatch<'Msg>
+        OnChange: bool -> 'Msg
+        OnBlur: 'Msg option
+        Disabled: bool
+        Value: bool
+        Error: Error.Error option
+        ShowError: bool
+        Attributes: CheckboxField.Attributes
+    }
 
 /// <summary>
 /// Represents a form using Fable.Form.Studio representation
 /// </summary>
 type Form<'Values, 'Output, 'Attributes> = Base.Form<'Values, 'Output, Field<'Values, 'Attributes>>
 
-type CheckboxField<'Values, 'Field, 'Output, 'Value> private (field : CheckboxField.CheckboxField<'Values>) =
-    interface Field<'Values, CheckboxField.Attributes>
-        member this.RenderField attributes = Html.div "This is a checkbox"
-        member this.ToForm (field : CheckboxField.CheckboxField<'Values>) =
-            CheckboxField.form
+type CheckboxField<'Values, 'Field, 'Output, 'Value, 'Attributes> (field: CheckboxField.CheckboxField<'Values>)
+    =
+    interface Field<'Values, 'Attributes> with
+        member this.RenderField onBlur fieldConfig dispatch filledField  =
+            let config: CheckboxFieldConfig<'Msg> =
+                {
+                    Dispatch = dispatch
+                    OnChange = field.Update >> fieldConfig.OnChange
+                    OnBlur = onBlur field.Attributes.Text
+                    Disabled = filledField.IsDisabled || fieldConfig.Disabled
+                    Value = field.Value
+                    Error = filledField.Error
+                    ShowError = fieldConfig.ShowError field.Attributes.Text
+                    Attributes = field.Attributes
+                }
 
-        member this.Create (config: Base.FieldConfig<CheckboxField.Attributes, bool, 'Values, 'Output>) =
-                CheckboxField.form (fun field ->
-                    CheckboxField field
-                ) config
+            Html.div "This is a checkdwdwdwdwdddwdwbox"
 
-        member this.FieldInfo () = field
+        // member this.ToForm _ =
+        //     CheckboxField.form
+        //     failwith "Not implemented"
 
+    // static member Create(config: Base.FieldConfig<CheckboxField.Attributes, bool, 'Values, 'Output>) : Form<'Values, 'Output, 'Attributes> =
+    //     CheckboxField.form (fun field -> CheckboxField field) config
 
-type CheckboxField2<'Values, 'Field, 'Output, 'Value> private (field : CheckboxField.CheckboxField<'Values>) =
-    interface Field<'Values, CheckboxField.Attributes>
-        member this.RenderField attributes = Html.div "This is a checkbox"
-        member this.ToForm (field : CheckboxField.CheckboxField<'Values>) =
-            CheckboxField.form
+let checkboxField
+    (config: Base.FieldConfig<CheckboxField.Attributes, bool, 'Values, 'Output>)
+    : Form<'Values, 'Output, 'Attributes>
+    =
+    CheckboxField.form (fun field -> CheckboxField field) config
 
-        member this.Create (config: Base.FieldConfig<CheckboxField.Attributes, bool, 'Values, 'Output>) =
-                CheckboxField.form (fun field ->
-                    CheckboxField2 field
-                ) config
+// member this.FieldInfo ()
+//     (blur : string -> option<'Msg>)
+//     (fieldConfig: Form.View.FieldConfig<'Values, 'Msg>)
+//     = failwith "Not implemented"
 
-        member this.FieldInfo () = field
+// type CheckboxField2<'Values, 'Field, 'Output, 'Value>
+//     private (field: CheckboxField.CheckboxField<'Values>)
+//     =
+//     interface Field<'Values, CheckboxField.Attributes>
+//     member this.RenderField attributes = Html.div "This is a checkbox"
+//     member this.ToForm(field: CheckboxField.CheckboxField<'Values>) = CheckboxField.form
+
+//     member this.Create(config: Base.FieldConfig<CheckboxField.Attributes, bool, 'Values, 'Output>) =
+//         CheckboxField.form (fun field -> CheckboxField2 field) config
+
+//     member this.FieldInfo() = field
 // Redefined some function from the Base module so the user can access them transparently
 // and they are also specifically typed for the Fable.Form.Studio absttraction
 
@@ -393,8 +467,8 @@ module View =
         {
             CheckboxField: CheckboxFieldConfig<'Msg> -> ReactElement
             RadioField: RadioFieldConfig<'Msg> -> ReactElement
-            // Group: ReactElement list -> ReactElement
-            // Section: string -> ReactElement list -> ReactElement
+        // Group: ReactElement list -> ReactElement
+        // Section: string -> ReactElement list -> ReactElement
         }
 
     let ignoreChildError
@@ -411,7 +485,7 @@ module View =
                 Error = None
             }
 
-// renderField
+    // renderField
 
     let rec renderField
         (customConfig: CustomConfig<'Msg, 'Attributes>)
@@ -424,49 +498,49 @@ module View =
         let blur label =
             Option.map (fun onBlurEvent -> onBlurEvent label) fieldConfig.OnBlur
 
-        let config =
-            let fieldInfo = field.State.FieldInfo()
+        // let config =
+        //     let fieldInfo = field.State.FieldInfo()
 
-            {
-                Dispatch = dispatch
-                OnChange = fieldInfo.Update >> fieldConfig.OnChange
-                OnBlur = blur fieldInfo.Attributes.Text
-                Disabled = field.IsDisabled || fieldConfig.Disabled
-                Value = fieldInfo.Value
-                Error = field.Error
-                ShowError = fieldConfig.ShowError fieldInfo.Attributes.Text
-                Attributes = fieldInfo.Attributes
-            }
+        //     {
+        //         Dispatch = dispatch
+        //         OnChange = fieldInfo.Update >> fieldConfig.OnChange
+        //         OnBlur = blur fieldInfo.Attributes.Text
+        //         Disabled = field.IsDisabled || fieldConfig.Disabled
+        //         Value = fieldInfo.Value
+        //         Error = field.Error
+        //         ShowError = fieldConfig.ShowError fieldInfo.Attributes.Text
+        //         Attributes = fieldInfo.Attributes
+        //     }
 
-        field.State.RenderField
+        field.State.RenderField blur fieldConfig dispatch field
 
-        match field.State with
-        | Field.Checkbox info ->
-            let config: CheckboxFieldConfig<'Msg> =
-                {
-                    Dispatch = dispatch
-                    OnChange = info.Update >> fieldConfig.OnChange
-                    OnBlur = blur info.Attributes.Text
-                    Disabled = field.IsDisabled || fieldConfig.Disabled
-                    Value = info.Value
-                    Error = field.Error
-                    ShowError = fieldConfig.ShowError info.Attributes.Text
-                    Attributes = info.Attributes
-                }
+// match field.State with
+// | Field.Checkbox info ->
+//     let config: CheckboxFieldConfig<'Msg> =
+//         {
+//             Dispatch = dispatch
+//             OnChange = info.Update >> fieldConfig.OnChange
+//             OnBlur = blur info.Attributes.Text
+//             Disabled = field.IsDisabled || fieldConfig.Disabled
+//             Value = info.Value
+//             Error = field.Error
+//             ShowError = fieldConfig.ShowError info.Attributes.Text
+//             Attributes = info.Attributes
+//         }
 
-            customConfig.CheckboxField config
+//     customConfig.CheckboxField config
 
-        | Field.Radio info ->
-            let config: RadioFieldConfig<'Msg> =
-                {
-                    Dispatch = dispatch
-                    OnChange = info.Update >> fieldConfig.OnChange
-                    OnBlur = blur info.Attributes.Label
-                    Disabled = field.IsDisabled || fieldConfig.Disabled
-                    Value = info.Value
-                    Error = field.Error
-                    ShowError = fieldConfig.ShowError info.Attributes.Label
-                    Attributes = info.Attributes
-                }
+// | Field.Radio info ->
+//     let config: RadioFieldConfig<'Msg> =
+//         {
+//             Dispatch = dispatch
+//             OnChange = info.Update >> fieldConfig.OnChange
+//             OnBlur = blur info.Attributes.Label
+//             Disabled = field.IsDisabled || fieldConfig.Disabled
+//             Value = info.Value
+//             Error = field.Error
+//             ShowError = fieldConfig.ShowError info.Attributes.Label
+//             Attributes = info.Attributes
+//         }
 
-            customConfig.RadioField config
+//     customConfig.RadioField config
