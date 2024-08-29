@@ -2,6 +2,7 @@ module Antidote.FormStudio.Specification
 
 open System
 open Fable.Core
+open Feliz
 
 /// <summary>
 /// Represent the value of a field at the view level (when the form is being filled)
@@ -13,7 +14,14 @@ type FormValues =
     | Input of string
     | Checkbox of bool
 
-type Condition = obj
+type Operation = | Equal
+
+type Condition =
+    {
+        RefGuid: Guid
+        Value: FormValues
+        Operation: Operation
+    }
 
 module Fields =
 
@@ -27,7 +35,7 @@ module Fields =
             Guid: Guid
             Label: string
             IsRequired: bool
-            Condition: Condition option
+            Condition: Condition option // TODO: Should be a list
         }
 
         interface IField with
@@ -57,3 +65,50 @@ type Form =
         Title: string
         Fields: Fields list
     }
+
+// type DesignerField =
+//     {
+//         Guid: Guid
+//         RenderPropertyEditor: unit -> ReactElement
+//         RenderDesignerPreview: unit -> ReactElement
+//         Icon: string
+//         Label: string
+//     }
+
+// let inputTextDesignField: DesignerField =
+//     {
+//         Guid = Guid.NewGuid()
+//         RenderPropertyEditor = fun () -> Html.div [ prop.text "Properties editor for Input Text" ]
+//         RenderDesignerPreview = fun () -> Html.div [ Html.text "Input Text preview" ]
+//         Icon = "fas fa-font"
+//         Label = "Input Text"
+//     }
+
+// let checkboxDesignField: DesignerField =
+//     {
+//         Guid = Guid.NewGuid()
+//         RenderPropertyEditor = fun () -> Html.div [ prop.text "Properties editor for Checkbox" ]
+//         RenderDesignerPreview = fun () -> Html.div [ Html.text "Checkbox preview" ]
+//         Icon = "fas fa-check-square"
+//         Label = "Checkbox"
+//     }
+
+module FilledFields =
+
+    type Input =
+        {
+            Guid: Guid
+            Value: string
+        }
+
+    type Checkbox =
+        {
+            Guid: Guid
+            Value: bool
+        }
+
+[<RequireQualifiedAccess>]
+type FilledFields =
+    | Input of FilledFields.Input
+    | Checkbox of FilledFields.Checkbox
+    | NotFilled of Guid

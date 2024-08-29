@@ -19,6 +19,14 @@ type DemoCommand() =
 
         Command.Run("pnpm", "install", workingDirectory = Workspace.``.``)
 
+        let cssModuleFileInfo = System.IO.FileInfo(Workspace.demo.``CssModules.fs``)
+
+        // Make sure we have a clean slate
+        if cssModuleFileInfo.Exists then
+            cssModuleFileInfo.Delete()
+
+        Command.Run("npx", "fcm", workingDirectory = Workspace.demo.``.``)
+
         if settings.IsWatch then
             Async.Parallel
                 [
@@ -35,6 +43,17 @@ type DemoCommand() =
                     |> Async.AwaitTask
 
                     Command.RunAsync("npx", "vite", workingDirectory = Workspace.demo.``.``)
+                    |> Async.AwaitTask
+
+                    Command.RunAsync(
+                        "npx",
+                        CmdLine.empty
+                        |> CmdLine.appendRaw "nodemon"
+                        |> CmdLine.appendPrefix "-e" "module.scss"
+                        |> CmdLine.appendPrefix "--exec" "fcm"
+                        |> CmdLine.toString,
+                        workingDirectory = Workspace.demo.``.``
+                    )
                     |> Async.AwaitTask
                 ]
             |> Async.RunSynchronously

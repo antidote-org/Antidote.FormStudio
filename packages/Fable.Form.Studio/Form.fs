@@ -49,6 +49,7 @@ type Field<'Values, 'Attributes> =
     | Group of FilledField<'Values, 'Attributes> list
     | Section of title: string * FilledField<'Values, 'Attributes> list
     | List of FormList.FormList<'Values, Field<'Values, 'Attributes>>
+    | Signature
 
 /// <summary>
 /// Represents a FilledField using Fable.Form.Studio representation
@@ -1072,3 +1073,8 @@ module View =
                         )
                     Disabled = field.IsDisabled || fieldConfig.Disabled
                 }
+
+// 1. Antidote.FormStudio (designer)
+//     => ReactComponent Based application
+//     => Fable.Form based application
+// 2. Fable.Form.Studio + Fable.Form.Studio.Bulma
