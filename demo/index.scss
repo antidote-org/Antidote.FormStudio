@@ -1,0 +1,12 @@
+// First import Bulma
+@import "../node_modules/bulma/bulma.sass";
+
+// Import
+@import "../node_modules/fable-form-simple-bulma/index.scss";
+
+// Fix Bulma radio & checkbox margin
+// Seems to be a problem with React
+input[type="checkbox"],
+input[type="radio"] {
+    margin-right: 0.5em;
+}
