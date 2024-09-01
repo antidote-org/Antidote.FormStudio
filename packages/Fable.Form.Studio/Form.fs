@@ -10,61 +10,66 @@ type RadioField<'Values> = RadioField.RadioField<'Values>
 type CheckboxField<'Values> = CheckboxField.CheckboxField<'Values>
 
 open Elmish
+open Feliz.Bulma
 
-[<NoComparison; NoEquality>]
-type CommonFieldConfig<'Msg, 'Input, 'Attributes> =
-    {
-        Dispatch: Dispatch<'Msg>
-        OnChange: 'Input -> 'Msg
-        OnBlur: 'Msg option
-        Disabled: bool
-        Value: bool
-        Error: Error.Error option
-        ShowError: bool
-        Attributes: 'Attributes
-    }
+module View =
 
-// type IExtensibleField<'Values, 'Attributes> =
-//     abstract RenderField:
-//         (string -> option<'Msg>) ->
-//         Form.View.FieldConfig<'Values, 'Msg> ->
-//         Dispatch<'Msg> ->
-//         FilledField<'Values, 'Attributes> ->
-//         ReactElement
+    let fieldLabel (label: string) = Bulma.label [ prop.text label ]
 
-//     abstract MapFieldValues : unit -> unit
+    let errorMessage (message: string) =
+        Bulma.help [
+            color.isDanger
+            prop.text message
+        ]
 
-// /// <summary>
-// /// DUs used to represents the different of Field supported by Fable.Form.Studio
-// /// </summary>
-// and Field<'Values, 'Attributes> =
-//     | List of Field<'Values, 'Attributes> list
-//     | Group of Field<'Values, 'Attributes> list
-//     | Setion of title : string * Field<'Values, 'Attributes> list
-//     | ExtensibleField of IExtensibleField<'Values, 'Attributes>
-    // | TextInput of TextInputField<'Values>
+    let errorMessageAsHtml (showError: bool) (error: Error.Error option) =
+        match error with
+        | Some(Error.External externalError) -> errorMessage externalError
 
-    // abstract ToForm<'Field, 'Input, 'Output> :
-    //     'Field ->
-    //         (('Field -> Field<'Values, 'Attributes>)
-    //             -> Base.FieldConfig<'Attributes, 'Input, 'Values, 'Output>
-    //             -> Base.Form<'Values, 'Output, 'Field>)
-// abstract FieldInfo<'Input> : unit -> Field.Field<'Attributes, 'Input, 'Values>
+        | _ ->
+            if showError then
+                error
+                |> Option.map Form.View.errorToString
+                |> Option.map errorMessage
+                |> Option.defaultValue (Bulma.help [])
 
-// | Checkbox of CheckboxField<'Values>
-// | Radio of RadioField<'Values>
-// | Section of title: string * FilledField<'Values, 'Attributes> list
+            else
+                Bulma.help []
+
+    let wrapInFieldContainer (children: ReactElement list) =
+        Bulma.field.div [ prop.children children ]
+
+    let withLabelAndError
+        (label: string)
+        (showError: bool)
+        (error: Error.Error option)
+        (fieldAsHtml: ReactElement)
+        : ReactElement
+        =
+        [
+            fieldLabel label
+            Bulma.control.div [ fieldAsHtml ]
+            errorMessageAsHtml showError error
+        ]
+        |> wrapInFieldContainer
+
+type OnBlur<'Msg> = string -> 'Msg option
 
 /// <summary>
 /// DUs used to represents the different of Field supported by Fable.Form.Studio
 /// </summary>
-and Field<'Values, 'Attributes> =
+type Field<'Values, 'Attributes> =
+    abstract MapFieldValues:
+        update: ('Values -> 'NewValues -> 'NewValues) ->
+        values: 'NewValues ->
+            Field<'NewValues, 'Attributes>
+
     abstract RenderField:
-        (string -> option<'Msg>) ->
-        Form.View.FieldConfig<'Values, 'Msg> ->
+        OnBlur<'Msg> ->
         Dispatch<'Msg> ->
+        Form.View.FieldConfig<'Values, 'Msg> ->
         FilledField<'Values, 'Attributes> ->
-        ReactElement
+            ReactElement
 
 /// <summary>
 /// Represents a FilledField using Fable.Form.Studio representation
@@ -89,30 +94,221 @@ type CheckboxFieldConfig<'Msg> =
 /// </summary>
 type Form<'Values, 'Output, 'Attributes> = Base.Form<'Values, 'Output, Field<'Values, 'Attributes>>
 
-type CheckboxField<'Values, 'Field, 'Output, 'Value, 'Attributes> (field: CheckboxField.CheckboxField<'Values>)
+type CheckboxField<'Values, 'Field, 'Output, 'Value, 'Attributes>
+    (innerField: CheckboxField.CheckboxField<'Values>)
     =
+
+    member _.GetRenderConfig
+        (onBlur: OnBlur<'Msg>)
+        (dispatch: Dispatch<'Msg>)
+        (fieldConfig: Form.View.FieldConfig<'Values, 'Msg>)
+        (filledField: FilledField<'Values, 'Attributes>)
+        =
+        let config: CheckboxFieldConfig<'Msg> =
+            {
+                Dispatch = dispatch
+                OnChange = innerField.Update >> fieldConfig.OnChange
+                OnBlur = onBlur innerField.Attributes.Text
+                Disabled = filledField.IsDisabled || fieldConfig.Disabled
+                Value = innerField.Value
+                Error = filledField.Error
+                ShowError = fieldConfig.ShowError innerField.Attributes.Text
+                Attributes = innerField.Attributes
+            }
+
+        config
+
     interface Field<'Values, 'Attributes> with
-        member this.RenderField onBlur fieldConfig dispatch filledField  =
-            let config: CheckboxFieldConfig<'Msg> =
+
+        member _.MapFieldValues
+            (update: 'Values -> 'NewValues -> 'NewValues)
+            (values: 'NewValues)
+            : Field<'NewValues, 'Attributes>
+            =
+            let newUpdate oldValues = update oldValues values
+
+            CheckboxField(Field.mapValues newUpdate innerField)
+
+        member this.RenderField onBlur dispatch fieldConfig filledField =
+            let config = this.GetRenderConfig onBlur dispatch fieldConfig filledField
+
+            Bulma.control.div [
+                Bulma.input.labels.checkbox [
+                    prop.children [
+                        Bulma.input.checkbox [
+                            prop.onChange (config.OnChange >> config.Dispatch)
+                            match config.OnBlur with
+                            | Some onBlur -> prop.onBlur (fun _ -> dispatch onBlur)
+
+                            | None -> ()
+                            prop.disabled config.Disabled
+                            prop.isChecked config.Value
+                        ]
+
+                        Html.text config.Attributes.Text
+                    ]
+                ]
+            ]
+            |> List.singleton
+            |> View.wrapInFieldContainer
+
+type FormListField<'Values, 'Field, 'Output, 'Value, 'Attributes>
+    (innerField: FormList.FormList<'Values, Field<'Values, 'Attributes>>)
+    =
+
+    member _.GetRenderConfig
+        (onBlur: OnBlur<'Msg>)
+        (dispatch: Dispatch<'Msg>)
+        (fieldConfig: Form.View.FieldConfig<'Values, 'Msg>)
+        (filledField: FilledField<'Values, 'Attributes>)
+        =
+        // let config: CheckboxFieldConfig<'Msg> =
+        //     {
+        //         Dispatch = dispatch
+        //         OnChange = field.Update >> fieldConfig.OnChange
+        //         OnBlur = onBlur field.Attributes.Text
+        //         Disabled = filledField.IsDisabled || fieldConfig.Disabled
+        //         Value = field.Value
+        //         Error = filledField.Error
+        //         ShowError = fieldConfig.ShowError field.Attributes.Text
+        //         Attributes = field.Attributes
+        //     }
+
+        // config
+        failwith "Not implemented"
+
+    interface Field<'Values, 'Attributes> with
+        member this.RenderField onBlur dispatch fieldConfig filledField =
+
+
+            // Html.div config.Attributes.Text
+            failwith "Not implemented"
+
+        member _.MapFieldValues
+            (update: 'Values -> 'NewValues -> 'NewValues)
+            (values: 'NewValues)
+            : Field<'NewValues, 'Attributes>
+            =
+            FormListField
                 {
-                    Dispatch = dispatch
-                    OnChange = field.Update >> fieldConfig.OnChange
-                    OnBlur = onBlur field.Attributes.Text
-                    Disabled = filledField.IsDisabled || fieldConfig.Disabled
-                    Value = field.Value
-                    Error = filledField.Error
-                    ShowError = fieldConfig.ShowError field.Attributes.Text
-                    Attributes = field.Attributes
+                    Forms =
+                        List.map
+                            (fun (form: FormList.Form<'Values, Field<'Values, 'Attributes>>) ->
+                                {
+                                    Fields =
+                                        List.map
+                                            (fun
+                                                (filledField:
+                                                    Base.FilledField<Field<'Values, 'Attributes>>) ->
+                                                {
+                                                    State =
+                                                        filledField.State.MapFieldValues
+                                                            update
+                                                            values
+                                                    Error = filledField.Error
+                                                    IsDisabled = filledField.IsDisabled
+                                                }
+                                            )
+                                            form.Fields
+                                    Delete = fun _ -> update (form.Delete()) values
+                                }
+                            )
+                            innerField.Forms
+                    // formList.Forms
+                    Add = fun _ -> update (innerField.Add()) values
+                    Attributes = innerField.Attributes
                 }
 
-            Html.div "This is a checkdwdwdwdwdddwdwbox"
+// CheckboxField(Field.mapValues newUpdate field)
 
-        // member this.ToForm _ =
-        //     CheckboxField.form
-        //     failwith "Not implemented"
+// member this.ToForm _ =
+//     CheckboxField.form
+//     failwith "Not implemented"
 
-    // static member Create(config: Base.FieldConfig<CheckboxField.Attributes, bool, 'Values, 'Output>) : Form<'Values, 'Output, 'Attributes> =
-    //     CheckboxField.form (fun field -> CheckboxField field) config
+// static member Create(config: Base.FieldConfig<CheckboxField.Attributes, bool, 'Values, 'Output>) : Form<'Values, 'Output, 'Attributes> =
+//     CheckboxField.form (fun field -> CheckboxField field) config
+/// <summary>
+/// Build a variable list of forms
+///
+/// An example is available <a href="https://mangelmaxime.github.io/Fable.Form/#form-list">on this page</a>
+/// </summary>
+/// <param name="config">A record used to configure the field behaviour.
+/// <para>
+/// See <see cref="T:Fable.Form.Base.FormList.Config"/> for more informations
+/// </para>
+/// </param>
+/// <param name="elementForIndex">A function taking an index and returning a new form</param>
+/// <returns>A form representing the list of form as a single form</returns>
+/// <example>
+/// <code lang="fsharp">
+/// let bookForm (index : int) : Form.Form&gt;BookValues,Book&lt; =
+///     // ...
+///
+/// Form.succeed onSubmit
+///     |> Form.append (
+///         Form.list
+///             {
+///                 Default =
+///                     {
+///                         Title = ""
+///                         Author = ""
+///                         Summary = ""
+///                     }
+///                 Value =
+///                     fun values -> values.Books
+///                 Update =
+///                     fun newValue values ->
+///                         { values with Books = newValue }
+///                 Attributes =
+///                     {
+///                         Label = "Books"
+///                         Add = Some "Add book"
+///                         Delete = Some "Remove book"
+///                     }
+///             }
+///             bookForm
+///     )
+/// </code>
+///
+/// In this example, <c>append</c> is used to feed <c>onSubmit</c> function and combine it into a <c>Login</c> message when submitted.
+/// </example>
+let list
+    (config: FormList.Config<'Values, 'ElementValues>)
+    (elementForIndex: int -> Form<'ElementValues, 'Output, 'Attributes>)
+    : Form<'Values, 'Output list, 'Attributes>
+    =
+
+    let fillElement
+        (elementState: FormList.ElementState<'Values, 'ElementValues>)
+        : Base.FilledForm<'Output, Field<'Values, 'Attributes>>
+        =
+        let filledElement =
+            Base.fill (elementForIndex elementState.Index) elementState.ElementValues
+
+        {
+            Fields =
+                filledElement.Fields
+                |> List.map (fun filledField ->
+                    {
+                        State =
+                            filledField.State.MapFieldValues
+                                elementState.Update
+                                elementState.Values
+                        Error = filledField.Error
+                        IsDisabled = filledField.IsDisabled
+                    }
+                )
+            Result = filledElement.Result
+            IsEmpty = filledElement.IsEmpty
+        }
+
+    let tagger
+        (formList: FormList.FormList<'Values, Field<'Values, 'Attributes>>)
+        : Field<'Values, 'Attributes>
+        =
+        FormListField formList
+
+    FormList.form tagger config fillElement
 
 let checkboxField
     (config: Base.FieldConfig<CheckboxField.Attributes, bool, 'Values, 'Output>)
@@ -512,7 +708,7 @@ module View =
         //         Attributes = fieldInfo.Attributes
         //     }
 
-        field.State.RenderField blur fieldConfig dispatch field
+        field.State.RenderField blur dispatch fieldConfig field
 
 // match field.State with
 // | Field.Checkbox info ->

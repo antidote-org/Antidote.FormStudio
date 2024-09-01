@@ -71,69 +71,8 @@ module private FieldType =
         | "checkbox" -> Ok FieldType.Checkbox
         | _ -> Error "Invalid field type"
 
-open Fable.Form.Studio.Form
+open Fable.Form.Studio
 open Fable.Form
-
-module MyField =
-    type Attributes =
-        {
-            Text: string
-        }
-
-    type CheckboxField<'Values> = Field.Field<Attributes, bool, 'Values>
-
-    let form<'Values, 'Field, 'Output>
-        : ((CheckboxField<'Values> -> 'Field)
-            -> Base.FieldConfig<Attributes, bool, 'Values, 'Output>
-            -> Base.Form<'Values, 'Output, 'Field>) =
-        Base.field (fun _ -> false)
-
-
-[<NoComparison; NoEquality>]
-type MyFieldConfig<'Msg> =
-    {
-        Dispatch: Dispatch<'Msg>
-        OnChange: bool -> 'Msg
-        OnBlur: 'Msg option
-        Disabled: bool
-        Value: bool
-        Error: Error.Error option
-        ShowError: bool
-        Attributes: MyField.Attributes
-    }
-
-
-type MyFieldField<'Values, 'Field, 'Output, 'Value, 'Attributes> (field: MyField.CheckboxField<'Values>)
-    =
-    interface Field<'Values, 'Attributes> with
-        member this.RenderField onBlur fieldConfig dispatch filledField  =
-            let config: MyFieldConfig<'Msg> =
-                {
-                    Dispatch = dispatch
-                    OnChange = field.Update >> fieldConfig.OnChange
-                    OnBlur = onBlur field.Attributes.Text
-                    Disabled = filledField.IsDisabled || fieldConfig.Disabled
-                    Value = field.Value
-                    Error = filledField.Error
-                    ShowError = fieldConfig.ShowError field.Attributes.Text
-                    Attributes = field.Attributes
-                }
-
-            Html.div "This is an awesome frei"
-
-        // member this.ToForm _ =
-        //     CheckboxField.form
-        //     failwith "Not implemented"
-
-    // static member Create(config: Base.FieldConfig<CheckboxField.Attributes, bool, 'Values, 'Output>) : Form<'Values, 'Output, 'Attributes> =
-    //     CheckboxField.form (fun field -> CheckboxField field) config
-
-module Form =
-    let myField
-        (config: Base.FieldConfig<MyField.Attributes, bool, 'Values, 'Output>)
-        : Form<'Values, 'Output, 'Attributes>
-        =
-        MyField.form (fun field -> MyFieldField field) config
 
 let private form: Form.Form<Values, Msg, _> =
     let checkField =
@@ -149,24 +88,7 @@ let private form: Form.Form<Values, Msg, _> =
                 Error = fun _ -> None
                 Attributes =
                     {
-                        Text = "This is a checkbox"
-                    }
-            }
-
-    let myField =
-        Form.myField
-            {
-                Parser = Ok
-                Value = fun values -> values.MyFIeldChecked
-                Update =
-                    fun newValue values ->
-                        { values with
-                            MyFIeldChecked = newValue
-                        }
-                Error = fun _ -> None
-                Attributes =
-                    {
-                        Text = "This is my field"
+                        Text = "This is a c222heckbox"
                     }
             }
 
@@ -179,12 +101,11 @@ let private form: Form.Form<Values, Msg, _> =
     //         : Specification.Form)
     //         |> LogIn
     let onSubmit =
-        fun isChecked secondVaqlue ->
+        fun isChecked ->
             printfn "Form submitted: %A" isChecked
-            printfn "Form submitted: %A" secondVaqlue
             LogIn isChecked
 
-    Form.succeed onSubmit |> Form.append checkField |> Form.append myField
+    Form.succeed onSubmit |> Form.append checkField
 
 [<ReactComponent>]
 let App () =

@@ -29,6 +29,16 @@
           "Feliz.CompilerPlugins": "2.2.0"
         }
       },
+      "Feliz.Bulma": {
+        "type": "Direct",
+        "requested": "[3.0.0, )",
+        "resolved": "3.0.0",
+        "contentHash": "EmHFhfZFddllyA7ZP6FHs0bAo/FjwZrkcAusfZGz2BQnMfQZ+zaNIKMZuvQgbfJ0vBJQTkaazVMWCA91Y2O3bQ==",
+        "dependencies": {
+          "FSharp.Core": "4.7.2",
+          "Feliz": "2.4.0"
+        }
+      },
       "FSharp.Core": {
         "type": "Direct",
         "requested": "[5.0.2, )",
