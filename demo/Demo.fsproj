@@ -10,7 +10,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\src\Antidote.FormStudio.fsproj" />
-    <ProjectReference Include="..\packages\Fable.Form.Studio.Bulma\Fable.Form.Studio.Bulma.fsproj" />
+    <ProjectReference Include="..\packages\Antidote.Form.Designer.Bulma\Antidote.Form.Designer.Bulma.fsproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Fable.Core" />

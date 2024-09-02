@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <Version>4.1.0</Version>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <Description>
+            Fable bindings for npm https://github.com/chalk/chalk package
+        </Description>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="Types.fs" />
+        <Compile Include="Internal.View.fs" />
+        <Compile Include="CheckboxField.fs" />
+        <Compile Include="TextField.fs" />
+        <Compile Include="FormList.fs" />
+        <Compile Include="Form.fs" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Antidote.Form.Designer\Antidote.Form.Designer.fsproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <PackageReference Include="Fable.Form" />
+      <PackageReference Include="Fable.Package.SDK" />
+      <PackageReference Include="Feliz" />
+      <PackageReference Include="Feliz.Bulma" />
+    </ItemGroup>
+</Project>

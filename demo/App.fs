@@ -4,8 +4,8 @@ open Feliz
 open Feliz.Bulma
 open Feliz.UseElmish
 open Elmish
-open Fable.Form.Studio
-open Fable.Form.Studio.Bulma
+open Antidote.Form.Designer
+open Antidote.Form.Designer.Bulma
 open Browser
 
 /// <summary>

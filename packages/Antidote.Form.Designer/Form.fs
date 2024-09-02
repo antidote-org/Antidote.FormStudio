@@ -1,4 +1,4 @@
-module Fable.Form.Studio.View
+module Antidote.Form.Designer
 
 open Fable.Form
 
@@ -92,7 +92,7 @@ module Form =
 
             | Error.External externalError -> externalError
 
-        let custom
+        let render
             (viewConfig: ViewConfig<'Values, 'Msg>)
             (renderForm: FormConfig<'Msg> -> ReactElement)
             (renderField:
