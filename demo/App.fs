@@ -6,187 +6,284 @@ open Feliz.UseElmish
 open Elmish
 open Fable.Form.Studio
 open Fable.Form.Studio.Bulma
-open Fable.Form.Studio.View
-open Antidote.FormStudio
 open Browser
 
-type FieldValues =
-    {
-        FieldType: string // TODO: Make it typed?
-        Label: string
-    }
-
-type private Values =
+/// <summary>
+/// Type used to represent a Book in the domain logic
+/// <para>This is how a book is represented outside of the form</para>
+/// </summary>
+type Book =
     {
         Title: string
-        Fields: FieldValues list
-        IsChecked : bool
-        MyFIeldChecked : bool
+        Author: string
+        Summary: string
     }
 
-type private Model = Form.View.Model<Values>
-
-type private Msg =
-    // Used when a change occure in the form
-    | FormChanged of Model
-    // Used when the user submit the form
-    // | LogIn of Specification.Form
-    | LogIn of bool
-
-let private init () =
+/// <summary>
+/// Type used to represent a Book in the form
+/// </summary>
+type BookValues =
     {
-        Title = ""
-        Fields = []
-        IsChecked = false
-        MyFIeldChecked = false
+        Title: string
+        Author: string
+        Summary: string
     }
-    |> Form.View.idle,
+
+/// <summary>
+/// Type used to represent the form values
+/// </summary>
+type Values =
+    { Name: string; Books: BookValues list }
+
+type Model =
+    // Used when the form is being filled
+    | FillingForm of Form.View.Model<Values>
+    // Used when the form has been submitted with success
+    | FormFilled of string * Book list
+
+type Msg =
+    // Message to react to form change
+    | FormChanged of Form.View.Model<Values>
+    // Message sent when the form is submitted
+    | Submit of string * Book list
+    // Message sent when the user ask to reset the demo
+    | ResetDemo
+
+let init () =
+    {
+        Name = ""
+        Books =
+            [
+                {
+                    Title = "The warded man"
+                    Author = "Peter V. Brett"
+                    Summary =
+                        "The Painted Man, book one of the Demon Cycle, is a captivating and thrilling fantasy adventure, pulling the reader into a world of demons, darkness and heroes."
+                }
+            ]
+    }
+    |> Form.View.idle
+    |> FillingForm,
     Cmd.none
 
-let private update (msg: Msg) (model: Model) =
+let update (msg: Msg) (model: Model) =
     match msg with
-    // We received a new form model, store it
-    | FormChanged newModel -> newModel, Cmd.none
+    // Update our model to it's new state
+    | FormChanged newModel ->
+        match model with
+        | FillingForm _ -> FillingForm newModel, Cmd.none
 
-    // The form has been submitted
-    // Here, we have access to the value submitted from the from
-    | LogIn formSpec ->
-        printfn "Form submitted: %A" formSpec
-        // For this example, we just set a message in the Form view
-        { model with
-            State = Form.View.Success "You have been logged in successfully"
-        },
-        Cmd.none
+        | FormFilled _ -> model, Cmd.none
 
-[<RequireQualifiedAccess>]
-type private FieldType =
-    | Input
-    | Checkbox
+    | Submit(name, books) ->
+        match model with
+        | FillingForm _ -> FormFilled(name, books), Cmd.none
 
-module private FieldType =
+        | FormFilled _ -> model, Cmd.none
 
-    let tryParse (value: string) =
-        match value with
-        | "input" -> Ok FieldType.Input
-        | "checkbox" -> Ok FieldType.Checkbox
-        | _ -> Error "Invalid field type"
+    | ResetDemo -> init ()
 
-open Fable.Form.Studio
-open Fable.Form
-
-let private form: Form.Form<Values, Msg, _> =
-    let checkField =
-        Form.checkboxField
+let private bookForm (index: int) =
+    let titleField =
+        Form.textField
             {
                 Parser = Ok
-                Value = fun values -> values.IsChecked
-                Update =
-                    fun newValue values ->
-                        { values with
-                            IsChecked = newValue
-                        }
+                Value = fun values -> values.Title
+                Update = fun newValue values -> { values with Title = newValue }
                 Error = fun _ -> None
                 Attributes =
                     {
-                        Text = "This is a c222heckbox"
+                        Label = "Name of book #" + string (index + 1)
+                        Placeholder = ""
+                        HtmlAttributes = []
                     }
             }
 
-    // let onSubmit =
-    //     fun title fields ->
-    //         ({
-    //             Title = title
-    //             Fields = fields
-    //         }
-    //         : Specification.Form)
-    //         |> LogIn
-    let onSubmit =
-        fun isChecked ->
-            printfn "Form submitted: %A" isChecked
-            LogIn isChecked
+    let authorField =
+        Form.textField
+            {
+                Parser = Ok
+                Value = fun values -> values.Author
+                Update = fun newValue values -> { values with Author = newValue }
+                Error = fun _ -> None
+                Attributes =
+                    {
+                        Label = "Author of book #" + string (index + 1)
+                        Placeholder = ""
+                        HtmlAttributes = []
+                    }
+            }
 
-    Form.succeed onSubmit |> Form.append checkField
+    let summary =
+        Form.textareaField
+            {
+                Parser = Ok
+                Value = fun values -> values.Summary
+                Update = fun newValue values -> { values with Summary = newValue }
+                Error = fun _ -> None
+                Attributes =
+                    {
+                        Label = "Summary of book #" + string (index + 1)
+                        Placeholder = ""
+                        HtmlAttributes = []
+                    }
+            }
+
+    let onSubmit title author summary =
+        {
+            Title = title
+            Author = author
+            Summary = summary
+        }
+        : Book
+
+    Form.succeed onSubmit
+    |> Form.append titleField
+    |> Form.append authorField
+    |> Form.append summary
+
+/// <summary>
+/// Define the form logic
+///
+/// We need to define each field logic first and then define how the fields are wired together to make the form
+/// </summary>
+/// <returns>The form ready to be used in the view</returns>
+let private form: Form<Values, Msg, IReactProperty> =
+    let nameField =
+        Form.textField
+            {
+                Parser = Ok
+                Value = fun values -> values.Name
+                Update = fun newValue values -> { values with Name = newValue }
+                Error = fun _ -> None
+                Attributes =
+                    {
+                        Label = "Name"
+                        Placeholder = "Your name"
+                        HtmlAttributes = []
+                    }
+            }
+
+    let onSubmit name books = Submit(name, books)
+
+    Form.succeed onSubmit
+    |> Form.append nameField
+    |> Form.append (
+        Form.list
+            {
+                Default =
+                    {
+                        Title = ""
+                        Author = ""
+                        Summary = ""
+                    }
+                Value = fun values -> values.Books
+                Update = fun newValue values -> { values with Books = newValue }
+                Attributes =
+                    {
+                        Label = "Books"
+                        Add = Some "Add book"
+                        Delete = Some "Remove book"
+                    }
+            }
+            bookForm
+    )
+
+// Function used to render a book when the form has been submitted
+let private renderBook (rank: int) (book: Book) =
+    Html.tr
+        [
+            Html.td [ Html.b (string (rank + 1)) ]
+            Html.td book.Title
+            Html.td book.Author
+            Html.td book.Summary
+        ]
+
+// Function used to render the filled view (when the form has been submitted)
+let private renderFilledView (name: string) (books: Book list) dispatch =
+    Bulma.content
+        [
+
+            Bulma.message
+                [
+                    color.isSuccess
+
+                    prop.children
+                        [
+                            Bulma.messageBody
+                                [
+                                    Html.text "Thank you "
+                                    Html.b name
+                                    Html.text " for creating those "
+                                    Html.b (string (List.length books))
+                                    Html.text " book(s)"
+                                ]
+                        ]
+
+                ]
+
+            Bulma.table
+                [
+                    table.isStriped
+                    prop.className "is-vcentered-cells"
+
+                    prop.children
+                        [
+                            Html.thead
+                                [
+                                    Html.tr
+                                        [
+                                            Html.th "#"
+                                            Html.th "Title"
+                                            Html.th "Author"
+                                            Html.th "Description"
+                                        ]
+                                ]
+
+                            Html.tableBody (List.mapi renderBook books)
+                        ]
+                ]
+
+            Bulma.text.p
+                [
+                    text.hasTextCentered
+
+                    prop.children
+                        [
+                            Bulma.button.button
+                                [
+                                    prop.onClick (fun _ -> dispatch ResetDemo)
+                                    color.isPrimary
+
+                                    prop.text "Reset the demo"
+                                ]
+                        ]
+                ]
+
+        ]
+
+let view (model: Model) (dispatch: Dispatch<Msg>) =
+    match model with
+    | FillingForm values ->
+        Form.View.asHtml
+            {
+                Dispatch = dispatch
+                OnChange = FormChanged
+                Action = Form.View.Action.SubmitOnly "Submit"
+                Validation = Form.View.ValidateOnSubmit
+            }
+            form
+            values
+
+    | FormFilled(name, books) -> renderFilledView name books dispatch
+
 
 [<ReactComponent>]
 let App () =
     let model, dispatch = React.useElmish (init, update)
 
-    let portalDest =
-        let dest = document.getElementById("field-properties-portal")
-        if isNull dest then
-            None
-        else
-            Some dest
-
     Bulma.container [
         Bulma.section []
-        Form.View.asHtml
-            {
-                Dispatch = dispatch
-                OnChange = FormChanged
-                Action = Form.View.Action.SubmitOnly "Sign in"
-                Validation = Form.View.ValidateOnSubmit
-            }
-            form
-            model
 
-        if portalDest.IsSome then
-            ReactDOM.createPortal(
-                Html.div "Hello from portal", portalDest.Value
-            )
-
-
-        if portalDest.IsSome then
-            ReactDOM.createPortal(
-                Html.div "Hello from portal2sqsq", portalDest.Value
-            )
-
-        Html.div [
-            prop.draggable true
-            prop.children [
-                Html.div "Hello"
-                Html.div "World"
-            ]
-        ]
+        view model dispatch
     ]
-
-// type IFieldDesigner =
-//     abstract PropertyEditor : Specification.Fields -> ReactElement
-//     abstract ToSpecification : obj -> Specification.Fields
-//     abstract ComponentSelector : unit -> ReactElement
-
-// type IMapValues =
-//     abstract MapValues : obj -> obj
-
-// type TextFieldDesigner () =
-//     interface IFieldDesigner with
-
-//         member this.PropertyEditor field =
-//             Html.div [
-//                 prop.children [
-//                     Html.div "Label"
-//                     Html.input [
-//                         // prop.value field.Label
-//                         // prop.onChange (fun e -> field.Label <- e.target?value)
-//                     ]
-//                 ]
-//             ]
-
-//         member this.ToSpecification obj =
-//             Specification.Fields.Input
-//                 {
-//                     Guid = System.Guid.NewGuid()
-//                     Label = "Hello"
-//                     IsRequired = false
-//                     Condition = None
-//                 }
-
-//         member this.ComponentSelector () =
-//             Html.div "TextField"
-
-// let test = TextFieldDesigner()
-
-// let test2 (field : IFieldDesigner) =
-//     match field with
-//     | :? IMapValues as designer -> ()
-//     | _ -> ()

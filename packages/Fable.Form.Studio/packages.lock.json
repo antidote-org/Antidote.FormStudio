@@ -12,6 +12,16 @@
           "Fable.Core": "3.7.1"
         }
       },
+      "Fable.Form": {
+        "type": "Direct",
+        "requested": "[2.0.0, )",
+        "resolved": "2.0.0",
+        "contentHash": "A9BteGlQJPGcGUakijYI5zcOeAhc+ZPS1pq0xfFNJIfxmenXayY582dJmCLu4QoUbk93AZBfnj6S/pqvcfLykw==",
+        "dependencies": {
+          "FSharp.Core": "5.0.2",
+          "Fable.Core": "4.0.0"
+        }
+      },
       "Fable.Package.SDK": {
         "type": "Direct",
         "requested": "[1.0.0, )",
@@ -27,16 +37,6 @@
           "FSharp.Core": "4.7.2",
           "Fable.ReactDom.Types": "18.2.0",
           "Feliz.CompilerPlugins": "2.2.0"
-        }
-      },
-      "Feliz.Bulma": {
-        "type": "Direct",
-        "requested": "[3.0.0, )",
-        "resolved": "3.0.0",
-        "contentHash": "EmHFhfZFddllyA7ZP6FHs0bAo/FjwZrkcAusfZGz2BQnMfQZ+zaNIKMZuvQgbfJ0vBJQTkaazVMWCA91Y2O3bQ==",
-        "dependencies": {
-          "FSharp.Core": "4.7.2",
-          "Feliz": "2.4.0"
         }
       },
       "FSharp.Core": {
@@ -128,30 +128,11 @@
           "Fable.AST": "4.2.1"
         }
       },
-      "fable.form.studio.logic": {
-        "type": "Project",
-        "dependencies": {
-          "Fable.Elmish": "[4.2.0, )",
-          "Fable.Form": "[2.0.0, )",
-          "Fable.Package.SDK": "[1.0.0, )",
-          "Feliz": "[2.8.0, )"
-        }
-      },
       "Fable.Core": {
         "type": "CentralTransitive",
         "requested": "[4.3.0, )",
         "resolved": "4.0.0",
         "contentHash": "crDLkyN4xADgnCqIneMUGVDo2oS92W4oufbIH/jwc8Fk7nIH6pS/Ds1rBB4R1jUfU1WM1k9GEPa4Up8cNj5VYw=="
-      },
-      "Fable.Form": {
-        "type": "CentralTransitive",
-        "requested": "[2.0.0, )",
-        "resolved": "2.0.0",
-        "contentHash": "A9BteGlQJPGcGUakijYI5zcOeAhc+ZPS1pq0xfFNJIfxmenXayY582dJmCLu4QoUbk93AZBfnj6S/pqvcfLykw==",
-        "dependencies": {
-          "FSharp.Core": "5.0.2",
-          "Fable.Core": "4.0.0"
-        }
       }
     }
   }

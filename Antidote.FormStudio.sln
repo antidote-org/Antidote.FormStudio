@@ -15,8 +15,6 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Fable.Form.Studio", "packag
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Fable.Form.Studio.Bulma", "packages\Fable.Form.Studio.Bulma\Fable.Form.Studio.Bulma.fsproj", "{5E66BE24-BBA1-4B6C-9B64-29528EB72A81}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Fable.Form.Studio.Logic", "packages\Fable.Form.Studio.Logic\Fable.Form.Studio.Logic.fsproj", "{242B51ED-4328-469F-B2E1-C621BF34CB8C}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,14 +44,9 @@ Global
 		{5E66BE24-BBA1-4B6C-9B64-29528EB72A81}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E66BE24-BBA1-4B6C-9B64-29528EB72A81}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E66BE24-BBA1-4B6C-9B64-29528EB72A81}.Release|Any CPU.Build.0 = Release|Any CPU
-		{242B51ED-4328-469F-B2E1-C621BF34CB8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{242B51ED-4328-469F-B2E1-C621BF34CB8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{242B51ED-4328-469F-B2E1-C621BF34CB8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{242B51ED-4328-469F-B2E1-C621BF34CB8C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{4415F36E-1A9A-453A-9471-484E3DFEC69E} = {57A25F30-4CB3-4817-A9C6-DF053140AEDE}
 		{5E66BE24-BBA1-4B6C-9B64-29528EB72A81} = {57A25F30-4CB3-4817-A9C6-DF053140AEDE}
-		{242B51ED-4328-469F-B2E1-C621BF34CB8C} = {57A25F30-4CB3-4817-A9C6-DF053140AEDE}
 	EndGlobalSection
 EndGlobal

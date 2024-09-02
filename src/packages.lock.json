@@ -107,7 +107,7 @@
         "type": "Project",
         "dependencies": {
           "Fable.Elmish": "[4.2.0, )",
-          "Fable.Form.Studio.Logic": "[4.1.0, )",
+          "Fable.Form": "[2.0.0, )",
           "Fable.Package.SDK": "[1.0.0, )",
           "Feliz": "[2.8.0, )"
         }
@@ -115,19 +115,11 @@
       "fable.form.studio.bulma": {
         "type": "Project",
         "dependencies": {
+          "Fable.Form": "[2.0.0, )",
           "Fable.Form.Studio": "[4.1.0, )",
           "Fable.Package.SDK": "[1.0.0, )",
           "Feliz": "[2.8.0, )",
           "Feliz.Bulma": "[3.0.0, )"
-        }
-      },
-      "fable.form.studio.logic": {
-        "type": "Project",
-        "dependencies": {
-          "Fable.Elmish": "[4.2.0, )",
-          "Fable.Form": "[2.0.0, )",
-          "Fable.Package.SDK": "[1.0.0, )",
-          "Feliz": "[2.8.0, )"
         }
       },
       "Fable.Elmish": {
