@@ -12,6 +12,9 @@
                 "src/**/*.fs",
                 "src/**/*.fsx",
                 "src/**/*.fsi",
+                "packages/**/*.fs",
+                "packages/**/*.fsx",
+                "packages/**/*.fsi",
                 "test/**/*.fs",
                 "test/**/*.fsx",
                 "test/**/*.fsi"

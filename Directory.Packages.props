@@ -3,13 +3,15 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
+    <PackageVersion Include="Fable.Browser.Event" Version="1.6.0" />
     <PackageVersion Include="Fable.Core" Version="4.3.0" />
     <PackageVersion Include="Fable.Elmish" Version="4.2.0" />
     <PackageVersion Include="Fable.Form" Version="2.0.0" />
     <PackageVersion Include="Fable.Package.SDK" Version="1.0.0" />
     <PackageVersion Include="Feliz" Version="2.8.0" />
     <PackageVersion Include="Feliz.Bulma" Version="3.0.0" />
+    <PackageVersion Include="Feliz.Listeners" Version="1.1.0" />
     <PackageVersion Include="Feliz.UseElmish" Version="2.5.0" />
-    <PackageVersion Include="FSharp.Core" Version="5.0.2" />
+    <PackageVersion Include="FSharp.Core" Version="6.0.5" />
   </ItemGroup>
 </Project>

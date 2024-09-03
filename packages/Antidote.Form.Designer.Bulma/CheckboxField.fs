@@ -1,5 +1,6 @@
 ﻿namespace Antidote.Form.Designer.Bulma.Fields
 
+open System
 open Fable.Form
 open Elmish
 open Feliz
@@ -14,26 +15,33 @@ module CheckboxField =
             Text: string
         }
 
+    type Value =
+        {
+            Id: Guid
+            IsFocused: bool
+            DefaultValue: bool
+            Text: string
+        }
+
     [<NoComparison; NoEquality>]
     type CheckboxFieldConfig<'Msg> =
         {
             Dispatch: Dispatch<'Msg>
-            OnChange: bool -> 'Msg
+            OnChange: Value -> 'Msg
             OnBlur: 'Msg option
             Disabled: bool
-            Value: bool
+            Value: Value
             Error: Error.Error option
             ShowError: bool
-            Attributes: Attributes
         }
 
-    type InnerField<'Values> = Field.Field<Attributes, bool, 'Values>
+    type InnerField<'Values> = Field.Field<Attributes, Value, 'Values>
 
     let form<'Values, 'Field, 'Output>
         : ((InnerField<'Values> -> 'Field)
-              -> Base.FieldConfig<Attributes, bool, 'Values, 'Output>
+              -> Base.FieldConfig<Attributes, Value, 'Values, 'Output>
               -> Base.Form<'Values, 'Output, 'Field>) =
-        Base.field (fun _ -> false)
+        Base.field (fun value -> String.IsNullOrEmpty value.Text)
 
     type Field<'Values, 'Field, 'Output, 'Value, 'Attributes>(innerField: InnerField<'Values>) =
 
@@ -53,21 +61,14 @@ module CheckboxField =
                 Value = innerField.Value
                 Error = filledField.Error
                 ShowError = fieldConfig.ShowError innerField.Attributes.Text
-                Attributes = innerField.Attributes
             }
 
         interface IField<'Values, 'Attributes> with
 
-            member _.MapFieldValues
-                (update: 'Values -> 'NewValues -> 'NewValues)
-                (values: 'NewValues)
-                : IField<'NewValues, 'Attributes>
-                =
-                let newUpdate oldValues = update oldValues values
+            member this.Id = innerField.Value.Id
 
-                Field(Field.mapValues newUpdate innerField)
-
-            member this.RenderField
+            member this.RenderPreview
+                (activeFieldId: Guid)
                 (onBlur: OnBlur<'Msg>)
                 (dispatch: Dispatch<'Msg>)
                 (fieldConfig: Form.View.FieldConfig<'Values, 'Msg>)
@@ -76,27 +77,125 @@ module CheckboxField =
 
                 let config = this.GetRenderConfig onBlur dispatch fieldConfig filledField
 
-                Bulma.control.div
+                let previewContent =
+                    Bulma.control.div
+                        [
+                            Bulma.input.labels.checkbox
+                                [
+                                    prop.children
+                                        [
+                                            Bulma.input.checkbox
+                                                [
+                                                    // We are in preview mode
+                                                    prop.disabled true
+                                                    prop.isChecked innerField.Value.DefaultValue
+                                                ]
+
+                                            Html.text innerField.Value.Text
+                                        ]
+
+                                    prop.onClick (fun _ ->
+                                        printfn "Clicked!"
+
+                                        { config.Value with
+                                            Text = config.Value.Text + "!"
+                                        }
+                                        |> config.OnChange
+                                        |> config.Dispatch
+                                    )
+                                ]
+                        ]
+                    |> List.singleton
+                    |> Internal.View.wrapInFieldContainer
+
+                let updateFocus (isFocused: bool) =
+                    { config.Value with
+                        IsFocused = isFocused
+                    }
+                    |> config.OnChange
+                    |> config.Dispatch
+
+                Internal.View.PreviewContainer
+                    activeFieldId
+                    config.Value.Id
+                    updateFocus
+                    previewContent
+
+            member this.RenderPropertiesEditor
+                (onBlur: OnBlur<'Msg>)
+                (dispatch: Dispatch<'Msg>)
+                (fieldConfig: Form.View.FieldConfig<'Values, 'Msg>)
+                (filledField: FilledField<'Values, 'Attributes>)
+                : ReactElement
+                =
+
+                let config = this.GetRenderConfig onBlur dispatch fieldConfig filledField
+
+                Html.div
                     [
-                        Bulma.input.labels.checkbox
+                        prop.children
                             [
-                                prop.children
+                                Bulma.input.text
                                     [
-                                        Bulma.input.checkbox
-                                            [
-                                                prop.onChange (config.OnChange >> config.Dispatch)
-                                                match config.OnBlur with
-                                                | Some onBlur ->
-                                                    prop.onBlur (fun _ -> dispatch onBlur)
+                                        prop.onChange (fun (newText: string) ->
+                                            { config.Value with
+                                                Text = newText
+                                            }
+                                            |> config.OnChange
+                                            |> config.Dispatch
+                                        )
 
-                                                | None -> ()
-                                                prop.disabled config.Disabled
-                                                prop.isChecked config.Value
-                                            ]
+                                        match config.OnBlur with
+                                        | Some onBlur -> prop.onBlur (fun _ -> dispatch onBlur)
 
-                                        Html.text config.Attributes.Text
+                                        | None -> ()
+
+                                        prop.disabled config.Disabled
+                                        prop.value config.Value.Text
+                                        // prop.placeholder config.Attributes.Placeholder
+                                        if config.ShowError && config.Error.IsSome then
+                                            color.isDanger
+
+                                    // yield! config.Attributes.HtmlAttributes
                                     ]
+                                |> Internal.View.withLabelAndError
+                                    "Text"
+                                    config.ShowError
+                                    config.Error
+
+                                Bulma.control.div
+                                    [
+                                        Bulma.input.labels.checkbox
+                                            [
+                                                prop.children
+                                                    [
+                                                        Bulma.input.checkbox
+                                                            [
+                                                                prop.onChange (fun (newValue: bool) ->
+                                                                    { config.Value with
+                                                                        DefaultValue = newValue
+                                                                    }
+                                                                    |> config.OnChange
+                                                                    |> config.Dispatch
+                                                                )
+                                                                match config.OnBlur with
+                                                                | Some onBlur ->
+                                                                    prop.onBlur (fun _ ->
+                                                                        dispatch onBlur
+                                                                    )
+
+                                                                | None -> ()
+                                                                prop.disabled config.Disabled
+                                                                prop.isChecked
+                                                                    config.Value.DefaultValue
+                                                            ]
+
+                                                        Html.text "Default Value"
+                                                    ]
+                                            ]
+                                    ]
+                                |> List.singleton
+                                |> Internal.View.wrapInFieldContainer
+
                             ]
                     ]
-                |> List.singleton
-                |> Internal.View.wrapInFieldContainer

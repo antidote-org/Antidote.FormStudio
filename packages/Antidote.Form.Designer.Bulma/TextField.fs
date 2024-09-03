@@ -67,19 +67,21 @@ module TextField =
 
     let form<'Values, 'Attributes, 'Field, 'Output>
         : ((InnerField<'Values> -> 'Field)
-            -> Base.FieldConfig<Attributes, string, 'Values, 'Output>
-            -> Base.Form<'Values, 'Output, 'Field>) =
+              -> Base.FieldConfig<Attributes, string, 'Values, 'Output>
+              -> Base.Form<'Values, 'Output, 'Field>) =
         Base.field System.String.IsNullOrEmpty
 
     type Field<'Values, 'Field, 'Output, 'Value, 'Attributes, 'HtmlAttribute>
-        (inputType : TextType, innerField : InnerField<'Values>) =
+        (inputType: TextType, innerField: InnerField<'Values>)
+        =
 
         member _.GetRenderConfig
             (onBlur: OnBlur<'Msg>)
             (dispatch: Dispatch<'Msg>)
             (fieldConfig: Form.View.FieldConfig<'Values, 'Msg>)
             (filledField: FilledField<'Values, 'Attributes>)
-            : TextFieldConfig<'Msg> =
+            : TextFieldConfig<'Msg>
+            =
 
             {
                 Dispatch = dispatch
@@ -97,7 +99,8 @@ module TextField =
             member _.MapFieldValues
                 (update: 'Values -> 'NewValues -> 'NewValues)
                 (values: 'NewValues)
-                : IField<'NewValues, 'Attributes> =
+                : IField<'NewValues, 'Attributes>
+                =
 
                 let newUpdate oldValues = update oldValues values
 
@@ -107,10 +110,10 @@ module TextField =
                 (onBlur: OnBlur<'Msg>)
                 (dispatch: Dispatch<'Msg>)
                 (fieldConfig: Form.View.FieldConfig<'Values, 'Msg>)
-                (filledField: FilledField<'Values, 'Attributes>)=
+                (filledField: FilledField<'Values, 'Attributes>)
+                =
 
                 let config = this.GetRenderConfig onBlur dispatch fieldConfig filledField
-
 
                 let inputFunc =
                     match inputType with
@@ -136,20 +139,32 @@ module TextField =
 
                     | TextArea -> Bulma.textarea
 
-                inputFunc [
-                    prop.onChange (config.OnChange >> config.Dispatch)
+                inputFunc
+                    [
+                        prop.onChange (config.OnChange >> config.Dispatch)
 
-                    match config.OnBlur with
-                    | Some onBlur -> prop.onBlur (fun _ -> dispatch onBlur)
+                        match config.OnBlur with
+                        | Some onBlur -> prop.onBlur (fun _ -> dispatch onBlur)
 
-                    | None -> ()
+                        | None -> ()
 
-                    prop.disabled config.Disabled
-                    prop.value config.Value
-                    prop.placeholder config.Attributes.Placeholder
-                    if config.ShowError && config.Error.IsSome then
-                        color.isDanger
+                        prop.disabled config.Disabled
+                        prop.value config.Value
+                        prop.placeholder config.Attributes.Placeholder
+                        if config.ShowError && config.Error.IsSome then
+                            color.isDanger
 
-                    yield! config.Attributes.HtmlAttributes
-                ]
-                |> Internal.View.withLabelAndError config.Attributes.Label config.ShowError config.Error
+                        yield! config.Attributes.HtmlAttributes
+                    ]
+                |> Internal.View.withLabelAndError
+                    config.Attributes.Label
+                    config.ShowError
+                    config.Error
+
+            member this.RenderPropertiesEditor
+                (dispatch: Dispatch<'Msg>)
+                (fieldConfig: Form.View.FieldConfig<'Values, 'Msg>)
+                (filledField: FilledField<'Values, 'Attributes>)
+                : ReactElement
+                =
+                Html.div "This is the property editor for the checkbox field"

@@ -12,17 +12,22 @@ type OnBlur<'Msg> = string -> 'Msg option
 /// </summary>
 type IField<'Values, 'Attributes> =
 
-    abstract MapFieldValues:
-        update: ('Values -> 'NewValues -> 'NewValues) ->
-        values: 'NewValues ->
-            IField<'NewValues, 'Attributes>
-
-    abstract RenderField:
+    abstract RenderPreview:
+        System.Guid ->
         OnBlur<'Msg> ->
         Dispatch<'Msg> ->
         Form.View.FieldConfig<'Values, 'Msg> ->
         FilledField<'Values, 'Attributes> ->
             ReactElement
+
+    abstract RenderPropertiesEditor:
+        OnBlur<'Msg> ->
+        Dispatch<'Msg> ->
+        Form.View.FieldConfig<'Values, 'Msg> ->
+        FilledField<'Values, 'Attributes> ->
+            ReactElement
+
+    abstract Id: System.Guid
 
 and FilledField<'Values, 'Attributes> = Base.FilledField<IField<'Values, 'Attributes>>
 

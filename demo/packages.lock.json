@@ -41,9 +41,9 @@
       },
       "FSharp.Core": {
         "type": "Direct",
-        "requested": "[5.0.2, )",
-        "resolved": "5.0.2",
-        "contentHash": "DpcajqENgb3VXaHw1FKfVS+TWwEzck1PCajqLwBAVrtd1lfxd7T8JISVZBdV1mX9+2g48+tIgpNaVJWObdMrBw=="
+        "requested": "[6.0.5, )",
+        "resolved": "6.0.5",
+        "contentHash": "FwdQVtpj34xt8vKyFUUeNIS+obWlEnSrSW7y1ivRVts/ZsrUsKyOd0bZehgFhWdnB/NBsa9DCWvNFMTO0XDFcg=="
       },
       "Fable.AST": {
         "type": "Transitive",
@@ -142,9 +142,11 @@
         "dependencies": {
           "Antidote.Form.Designer": "[4.1.0, )",
           "Fable.Form": "[2.0.0, )",
+          "Fable.Form.Studio.Bulma": "[4.1.0, )",
           "Fable.Package.SDK": "[1.0.0, )",
           "Feliz": "[2.8.0, )",
-          "Feliz.Bulma": "[3.0.0, )"
+          "Feliz.Bulma": "[3.0.0, )",
+          "Feliz.Listeners": "[1.1.0, )"
         }
       },
       "antidote.formstudio": {
@@ -197,6 +199,16 @@
         "contentHash": "EmHFhfZFddllyA7ZP6FHs0bAo/FjwZrkcAusfZGz2BQnMfQZ+zaNIKMZuvQgbfJ0vBJQTkaazVMWCA91Y2O3bQ==",
         "dependencies": {
           "FSharp.Core": "4.7.2",
+          "Feliz": "2.4.0"
+        }
+      },
+      "Feliz.Listeners": {
+        "type": "CentralTransitive",
+        "requested": "[1.1.0, )",
+        "resolved": "1.1.0",
+        "contentHash": "xsVduw2mAMurrmy5naSTpNigIs5gQS+XP1PsRGdqZS1qcv+wW0kfbieQ99btQeX4n+Ftqqf9VXVJ3H9NIgxeUw==",
+        "dependencies": {
+          "FSharp.Core": "6.0.5",
           "Feliz": "2.4.0"
         }
       }

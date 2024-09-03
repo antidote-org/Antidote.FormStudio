@@ -11,17 +11,19 @@
         <Compile Include="Types.fs" />
         <Compile Include="Internal.View.fs" />
         <Compile Include="CheckboxField.fs" />
-        <Compile Include="TextField.fs" />
-        <Compile Include="FormList.fs" />
+        <!-- <Compile Include="TextField.fs" /> -->
         <Compile Include="Form.fs" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Antidote.Form.Designer\Antidote.Form.Designer.fsproj" />
+        <ProjectReference Include="..\Fable.Form.Studio.Bulma\Fable.Form.Studio.Bulma.fsproj" />
     </ItemGroup>
     <ItemGroup>
+      <PackageReference Include="Fable.Browser.Event" />
       <PackageReference Include="Fable.Form" />
       <PackageReference Include="Fable.Package.SDK" />
       <PackageReference Include="Feliz" />
       <PackageReference Include="Feliz.Bulma" />
+      <PackageReference Include="Feliz.Listeners" />
     </ItemGroup>
 </Project>

@@ -6,67 +6,51 @@ open Feliz.UseElmish
 open Elmish
 open Antidote.Form.Designer
 open Antidote.Form.Designer.Bulma
+open Antidote.Form.Designer.Bulma.Fields
 open Browser
 
-/// <summary>
-/// Type used to represent a Book in the domain logic
-/// <para>This is how a book is represented outside of the form</para>
-/// </summary>
-type Book =
+type private Values =
     {
-        Title: string
-        Author: string
-        Summary: string
+        CheckboxField: CheckboxField.Value
+        CheckboxField2: CheckboxField.Value
     }
 
-/// <summary>
-/// Type used to represent a Book in the form
-/// </summary>
-type BookValues =
-    {
-        Title: string
-        Author: string
-        Summary: string
-    }
-
-/// <summary>
-/// Type used to represent the form values
-/// </summary>
-type Values =
-    { Name: string; Books: BookValues list }
-
-type Model =
+type private Model =
     // Used when the form is being filled
     | FillingForm of Form.View.Model<Values>
     // Used when the form has been submitted with success
-    | FormFilled of string * Book list
+    | FormFilled of unit
 
-type Msg =
+type private Msg =
     // Message to react to form change
     | FormChanged of Form.View.Model<Values>
     // Message sent when the form is submitted
-    | Submit of string * Book list
+    | Submit of unit
     // Message sent when the user ask to reset the demo
     | ResetDemo
 
-let init () =
+let private init () =
     {
-        Name = ""
-        Books =
-            [
-                {
-                    Title = "The warded man"
-                    Author = "Peter V. Brett"
-                    Summary =
-                        "The Painted Man, book one of the Demon Cycle, is a captivating and thrilling fantasy adventure, pulling the reader into a world of demons, darkness and heroes."
-                }
-            ]
+        CheckboxField =
+            {
+                Id = System.Guid.Parse "beb671f5-790e-4c37-8ad9-5656b679db0b"
+                IsFocused = false
+                DefaultValue = false
+                Text = ""
+            }
+        CheckboxField2 =
+            {
+                Id = System.Guid.Parse "beb671f5-790e-4c37-8ad9-5656b679db0a"
+                IsFocused = false
+                DefaultValue = false
+                Text = ""
+            }
     }
     |> Form.View.idle
     |> FillingForm,
     Cmd.none
 
-let update (msg: Msg) (model: Model) =
+let private update (msg: Msg) (model: Model) =
     match msg with
     // Update our model to it's new state
     | FormChanged newModel ->
@@ -75,72 +59,15 @@ let update (msg: Msg) (model: Model) =
 
         | FormFilled _ -> model, Cmd.none
 
-    | Submit(name, books) ->
-        match model with
-        | FillingForm _ -> FormFilled(name, books), Cmd.none
+    | Submit() ->
+        printfn "Form submitted"
+        // match model with
+        // | FillingForm _ -> FormFilled(name, books), Cmd.none
 
-        | FormFilled _ -> model, Cmd.none
+        // | FormFilled _ -> model, Cmd.none
+        model, Cmd.none
 
     | ResetDemo -> init ()
-
-let private bookForm (index: int) =
-    let titleField =
-        Form.textField
-            {
-                Parser = Ok
-                Value = fun values -> values.Title
-                Update = fun newValue values -> { values with Title = newValue }
-                Error = fun _ -> None
-                Attributes =
-                    {
-                        Label = "Name of book #" + string (index + 1)
-                        Placeholder = ""
-                        HtmlAttributes = []
-                    }
-            }
-
-    let authorField =
-        Form.textField
-            {
-                Parser = Ok
-                Value = fun values -> values.Author
-                Update = fun newValue values -> { values with Author = newValue }
-                Error = fun _ -> None
-                Attributes =
-                    {
-                        Label = "Author of book #" + string (index + 1)
-                        Placeholder = ""
-                        HtmlAttributes = []
-                    }
-            }
-
-    let summary =
-        Form.textareaField
-            {
-                Parser = Ok
-                Value = fun values -> values.Summary
-                Update = fun newValue values -> { values with Summary = newValue }
-                Error = fun _ -> None
-                Attributes =
-                    {
-                        Label = "Summary of book #" + string (index + 1)
-                        Placeholder = ""
-                        HtmlAttributes = []
-                    }
-            }
-
-    let onSubmit title author summary =
-        {
-            Title = title
-            Author = author
-            Summary = summary
-        }
-        : Book
-
-    Form.succeed onSubmit
-    |> Form.append titleField
-    |> Form.append authorField
-    |> Form.append summary
 
 /// <summary>
 /// Define the form logic
@@ -149,120 +76,47 @@ let private bookForm (index: int) =
 /// </summary>
 /// <returns>The form ready to be used in the view</returns>
 let private form: Form<Values, Msg, IReactProperty> =
-    let nameField =
-        Form.textField
+    let checkbox1 =
+        Form.checkboxField
             {
                 Parser = Ok
-                Value = fun values -> values.Name
-                Update = fun newValue values -> { values with Name = newValue }
+                Value = fun values -> values.CheckboxField
+                Update =
+                    fun newValue values ->
+                        { values with
+                            CheckboxField = newValue
+                        }
                 Error = fun _ -> None
                 Attributes =
                     {
-                        Label = "Name"
-                        Placeholder = "Your name"
-                        HtmlAttributes = []
+                        Text = "Checkbox 1"
                     }
             }
 
-    let onSubmit name books = Submit(name, books)
-
-    Form.succeed onSubmit
-    |> Form.append nameField
-    |> Form.append (
-        Form.list
+    let checkbox2 =
+        Form.checkboxField
             {
-                Default =
-                    {
-                        Title = ""
-                        Author = ""
-                        Summary = ""
-                    }
-                Value = fun values -> values.Books
-                Update = fun newValue values -> { values with Books = newValue }
+                Parser = Ok
+                Value = fun values -> values.CheckboxField2
+                Update =
+                    fun newValue values ->
+                        { values with
+                            CheckboxField2 = newValue
+                        }
+                Error = fun _ -> None
                 Attributes =
                     {
-                        Label = "Books"
-                        Add = Some "Add book"
-                        Delete = Some "Remove book"
+                        Text = "Checkbox 2"
                     }
             }
-            bookForm
-    )
 
-// Function used to render a book when the form has been submitted
-let private renderBook (rank: int) (book: Book) =
-    Html.tr
-        [
-            Html.td [ Html.b (string (rank + 1)) ]
-            Html.td book.Title
-            Html.td book.Author
-            Html.td book.Summary
-        ]
+    let onSubmit checkbox1 checkbox2 =
+        printfn "Checkbox1: %A" checkbox1
+        Submit()
 
-// Function used to render the filled view (when the form has been submitted)
-let private renderFilledView (name: string) (books: Book list) dispatch =
-    Bulma.content
-        [
+    Form.succeed onSubmit |> Form.append checkbox1 |> Form.append checkbox2
 
-            Bulma.message
-                [
-                    color.isSuccess
-
-                    prop.children
-                        [
-                            Bulma.messageBody
-                                [
-                                    Html.text "Thank you "
-                                    Html.b name
-                                    Html.text " for creating those "
-                                    Html.b (string (List.length books))
-                                    Html.text " book(s)"
-                                ]
-                        ]
-
-                ]
-
-            Bulma.table
-                [
-                    table.isStriped
-                    prop.className "is-vcentered-cells"
-
-                    prop.children
-                        [
-                            Html.thead
-                                [
-                                    Html.tr
-                                        [
-                                            Html.th "#"
-                                            Html.th "Title"
-                                            Html.th "Author"
-                                            Html.th "Description"
-                                        ]
-                                ]
-
-                            Html.tableBody (List.mapi renderBook books)
-                        ]
-                ]
-
-            Bulma.text.p
-                [
-                    text.hasTextCentered
-
-                    prop.children
-                        [
-                            Bulma.button.button
-                                [
-                                    prop.onClick (fun _ -> dispatch ResetDemo)
-                                    color.isPrimary
-
-                                    prop.text "Reset the demo"
-                                ]
-                        ]
-                ]
-
-        ]
-
-let view (model: Model) (dispatch: Dispatch<Msg>) =
+let private view (model: Model) (dispatch: Dispatch<Msg>) =
     match model with
     | FillingForm values ->
         Form.View.asHtml
@@ -275,8 +129,7 @@ let view (model: Model) (dispatch: Dispatch<Msg>) =
             form
             values
 
-    | FormFilled(name, books) -> renderFilledView name books dispatch
-
+    | FormFilled() -> Html.div "Form submitted"
 
 [<ReactComponent>]
 let App () =

@@ -26,3 +26,18 @@ input[type="radio"] {
         width: 400px;
     }
 }
+
+.preview-container {
+    border: 2px dashed transparent;
+    padding: .5rem;
+
+    &:hover {
+        cursor: pointer;
+        border-color: #3273dc;
+    }
+
+    &.is-active {
+        border-style: solid;
+        border-color: #3273dc;
+    }
+}
