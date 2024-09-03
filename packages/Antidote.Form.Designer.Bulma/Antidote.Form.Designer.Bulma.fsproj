@@ -11,7 +11,7 @@
         <Compile Include="Types.fs" />
         <Compile Include="Internal.View.fs" />
         <Compile Include="CheckboxField.fs" />
-        <!-- <Compile Include="TextField.fs" /> -->
+        <Compile Include="TextField.fs" />
         <Compile Include="Form.fs" />
     </ItemGroup>
     <ItemGroup>

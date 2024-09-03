@@ -13,6 +13,7 @@ type private Values =
     {
         CheckboxField: CheckboxField.Value
         CheckboxField2: CheckboxField.Value
+        Name: TextField.Value
     }
 
 type private Model =
@@ -34,16 +35,20 @@ let private init () =
         CheckboxField =
             {
                 Id = System.Guid.Parse "beb671f5-790e-4c37-8ad9-5656b679db0b"
-                IsFocused = false
                 DefaultValue = false
                 Text = ""
             }
         CheckboxField2 =
             {
                 Id = System.Guid.Parse "beb671f5-790e-4c37-8ad9-5656b679db0a"
-                IsFocused = false
                 DefaultValue = false
                 Text = ""
+            }
+        Name =
+            {
+                Id = System.Guid.NewGuid()
+                Label = ""
+                Placeholder = ""
             }
     }
     |> Form.View.idle
@@ -87,10 +92,7 @@ let private form: Form<Values, Msg, IReactProperty> =
                             CheckboxField = newValue
                         }
                 Error = fun _ -> None
-                Attributes =
-                    {
-                        Text = "Checkbox 1"
-                    }
+                Attributes = null
             }
 
     let checkbox2 =
@@ -104,17 +106,33 @@ let private form: Form<Values, Msg, IReactProperty> =
                             CheckboxField2 = newValue
                         }
                 Error = fun _ -> None
-                Attributes =
-                    {
-                        Text = "Checkbox 2"
-                    }
+                Attributes = null
             }
 
-    let onSubmit checkbox1 checkbox2 =
+    let nameField =
+        Form.textField
+            {
+                Parser = Ok
+                Value = fun values -> values.Name
+                Update =
+                    fun newValue values ->
+                        { values with
+                            Name = newValue
+                        }
+                Error = fun _ -> None
+                Attributes = null
+            }
+
+    let onSubmit checkbox1 checkbox2 name =
         printfn "Checkbox1: %A" checkbox1
+        printfn "Checkbox2: %A" checkbox2
+        printfn "Name: %A" name
         Submit()
 
-    Form.succeed onSubmit |> Form.append checkbox1 |> Form.append checkbox2
+    Form.succeed onSubmit
+    |> Form.append checkbox1
+    |> Form.append checkbox2
+    |> Form.append nameField
 
 let private view (model: Model) (dispatch: Dispatch<Msg>) =
     match model with

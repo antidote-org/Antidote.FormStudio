@@ -8,12 +8,24 @@ open Antidote.Form.Designer
 type OnBlur<'Msg> = string -> 'Msg option
 
 /// <summary>
+/// Wrapper around System.Guid to represent the active field id
+///
+/// This is to avoid confusion between Guid of the current field and the active field
+/// </summary>
+type ActiveFieldId =
+    | ActiveFieldId of System.Guid
+
+    member this.IsEqualTo(other: System.Guid) =
+        match this with
+        | ActiveFieldId id -> id = other
+
+/// <summary>
 /// DUs used to represents the different of Field supported by Fable.Form.Studio
 /// </summary>
 type IField<'Values, 'Attributes> =
 
     abstract RenderPreview:
-        System.Guid ->
+        ActiveFieldId ->
         OnBlur<'Msg> ->
         Dispatch<'Msg> ->
         Form.View.FieldConfig<'Values, 'Msg> ->

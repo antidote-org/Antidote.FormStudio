@@ -17,19 +17,18 @@ module Form =
             (form: Form<'Values, 'Msg, 'Field>)
             (model: Form.View.Model<'Values>)
             =
-            let currentId, setCurrentId = React.useState (System.Guid.NewGuid())
+            let currentId, setCurrentId = React.useState (ActiveFieldId(System.Guid.NewGuid()))
 
-            React.fragment
-                [
-                    Internal.View.ActivePreviewContainerListener setCurrentId
+            React.fragment [
+                Internal.View.ActivePreviewContainerListener setCurrentId
 
-                    Form.View.render
-                        config
-                        Internal.View.form
-                        (Internal.View.renderField currentId)
-                        form
-                        model
-                ]
+                Form.View.render
+                    config
+                    Internal.View.form
+                    (Internal.View.renderField currentId)
+                    form
+                    model
+            ]
 
     // Specialized combinators
     let succeed (output: 'Output) : Form<'Values, 'Output, 'Attributes> = Base.succeed output
@@ -52,11 +51,11 @@ module Form =
         =
         CheckboxField.form (fun field -> CheckboxField.Field field) config
 
-// let textField
-//     (config: Base.FieldConfig<TextField.Attributes, string, 'Values, 'Output>)
-//     : Form<'Values, 'Output, 'Attributes>
-//     =
-//     TextField.form (fun field -> TextField.Field(TextField.TextRaw, field)) config
+    let textField
+        (config: Base.FieldConfig<TextField.Attributes, TextField.Value, 'Values, 'Output>)
+        : Form<'Values, 'Output, 'Attributes>
+        =
+        TextField.form (fun field -> TextField.Field(TextField.TextRaw, field)) config
 
 // let passwordField
 //     (config: Base.FieldConfig<TextField.Attributes, string, 'Values, 'Output>)

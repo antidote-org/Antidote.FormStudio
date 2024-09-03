@@ -10,15 +10,12 @@ open Antidote.Form.Designer.Bulma
 
 module CheckboxField =
 
-    type Attributes =
-        {
-            Text: string
-        }
+    [<AllowNullLiteral>]
+    type Attributes = class end
 
     type Value =
         {
             Id: Guid
-            IsFocused: bool
             DefaultValue: bool
             Text: string
         }
@@ -56,19 +53,19 @@ module CheckboxField =
             {
                 Dispatch = dispatch
                 OnChange = innerField.Update >> fieldConfig.OnChange
-                OnBlur = onBlur innerField.Attributes.Text
+                OnBlur = innerField.Value.Id.ToString() |> onBlur
                 Disabled = filledField.IsDisabled || fieldConfig.Disabled
                 Value = innerField.Value
                 Error = filledField.Error
-                ShowError = fieldConfig.ShowError innerField.Attributes.Text
+                ShowError = innerField.Value.Id.ToString() |> fieldConfig.ShowError
             }
 
         interface IField<'Values, 'Attributes> with
 
-            member this.Id = innerField.Value.Id
+            member _.Id = innerField.Value.Id
 
             member this.RenderPreview
-                (activeFieldId: Guid)
+                (activeFieldId: ActiveFieldId)
                 (onBlur: OnBlur<'Msg>)
                 (dispatch: Dispatch<'Msg>)
                 (fieldConfig: Form.View.FieldConfig<'Values, 'Msg>)
@@ -78,48 +75,23 @@ module CheckboxField =
                 let config = this.GetRenderConfig onBlur dispatch fieldConfig filledField
 
                 let previewContent =
-                    Bulma.control.div
-                        [
-                            Bulma.input.labels.checkbox
-                                [
-                                    prop.children
-                                        [
-                                            Bulma.input.checkbox
-                                                [
-                                                    // We are in preview mode
-                                                    prop.disabled true
-                                                    prop.isChecked innerField.Value.DefaultValue
-                                                ]
-
-                                            Html.text innerField.Value.Text
-                                        ]
-
-                                    prop.onClick (fun _ ->
-                                        printfn "Clicked!"
-
-                                        { config.Value with
-                                            Text = config.Value.Text + "!"
-                                        }
-                                        |> config.OnChange
-                                        |> config.Dispatch
-                                    )
+                    Bulma.control.div [
+                        Bulma.input.labels.checkbox [
+                            prop.children [
+                                Bulma.input.checkbox [
+                                    // We are in preview mode
+                                    prop.readOnly true
+                                    prop.isChecked innerField.Value.DefaultValue
                                 ]
+
+                                Html.text innerField.Value.Text
+                            ]
                         ]
+                    ]
                     |> List.singleton
                     |> Internal.View.wrapInFieldContainer
 
-                let updateFocus (isFocused: bool) =
-                    { config.Value with
-                        IsFocused = isFocused
-                    }
-                    |> config.OnChange
-                    |> config.Dispatch
-
-                Internal.View.PreviewContainer
-                    activeFieldId
-                    config.Value.Id
-                    updateFocus
-                    previewContent
+                Internal.View.PreviewContainer activeFieldId config.Value.Id previewContent
 
             member this.RenderPropertiesEditor
                 (onBlur: OnBlur<'Msg>)
@@ -131,71 +103,30 @@ module CheckboxField =
 
                 let config = this.GetRenderConfig onBlur dispatch fieldConfig filledField
 
-                Html.div
-                    [
-                        prop.children
-                            [
-                                Bulma.input.text
-                                    [
-                                        prop.onChange (fun (newText: string) ->
-                                            { config.Value with
-                                                Text = newText
-                                            }
-                                            |> config.OnChange
-                                            |> config.Dispatch
-                                        )
+                React.fragment [
+                    Internal.View.PropertyEditor.inputText
+                        config.ShowError
+                        config.Error
+                        (fun newText ->
+                            { config.Value with
+                                Text = newText
+                            }
+                            |> config.OnChange
+                            |> config.Dispatch
+                        )
+                        config.Value.Text
+                        "Text"
 
-                                        match config.OnBlur with
-                                        | Some onBlur -> prop.onBlur (fun _ -> dispatch onBlur)
-
-                                        | None -> ()
-
-                                        prop.disabled config.Disabled
-                                        prop.value config.Value.Text
-                                        // prop.placeholder config.Attributes.Placeholder
-                                        if config.ShowError && config.Error.IsSome then
-                                            color.isDanger
-
-                                    // yield! config.Attributes.HtmlAttributes
-                                    ]
-                                |> Internal.View.withLabelAndError
-                                    "Text"
-                                    config.ShowError
-                                    config.Error
-
-                                Bulma.control.div
-                                    [
-                                        Bulma.input.labels.checkbox
-                                            [
-                                                prop.children
-                                                    [
-                                                        Bulma.input.checkbox
-                                                            [
-                                                                prop.onChange (fun (newValue: bool) ->
-                                                                    { config.Value with
-                                                                        DefaultValue = newValue
-                                                                    }
-                                                                    |> config.OnChange
-                                                                    |> config.Dispatch
-                                                                )
-                                                                match config.OnBlur with
-                                                                | Some onBlur ->
-                                                                    prop.onBlur (fun _ ->
-                                                                        dispatch onBlur
-                                                                    )
-
-                                                                | None -> ()
-                                                                prop.disabled config.Disabled
-                                                                prop.isChecked
-                                                                    config.Value.DefaultValue
-                                                            ]
-
-                                                        Html.text "Default Value"
-                                                    ]
-                                            ]
-                                    ]
-                                |> List.singleton
-                                |> Internal.View.wrapInFieldContainer
-
-                            ]
-                    ]
+                    Internal.View.PropertyEditor.checkbox
+                        config.ShowError
+                        config.Error
+                        (fun newValue ->
+                            { config.Value with
+                                DefaultValue = newValue
+                            }
+                            |> config.OnChange
+                            |> config.Dispatch
+                        )
+                        config.Value.DefaultValue
+                        "Default Value"
+                ]

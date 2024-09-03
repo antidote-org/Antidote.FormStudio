@@ -17,16 +17,22 @@ module View =
 
     type private PreviewContainerEvent =
         {
-            ActiveGuid: Guid
+            ActiveGuid: ActiveFieldId
         }
 
     [<Literal>]
     let PREVIEW_CONTAINER_CHANGED = "preview-container-changed"
 
-    let fieldLabel (label: string) = Bulma.label [ prop.text label ]
+    let fieldLabel (label: string) =
+        Bulma.label [
+            prop.text label
+        ]
 
     let errorMessage (message: string) =
-        Bulma.help [ color.isDanger; prop.text message ]
+        Bulma.help [
+            color.isDanger
+            prop.text message
+        ]
 
     let errorMessageAsHtml (showError: bool) (error: Error.Error option) =
         match error with
@@ -43,7 +49,9 @@ module View =
                 Bulma.help []
 
     let wrapInFieldContainer (children: ReactElement list) =
-        Bulma.field.div [ prop.children children ]
+        Bulma.field.div [
+            prop.children children
+        ]
 
     let withLabelAndError
         (label: string)
@@ -54,13 +62,15 @@ module View =
         =
         [
             fieldLabel label
-            Bulma.control.div [ fieldAsHtml ]
+            Bulma.control.div [
+                fieldAsHtml
+            ]
             errorMessageAsHtml showError error
         ]
         |> wrapInFieldContainer
 
     [<ReactComponent>]
-    let ActivePreviewContainerListener (setActiveId: Guid -> unit) =
+    let ActivePreviewContainerListener (setActiveId: ActiveFieldId -> unit) =
         React.useWindowListener.on (
             PREVIEW_CONTAINER_CHANGED,
             fun ev ->
@@ -85,80 +95,72 @@ module View =
          }: FormConfig<'Msg>)
         =
         let innerForm =
-            Html.form
-                [
-                    prop.onSubmit (fun ev ->
-                        ev.stopPropagation ()
-                        ev.preventDefault ()
+            Html.form [
+                prop.onSubmit (fun ev ->
+                    ev.stopPropagation ()
+                    ev.preventDefault ()
 
-                        onSubmit |> Option.map dispatch |> Option.defaultWith ignore
-                    )
+                    onSubmit |> Option.map dispatch |> Option.defaultWith ignore
+                )
 
-                    prop.children
-                        [
-                            yield! fields
+                prop.children [
+                    yield! fields
 
-                            match state with
-                            | Error error -> errorMessage error
+                    match state with
+                    | Error error -> errorMessage error
 
-                            | Success success ->
-                                Bulma.field.div
-                                    [
-                                        Bulma.control.div
-                                            [
-                                                text.hasTextCentered
-                                                color.hasTextSuccess
-                                                text.hasTextWeightBold
+                    | Success success ->
+                        Bulma.field.div [
+                            Bulma.control.div [
+                                text.hasTextCentered
+                                color.hasTextSuccess
+                                text.hasTextWeightBold
 
-                                                prop.text success
-                                            ]
-                                    ]
-
-                            | Loading
-                            | Idle -> Html.none
-
-                            match action with
-                            | Action.SubmitOnly submitLabel ->
-                                Bulma.field.div
-                                    [
-                                        field.isGrouped
-                                        field.isGroupedRight
-
-                                        prop.children
-                                            [
-                                                Bulma.control.div
-                                                    [
-                                                        Bulma.button.button
-                                                            [
-                                                                prop.type'.submit
-                                                                color.isPrimary
-                                                                prop.text submitLabel
-                                                                // If the form is loading animate the submit button with the loading animation
-                                                                if state = Loading then
-                                                                    button.isLoading
-                                                            ]
-                                                    ]
-
-                                            ]
-                                    ]
-
-                            | Action.Custom func -> func state dispatch
+                                prop.text success
+                            ]
                         ]
+
+                    | Loading
+                    | Idle -> Html.none
+
+                    match action with
+                    | Action.SubmitOnly submitLabel ->
+                        Bulma.field.div [
+                            field.isGrouped
+                            field.isGroupedRight
+
+                            prop.children [
+                                Bulma.control.div [
+                                    Bulma.button.button [
+                                        prop.type'.submit
+                                        color.isPrimary
+                                        prop.text submitLabel
+                                        // If the form is loading animate the submit button with the loading animation
+                                        if state = Loading then
+                                            button.isLoading
+                                    ]
+                                ]
+
+                            ]
+                        ]
+
+                    | Action.Custom func -> func state dispatch
                 ]
-
-        Html.div
-            [
-                prop.className "form-designer"
-                prop.children
-                    [
-                        innerForm
-
-                        Html.div [ prop.id "field-properties-portal" ]
-                    ]
             ]
 
+        Html.div [
+            prop.className "form-designer"
+            prop.children [
+                innerForm
+
+                Html.div [
+                    prop.id "field-properties-portal"
+                ]
+            ]
+        ]
+
     let rec renderField
-        (activeId: Guid)
+        (activeId: ActiveFieldId)
         (dispatch: Dispatch<'Msg>)
         (fieldConfig: Form.View.FieldConfig<'Values, 'Msg>)
         (field: FilledField<'Values, 'Attributes>)
@@ -176,22 +178,20 @@ module View =
             else
                 Some dest
 
-        React.fragment
-            [
-                field.State.RenderPreview activeId blur dispatch fieldConfig field
+        React.fragment [
+            field.State.RenderPreview activeId blur dispatch fieldConfig field
 
-                if field.State.Id = activeId && portalDest.IsSome then
-                    ReactDOM.createPortal (
-                        field.State.RenderPropertiesEditor blur dispatch fieldConfig field,
-                        portalDest.Value
-                    )
-            ]
+            if activeId.IsEqualTo field.State.Id && portalDest.IsSome then
+                ReactDOM.createPortal (
+                    field.State.RenderPropertiesEditor blur dispatch fieldConfig field,
+                    portalDest.Value
+                )
+        ]
 
     [<ReactComponent>]
     let PreviewContainer
-        (activeFieldId: Guid)
-        (id: Guid)
-        (updateFocus: bool -> unit)
+        (activeFieldId: ActiveFieldId)
+        (currentFieldId: Guid)
         (content: ReactElement)
         =
         React.useWindowListener.on (
@@ -214,30 +214,84 @@ module View =
 
         // printfn "PreviewContainer: %A" isActive
 
-        Html.div
-            [
-                prop.className
-                    [
-                        "preview-container"
-                        if activeFieldId = id then
-                            "is-active"
-                    ]
-
-                prop.onClick (fun _ ->
-                    // updateFocus true
-                    // Notify all other preview containers to close
-                    let detail =
-                        jsOptions<CustomEventInit<_>> (fun o ->
-                            o.detail <-
-                                {
-                                    ActiveGuid = id
-                                }
-                                |> Some
-                        )
-
-                    window.dispatchEvent (CustomEvent.Create(PREVIEW_CONTAINER_CHANGED, detail))
-                    |> ignore
-                )
-
-                prop.children [ content ]
+        Html.div [
+            prop.className [
+                "preview-container"
+                if activeFieldId.IsEqualTo currentFieldId then
+                    "is-active"
             ]
+
+            prop.onClick (fun _ ->
+                // updateFocus true
+                // Notify all other preview containers to close
+                let detail =
+                    jsOptions<CustomEventInit<_>> (fun o ->
+                        o.detail <-
+                            {
+                                ActiveGuid = ActiveFieldId currentFieldId
+                            }
+                            |> Some
+                    )
+
+                window.dispatchEvent (CustomEvent.Create(PREVIEW_CONTAINER_CHANGED, detail))
+                |> ignore
+            )
+
+            prop.children [
+                content
+            ]
+        ]
+
+    module PropertyEditor =
+
+        let inputText
+            (showError: bool)
+            (errorOpt: Error.Error option)
+            (onChange: string -> unit)
+            (value: string)
+            (label: string)
+            =
+            Bulma.input.text [
+                prop.onChange onChange
+
+                // match config.OnBlur with
+                // | Some onBlur -> prop.onBlur (fun _ -> dispatch onBlur)
+
+                // | None -> ()
+
+                prop.value value
+                // prop.placeholder config.Attributes.Placeholder
+                if showError && errorOpt.IsSome then
+                    color.isDanger
+
+            // yield! config.Attributes.HtmlAttributes
+            ]
+            |> withLabelAndError label showError errorOpt
+
+        let checkbox
+            (showError: bool)
+            (errorOpt: Error.Error option)
+            (onChange: bool -> unit)
+            (isChecked: bool)
+            (label: string)
+            =
+            Bulma.control.div [
+                Bulma.input.labels.checkbox [
+                    prop.children [
+                        Bulma.input.checkbox [
+                            prop.onChange onChange
+                            // match config.OnBlur with
+                            // | Some onBlur ->
+                            //     prop.onBlur (fun _ -> dispatch onBlur)
+
+                            // | None -> ()
+                            // prop.disabled config.Disabled
+                            prop.isChecked isChecked
+                        ]
+
+                        Html.text label
+                    ]
+                ]
+            ]
+            |> List.singleton
+            |> wrapInFieldContainer

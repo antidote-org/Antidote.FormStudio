@@ -40,4 +40,13 @@ input[type="radio"] {
         border-style: solid;
         border-color: #3273dc;
     }
+
+    &:not(:last-child) {
+        margin-bottom: .5rem;
+    }
+
+    // Show cursor pointer from anywhere in the container
+    & * {
+        cursor: pointer;
+    }
 }

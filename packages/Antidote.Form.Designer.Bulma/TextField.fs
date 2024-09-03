@@ -1,5 +1,6 @@
 namespace Antidote.Form.Designer.Bulma.Fields
 
+open System
 open Fable.Form
 open Elmish
 open Feliz
@@ -9,33 +10,26 @@ open Antidote.Form.Designer.Bulma
 
 module TextField =
 
-    type Attributes =
+    [<AllowNullLiteral>]
+    type Attributes = class end
+
+    type Value =
         {
-            /// <summary>
-            /// Label to display
-            /// </summary>
+            Id: Guid
             Label: string
-            /// <summary>
-            /// Placeholder to display when the field is empty
-            /// </summary>
             Placeholder: string
-            /// <summary>
-            /// A list of HTML attributes to add to the generated field
-            /// </summary>
-            HtmlAttributes: IReactProperty list
         }
 
     [<NoComparison; NoEquality>]
     type TextFieldConfig<'Msg> =
         {
             Dispatch: Dispatch<'Msg>
-            OnChange: string -> 'Msg
+            OnChange: Value -> 'Msg
             OnBlur: 'Msg option
             Disabled: bool
-            Value: string
+            Value: Value
             Error: Error.Error option
             ShowError: bool
-            Attributes: Attributes
         }
 
     /// <summary>
@@ -63,13 +57,13 @@ module TextField =
         // | TextWeek
         | TextArea
 
-    type InnerField<'Values> = Field.Field<Attributes, string, 'Values>
+    type InnerField<'Values> = Field.Field<Attributes, Value, 'Values>
 
     let form<'Values, 'Attributes, 'Field, 'Output>
         : ((InnerField<'Values> -> 'Field)
-              -> Base.FieldConfig<Attributes, string, 'Values, 'Output>
+              -> Base.FieldConfig<Attributes, Value, 'Values, 'Output>
               -> Base.Form<'Values, 'Output, 'Field>) =
-        Base.field System.String.IsNullOrEmpty
+        Base.field (fun value -> String.IsNullOrEmpty value.Label)
 
     type Field<'Values, 'Field, 'Output, 'Value, 'Attributes, 'HtmlAttribute>
         (inputType: TextType, innerField: InnerField<'Values>)
@@ -86,27 +80,19 @@ module TextField =
             {
                 Dispatch = dispatch
                 OnChange = innerField.Update >> fieldConfig.OnChange
-                OnBlur = onBlur innerField.Attributes.Label
+                OnBlur = innerField.Value.Id.ToString() |> onBlur
                 Disabled = filledField.IsDisabled || fieldConfig.Disabled
                 Value = innerField.Value
                 Error = filledField.Error
-                ShowError = fieldConfig.ShowError innerField.Attributes.Label
-                Attributes = innerField.Attributes
+                ShowError = innerField.Value.Id.ToString() |> fieldConfig.ShowError
             }
 
         interface IField<'Values, 'Attributes> with
 
-            member _.MapFieldValues
-                (update: 'Values -> 'NewValues -> 'NewValues)
-                (values: 'NewValues)
-                : IField<'NewValues, 'Attributes>
-                =
+            member _.Id = innerField.Value.Id
 
-                let newUpdate oldValues = update oldValues values
-
-                Field(inputType, Field.mapValues newUpdate innerField)
-
-            member this.RenderField
+            member this.RenderPreview
+                (activeFieldId: ActiveFieldId)
                 (onBlur: OnBlur<'Msg>)
                 (dispatch: Dispatch<'Msg>)
                 (fieldConfig: Form.View.FieldConfig<'Values, 'Msg>)
@@ -139,32 +125,55 @@ module TextField =
 
                     | TextArea -> Bulma.textarea
 
-                inputFunc
-                    [
-                        prop.onChange (config.OnChange >> config.Dispatch)
+                let label =
+                    if String.IsNullOrEmpty config.Value.Label then
+                        "Text field"
+                    else
+                        config.Value.Label
 
-                        match config.OnBlur with
-                        | Some onBlur -> prop.onBlur (fun _ -> dispatch onBlur)
-
-                        | None -> ()
-
-                        prop.disabled config.Disabled
-                        prop.value config.Value
-                        prop.placeholder config.Attributes.Placeholder
-                        if config.ShowError && config.Error.IsSome then
-                            color.isDanger
-
-                        yield! config.Attributes.HtmlAttributes
+                let previewContent =
+                    inputFunc [
+                        prop.readOnly true
+                        prop.placeholder innerField.Value.Placeholder
                     ]
-                |> Internal.View.withLabelAndError
-                    config.Attributes.Label
-                    config.ShowError
-                    config.Error
+                    |> Internal.View.withLabelAndError label config.ShowError config.Error
+
+                Internal.View.PreviewContainer activeFieldId config.Value.Id previewContent
 
             member this.RenderPropertiesEditor
+                (onBlur: OnBlur<'Msg>)
                 (dispatch: Dispatch<'Msg>)
                 (fieldConfig: Form.View.FieldConfig<'Values, 'Msg>)
                 (filledField: FilledField<'Values, 'Attributes>)
                 : ReactElement
                 =
-                Html.div "This is the property editor for the checkbox field"
+
+                let config = this.GetRenderConfig onBlur dispatch fieldConfig filledField
+
+                let updateValue = config.OnChange >> config.Dispatch
+
+                React.fragment [
+                    Internal.View.PropertyEditor.inputText
+                        config.ShowError
+                        config.Error
+                        (fun newLabel ->
+                            { config.Value with
+                                Label = newLabel
+                            }
+                            |> updateValue
+                        )
+                        config.Value.Label
+                        "Label"
+
+                    Internal.View.PropertyEditor.inputText
+                        config.ShowError
+                        config.Error
+                        (fun newText ->
+                            { config.Value with
+                                Placeholder = newText
+                            }
+                            |> updateValue
+                        )
+                        config.Value.Placeholder
+                        "Placeholder"
+                ]
