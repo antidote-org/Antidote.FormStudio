@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="CssModules.fs" />
+        <Compile Include="i18n/Types.fs" />
+        <Compile Include="i18n/Languages/cr.fs" />
+        <Compile Include="i18n/Languages/fr.fs" />
+        <Compile Include="i18n/Languages/en.fs" />
+        <Compile Include="i18n/Languages/es.fs" />
+        <Compile Include="i18n/Resources.fs" />
+        <Compile Include="i18n/Keys.fs" />
+        <Compile Include="i18n/i18n.fs" />
+
+        <Compile Include="Designer.Types.fs" />
+        <Compile Include="Designer.SpecStatus.fs" />
+        <Compile Include="Designer.Helper.fs" />
+
+        <Compile Include="Compose/Types.fs" />
+        <Compile Include="ComponentFields/FormMessage.fs" />
+        <Compile Include="ComponentFields/SignatureCanvas.fs" />
+        <Compile Include="ComponentFields/SpeechToText.fs" />
+        <Compile Include="Compose/FormActions.fs" />
+        <Compile Include="Compose/Composer.fs" />
+        <Compile Include="Compose/FormCompose.fs" />
+        <Compile Include="Compose/SinglePageReview.fs" />
+        <Compile Include="Compose/DynamicFormAsComponent.fs" />
+
+        <!-- <Compile Include="Compose/Editor.fs" /> -->
+        <!-- <Compile Include="FormDesigner/Designer.Context.fs" /> -->
+
+        <Compile Include="Designer.SpecScore.fs" />
+        <Compile Include="Designer.AssociatedCodes.fs" />
+        <Compile Include="Designer.CategoryTags.fs" />
+        <Compile Include="Designer.FormStepTools.fs" />
+        <Compile Include="Designer.PropertyEditor.fs" />
+        <Compile Include="Designer.ChoiceFieldComponent.fs" />
+        <Compile Include="Designer.MockField.fs" />
+        <Compile Include="DynamicFormDesigner.fs" />
+    </ItemGroup>
+    <PropertyGroup>
+        <NpmDependencies>
+            <NpmPackage Name="papaparse" Version="&gt;= 5.4.1" />
+            <NpmPackage Name="react-signature-canvas" Version="&gt;= 1.0.6" />
+            <NpmPackage Name="i18next" Version="&gt;= 23.7.6" />
+        </NpmDependencies>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Antidote.Bindings" />
+        <PackageReference Include="Antidote.FormStudioSpec" />
+        <PackageReference Include="Fable.Core" />
+        <PackageReference Include="Fable.Form.Antidote" />
+        <PackageReference Include="Fable.Form.Antidote.View" />
+        <PackageReference Include="Fable.I18Next" />
+        <PackageReference Include="Fable.Package.SDK" />
+        <PackageReference Include="Feliz.Bulma" />
+        <PackageReference Include="Feliz.Markdown" />
+        <PackageReference Include="Feliz.UseElmish" />
+        <PackageReference Include="FsToolkit.ErrorHandling" />
+        <PackageReference Include="Thoth.Json" />
+    </ItemGroup>
+</Project>
