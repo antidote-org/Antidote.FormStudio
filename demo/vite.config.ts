@@ -32,9 +32,9 @@ export default defineConfig(async ({ command, mode }) => {
         base: baseUrl,
         plugins: [
             // If you need React, uncomment the following line
-            // react({
-            //     jsxRuntime: 'classic',
-            // })
+            react({
+                jsxRuntime: 'classic',
+            })
         ],
         server: {
             watch: {

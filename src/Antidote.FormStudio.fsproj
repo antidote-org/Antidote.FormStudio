@@ -43,8 +43,6 @@
     </ItemGroup>
     <PropertyGroup>
         <NpmDependencies>
-            <NpmPackage Name="papaparse" Version="&gt;= 5.4.1" />
-            <NpmPackage Name="react-signature-canvas" Version="&gt;= 1.0.6" />
             <NpmPackage Name="i18next" Version="&gt;= 23.7.6" />
         </NpmDependencies>
     </PropertyGroup>

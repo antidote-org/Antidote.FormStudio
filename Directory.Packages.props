@@ -14,6 +14,7 @@
     <PackageVersion Include="Fable.Form.Antidote.View" Version="2.0.6" />
     <PackageVersion Include="Fable.I18Next" Version="0.15.2" />
     <PackageVersion Include="Fable.Package.SDK" Version="1.1.0" />
+    <PackageVersion Include="Feliz" Version="2.8.0" />
     <PackageVersion Include="Feliz.Bulma" Version="3.0.0" />
     <PackageVersion Include="Feliz.Markdown" Version="2.4.0" />
     <PackageVersion Include="Feliz.UseElmish" Version="2.5.0" />
