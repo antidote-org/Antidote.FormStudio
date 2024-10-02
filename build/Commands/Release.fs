@@ -228,14 +228,6 @@ type ReleaseCommand() =
 
             File.WriteAllText(Workspace.``CHANGELOG.md``, newChangelogContent)
 
-            let escapedPackageReleasesNotes =
-                newVersionLines
-                |> Seq.toList
-                |> removeConsecutiveEmptyLines false []
-                |> String.concat "\n"
-                // Escape quotes and commas
-                |> fun text -> text.Replace("\"", "\\\\\\\"").Replace(",", "%2c")
-
             // Clean up the src/bin folder
             if Directory.Exists VirtualWorkspace.src.bin.``.`` then
                 Directory.Delete(VirtualWorkspace.src.bin.``.``, true)
@@ -247,9 +239,6 @@ type ReleaseCommand() =
                     |> CmdLine.appendRaw "pack"
                     |> CmdLine.appendRaw Workspace.src.``Antidote.FormStudio.fsproj``
                     |> CmdLine.appendRaw "-c Release"
-                    |> CmdLine.appendRaw $"-p:PackageVersion=\"%s{newVersion.ToString()}\""
-                    |> CmdLine.appendRaw
-                        $"-p:PackageReleaseNotes=\"%s{escapedPackageReleasesNotes}\""
                     |> CmdLine.toString
                 )
                 |> Async.AwaitTask

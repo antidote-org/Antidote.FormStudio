@@ -8,3 +8,5 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 <!-- EasyBuild: START -->
 <!-- EasyBuild: END -->
+
+## 2.0.6

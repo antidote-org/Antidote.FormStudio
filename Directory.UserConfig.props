@@ -5,8 +5,8 @@
             Learn more about FablePackageType and PackageTags
             at https://github.com/fable-compiler/Fable.Package.SDK
         -->
-        <FablePackageType></FablePackageType>
-        <PackageTags>library</PackageTags>
+        <FablePackageType>library</FablePackageType>
+        <PackageTags>fable-javascript</PackageTags>
         <!-- Example of PackageProjectUrl: https://github.com/fable-compiler/Fable.Package.SDK -->
         <PackageProjectUrl>https://github.com/antidote-org/Antidote.FormStudio</PackageProjectUrl>
         <!-- Example of Authors: Mangel Maxime -->

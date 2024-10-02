@@ -2,6 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>netstandard2.1</TargetFramework>
+        <ChangelogFile>$(MSBuildThisFileDirectory)../CHANGELOG.md</ChangelogFile>
     </PropertyGroup>
     <ItemGroup>
         <Compile Include="CssModules.fs" />
@@ -50,11 +51,18 @@
     <ItemGroup>
         <PackageReference Include="Antidote.Bindings" />
         <PackageReference Include="Antidote.FormStudioSpec" />
+        <PackageReference Include="EasyBuild.PackageReleaseNotes.Tasks">
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+          <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
         <PackageReference Include="Fable.Core" />
         <PackageReference Include="Fable.Form.Antidote" />
         <PackageReference Include="Fable.Form.Antidote.View" />
         <PackageReference Include="Fable.I18Next" />
-        <PackageReference Include="Fable.Package.SDK" />
+        <PackageReference Include="Fable.Package.SDK">
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+          <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
         <PackageReference Include="Feliz.Bulma" />
         <PackageReference Include="Feliz.Markdown" />
         <PackageReference Include="Feliz.UseElmish" />
