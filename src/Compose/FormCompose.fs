@@ -47,7 +47,9 @@ let dynamicFormInit (dynamicStepValuesOpt: DynamicStepValues option) (formSpec: 
     let output: DynamicForm<Form.View.Model<DynamicStepValues>> =
         {
             Steps =
-                [ 1 .. formSpec.Steps.Length ]
+                [
+                    1 .. formSpec.Steps.Length
+                ]
                 |> List.map (fun step -> StepOrder step, dynamicStepValues |> Form.View.idle)
                 |> Map.ofList
             DynamicFormSpecDetails =
@@ -90,7 +92,10 @@ let private update (props: FormComposeProps) (msg: Msg) (model: FormComposeState
     match msg with
 
     | NavigateToStep newStep ->
-        { model with CurrentStep = newStep }, Cmd.ofEffect (fun i -> props.NavigateToStep newStep)
+        { model with
+            CurrentStep = newStep
+        },
+        Cmd.ofEffect (fun i -> props.NavigateToStep newStep)
 
     | NextStep ->
         let nextStep = model.CurrentStep + 1
@@ -147,10 +152,17 @@ let private update (props: FormComposeProps) (msg: Msg) (model: FormComposeState
                 Steps = model.DynamicForm.Steps.Change(newKey, (fun _ -> newModel |> Some))
             }
 
-        { model with DynamicForm = newForms }, Cmd.ofEffect (fun v -> props.FormChanged newForms)
+        { model with
+            DynamicForm = newForms
+        },
+        Cmd.ofEffect (fun v -> props.FormChanged newForms)
 
     | Submit ->
-        let newModel = { model with FormSaved = true }
+        let newModel =
+            { model with
+                FormSaved = true
+            }
+
         newModel, Cmd.ofEffect (fun v -> props.SaveFormValuesCallback model.DynamicForm)
 
 let private wizardProgress (step: int) (totalSteps: int) =
@@ -182,83 +194,83 @@ let FormCompose (props: FormComposeProps) =
 
     let progressValue = (state.CurrentStep * 100) / state.DynamicForm.Steps.Count
 
-    React.fragment
-        [
-            Html.progress
-                [
-                    prop.id "wizard-progress"
-                    prop.classes [ "progress"; "is-smaller"; "is-primary"; "wizard-progress" ]
-                    prop.style [ style.top 0 ]
-                    prop.value progressValue
-                    prop.max 100
-                ]
-            match
-                state.FormSpec.Steps |> List.tryFind (fun s -> s.StepOrder = state.CurrentStep)
-            with
-            | Some step ->
-                Html.div
-                    [
-                        Html.h1
-                            [
-                                prop.className "title is-3 is-bold has-text-centered"
-                                prop.text (t state.FormSpec.Title)
-                            ]
-                        Html.p
-                            [
-                                prop.className "subtitle is-4 has-text-centered"
-                                prop.text (t step.StepLabel)
-                            ]
-                        Html.p
-                            [
-                                text.hasTextCentered
-                                prop.style [ style.whitespace.prewrap ]
-                                prop.text (t "General Codes")
-                            ]
-                        Bulma.block
-                            [
-                                prop.classes [ "has-text-centered" ]
-                                prop.children
-                                    [
-                                        state.FormSpec.AssociatedCodes
-                                        |> List.map (fun code ->
-                                            // Html.div [
-                                            //     prop.children [
-                                            Bulma.tag
-                                                [
-                                                    tag.isRounded
-                                                    prop.style [ style.cursor.pointer ]
-                                                    prop.key code
-                                                    // color.hasBackgroundInfo
-                                                    // color.hasTextWhite
-                                                    prop.children [ Html.text code ]
-                                                ]
-                                        )
-                                        |> Html.div
-
-                                    ]
-                            ]
-
-                        Html.div
-                            [
-                                // prop.className classes.formContainer
-                                prop.children
-                                    [
-                                        step
-                                        |> Composer.compose
-                                            (if state.ResultViewMode = FormComposeMode.ReadOnly then
-                                                 true
-                                             else
-                                                 false)
-                                            props.RenderUserField
-                                        |> Composer.render
-                                            state.DynamicForm.Steps[StepOrder state.CurrentStep]
-                                            dispatch
-                                            (formAction
-                                                progress
-                                                (state.FormSaved && props.SubmissionSuccess))
-                                    ]
-                            ]
-                    ]
-
-            | None -> Html.span "No step found"
+    React.fragment [
+        Html.progress [
+            prop.id "wizard-progress"
+            prop.classes [
+                "progress"
+                "is-smaller"
+                "is-primary"
+                "wizard-progress"
+            ]
+            prop.style [
+                style.top 0
+            ]
+            prop.value progressValue
+            prop.max 100
         ]
+        match state.FormSpec.Steps |> List.tryFind (fun s -> s.StepOrder = state.CurrentStep) with
+        | Some step ->
+            Html.div [
+                Html.h1 [
+                    prop.className "title is-3 is-bold has-text-centered"
+                    prop.text (t state.FormSpec.Title)
+                ]
+                Html.p [
+                    prop.className "subtitle is-4 has-text-centered"
+                    prop.text (t step.StepLabel)
+                ]
+                Html.p [
+                    text.hasTextCentered
+                    prop.style [
+                        style.whitespace.prewrap
+                    ]
+                    prop.text (t "General Codes")
+                ]
+                Bulma.block [
+                    prop.classes [
+                        "has-text-centered"
+                    ]
+                    prop.children [
+                        state.FormSpec.AssociatedCodes
+                        |> List.map (fun code ->
+                            // Html.div [
+                            //     prop.children [
+                            Bulma.tag [
+                                tag.isRounded
+                                prop.style [
+                                    style.cursor.pointer
+                                ]
+                                prop.key code
+                                // color.hasBackgroundInfo
+                                // color.hasTextWhite
+                                prop.children [
+                                    Html.text code
+                                ]
+                            ]
+                        )
+                        |> Html.div
+
+                    ]
+                ]
+
+                Html.div [
+                    // prop.className classes.formContainer
+                    prop.children [
+                        step
+                        |> Composer.compose
+                            (if state.ResultViewMode = FormComposeMode.ReadOnly then
+                                 true
+                             else
+                                 false)
+                            props.RenderUserField
+                        |> Composer.render
+                            state.DynamicForm.Steps[StepOrder state.CurrentStep]
+                            dispatch
+                            (formAction progress (state.FormSaved && props.SubmissionSuccess))
+                    ]
+                ]
+            ]
+
+        | None -> Html.span "No step found"
+    ]

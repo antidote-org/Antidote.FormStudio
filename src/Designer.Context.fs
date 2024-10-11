@@ -7,40 +7,41 @@ open System
 
 type AuthContextType =
     {
-        User : Types.User option
-        SignIn : string -> (unit -> unit) -> unit
-        SignOut : (unit -> unit) -> unit
+        User: Types.User option
+        SignIn: string -> (unit -> unit) -> unit
+        SignOut: (unit -> unit) -> unit
     }
 
-let DesignerContext = React.createContext<AuthContextType option>("DesignerContext", None)
+let DesignerContext =
+    React.createContext<AuthContextType option> ("DesignerContext", None)
 
 [<Hook>]
-let useDesigner () =
-    React.useContext(DesignerContext)
+let useDesigner () = React.useContext (DesignerContext)
 
 [<ReactComponent>]
 let DesignerProvider
-    ( props :
+    (props:
         {|
-            children : ReactElement
-        |}
-    ) =
+            children: ReactElement
+        |})
+    =
 
-    let (user, setUser) = React.useState<Types.User option>(None)
+    let (user, setUser) = React.useState<Types.User option> (None)
 
-    let signIn (newUser : string) (callBack : unit -> unit) =
+    let signIn (newUser: string) (callBack: unit -> unit) =
         let user =
             {
                 Id = Guid.NewGuid()
                 Login = newUser
-            } : Types.User
+            }
+            : Types.User
 
-        setUser(Some user)
-        callBack()
+        setUser (Some user)
+        callBack ()
 
-    let signOut (callBack : unit -> unit) =
-        setUser(None)
-        callBack()
+    let signOut (callBack: unit -> unit) =
+        setUser (None)
+        callBack ()
 
     let value =
         {
@@ -49,8 +50,4 @@ let DesignerProvider
             SignOut = signOut
         }
 
-    React.contextProvider(
-        DesignerContext,
-        Some value,
-        props.children
-    )
+    React.contextProvider (DesignerContext, Some value, props.children)

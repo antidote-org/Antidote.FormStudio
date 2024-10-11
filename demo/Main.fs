@@ -16,7 +16,13 @@ let private defaultDesignerFields =
         { new IDesignerField with
             member _.Icon = "fas fa-font"
             member _.Key = "Text"
-            member _.FieldType = FieldType.Text { Value = None }
+
+            member _.FieldType =
+                FieldType.Text
+                    {
+                        Value = None
+                    }
+
             member _.RenderPreview props =
                 Bulma.input.text [
                     prop.readOnly true
@@ -26,18 +32,25 @@ let private defaultDesignerFields =
         { new IDesignerField with
             member _.Icon = "fas fa-check-square"
             member _.Key = "Checkbox"
-            member _.FieldType = FieldType.Checkbox { DefaultValue = None; Selection = None }
+
+            member _.FieldType =
+                FieldType.Checkbox
+                    {
+                        DefaultValue = None
+                        Selection = None
+                    }
+
             member _.RenderPreview props =
                 Bulma.control.div [
-                Bulma.input.labels.checkbox [
+                    Bulma.input.labels.checkbox [
 
-                    Bulma.input.checkbox [
-                        prop.disabled true
+                        Bulma.input.checkbox [
+                            prop.disabled true
+                        ]
+
+                        Html.text " Checkbox"
                     ]
-
-                    Html.text " Checkbox"
                 ]
-            ]
         }
 
         { new IDesignerField with
@@ -63,22 +76,22 @@ let private defaultDesignerFields =
                     })
 
             member _.RenderPreview props =
-                ChoiceFieldComponent {|
-                    FormSpec = props.FormSpec
-                    FormStep = props.FormStep
-                    FormField = props.FormField
-                    ActiveField = props.ActiveField
-                    SetActiveField = props.SetActiveField
-                    OnChange = props.OnChange
-                |}
+                ChoiceFieldComponent
+                    {|
+                        FormSpec = props.FormSpec
+                        FormStep = props.FormStep
+                        FormField = props.FormField
+                        ActiveField = props.ActiveField
+                        SetActiveField = props.SetActiveField
+                        OnChange = props.OnChange
+                    |}
         }
     ]
 
-
-let private root = ReactDOM.createRoot(document.getElementById "root")
-
+let private root = ReactDOM.createRoot (document.getElementById "root")
 
 module FormSpecRender =
+
     open Fable.Form
     open Fable.Form.Antidote
     open Antidote.Core.FormProcessor.Values.v2_0_1
@@ -117,11 +130,10 @@ module FormSpecRender =
                     {
                         Parser = Ok
                         Value =
-                            (fun values ->
+                            fun values ->
                                 Antidote.Core.FormProcessor.Helpers.v2_0_1.Spec.readValue
                                     specField
                                     values
-                            )
                         Update =
                             Antidote.Core.FormProcessor.Helpers.v2_0_1.Spec.updateSingleFunc
                                 id
@@ -147,23 +159,32 @@ module FormSpecRender =
                         Parser = (fun a -> Ok(string a))
                         Value = (fun value -> snd (bool.TryParse(readValue specField value)))
                         Update =
-                            (fun value values -> updateSingleFunc id specField (string value) values)
+                            (fun value values ->
+                                updateSingleFunc id specField (string value) values
+                            )
                         Error = fun _ -> None
-                        Attributes = { Text = specField.Label }
+                        Attributes =
+                            {
+                                Text = specField.Label
+                            }
                     }
                 |> Form.disableIf readOnly
 
                 |> optionalMatch specField.IsOptional
                 |> dependencyMatch specField.DependsOn
 
-
 [<ReactComponent>]
 let App () =
-    let formSpec, setFormSpec = React.useState Antidote.FormDesigner.Helper.defaultFormSpec
+    let formSpec, setFormSpec =
+        React.useState Antidote.FormDesigner.Helper.defaultFormSpec
 
     Bulma.section [
         Bulma.container [
-            DynamicFormDesigner formSpec setFormSpec defaultDesignerFields FormSpecRender.renderFieldTypeFromAntidote
+            DynamicFormDesigner
+                formSpec
+                setFormSpec
+                defaultDesignerFields
+                FormSpecRender.renderFieldTypeFromAntidote
 
             Bulma.field.p [
                 field.isGrouped
@@ -172,7 +193,9 @@ let App () =
                     Bulma.control.div [
                         Bulma.button.button [
                             prop.text "Reset"
-                            prop.onClick (fun _ -> setFormSpec Antidote.FormDesigner.Helper.defaultFormSpec)
+                            prop.onClick (fun _ ->
+                                setFormSpec Antidote.FormDesigner.Helper.defaultFormSpec
+                            )
                         ]
                     ]
                     Bulma.control.div [
@@ -189,6 +212,4 @@ let App () =
         ]
     ]
 
-root.render(
-    App ()
-)
+root.render (App())

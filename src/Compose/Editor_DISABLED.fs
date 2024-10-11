@@ -122,8 +122,16 @@ let init (formDetailsOpt: string option * string option) =
 let update (msg: Msg) (state: State) =
     match msg with
     | UpdateValues values ->
-        let newForm = { state.Form with SpecString = values }
-        { state with Form = newForm; Review = false }, Cmd.none
+        let newForm =
+            { state.Form with
+                SpecString = values
+            }
+
+        { state with
+            Form = newForm
+            Review = false
+        },
+        Cmd.none
 
     | Submit dynamicForm ->
         debuglog ($"Editor: Update: Submit: Ready to serialize result data!")
@@ -161,17 +169,49 @@ let update (msg: Msg) (state: State) =
     //         ErrorSavingFormValues
     // state, submitCmd
     | UpdateCode code ->
-        let newForm = { state.Form with Code = code }
-        { state with Form = newForm; Review = false }, Cmd.none
+        let newForm =
+            { state.Form with
+                Code = code
+            }
+
+        { state with
+            Form = newForm
+            Review = false
+        },
+        Cmd.none
     | UpdateTitle title ->
-        let newForm = { state.Form with Title = title }
-        { state with Form = newForm; Review = false }, Cmd.none
+        let newForm =
+            { state.Form with
+                Title = title
+            }
+
+        { state with
+            Form = newForm
+            Review = false
+        },
+        Cmd.none
     | UpdateAbstract abst ->
-        let newForm = { state.Form with Abstract = abst }
-        { state with Form = newForm; Review = false }, Cmd.none
+        let newForm =
+            { state.Form with
+                Abstract = abst
+            }
+
+        { state with
+            Form = newForm
+            Review = false
+        },
+        Cmd.none
     | UpdateStatus status ->
-        let newForm = { state.Form with Status = status }
-        { state with Form = newForm; Review = false }, Cmd.none
+        let newForm =
+            { state.Form with
+                Status = status
+            }
+
+        { state with
+            Form = newForm
+            Review = false
+        },
+        Cmd.none
     | UpdateSpec specJson ->
         let formSpecOpt =
             specJson
@@ -183,7 +223,11 @@ let update (msg: Msg) (state: State) =
                 | _ -> None
 
         debuglog $"Editor: Update: UpdateSpec: FormSpec:{formSpecOpt}"
-        let newForm = { state.Form with SpecString = specJson }
+
+        let newForm =
+            { state.Form with
+                SpecString = specJson
+            }
 
         { state with
             Form = newForm
@@ -192,7 +236,11 @@ let update (msg: Msg) (state: State) =
         },
         Cmd.none
 
-    | Review -> { state with Review = true }, Cmd.none
+    | Review ->
+        { state with
+            Review = true
+        },
+        Cmd.none
 
     // Need to add enabled to the form spec DTO
     | SelectFormSpec formSpec ->
@@ -310,7 +358,9 @@ let update (msg: Msg) (state: State) =
             (Antidote.Client.User.UserSession.Instance.RemotingRequest
                 Antidote.Client.API.EndPoints.form
                 (fun services -> services.ReadAllFormSpecs))
-            { FormSpecCategory = Antidote.Core.V2.Types.FormSpecCategory.Published }
+            {
+                FormSpecCategory = Antidote.Core.V2.Types.FormSpecCategory.Published
+            }
             ReadAllFormSpecsResult
             ErroredRequest
     | ReadAllFormSpecsResult response ->
@@ -329,7 +379,10 @@ let update (msg: Msg) (state: State) =
                     | _ -> failwith $"This build is incompatible with the form spec: {x}"
                 )
 
-            { state with AvailableFormSpecs = formSpecs }, Cmd.none
+            { state with
+                AvailableFormSpecs = formSpecs
+            },
+            Cmd.none
         | Antidote.Core.V2.Domain.Form.Response.ReadAllFormSpecs.NoFormSpecsFound ->
             // Antidote.Core.V2.Utils.JS.debuglog "Editor: Update: ReadAllFormSpecsResult: NO FORM SPECS FOUND"
             state, Cmd.none
@@ -339,58 +392,50 @@ let update (msg: Msg) (state: State) =
 
 [<ReactComponent>]
 let SpecSelector (state, dispatch, setDynamicForm) =
-    Html.div
-        [
-            prop.style [ style.margin 20 ]
-            prop.children
-                [
-                    Bulma.field.div
-                        [
-                            Bulma.label "Use Existing Form as Template"
-                            Bulma.control.div
-                                [
-                                    prop.children
-                                        [
-                                            Bulma.select
-                                                [
-                                                    prop.defaultValue (
-                                                        match state.SelectedFormSpecOpt with
-                                                        | Some formSpec -> formSpec.Title
-                                                        | None -> ""
-                                                    )
-                                                    prop.onChange (fun title ->
-                                                        setDynamicForm (None)
-
-                                                        let selectedFormSpec =
-                                                            state.AvailableFormSpecs
-                                                            |> List.find (fun f -> f.Title = title)
-
-                                                        SelectFormSpec selectedFormSpec |> dispatch
-                                                    )
-                                                    prop.children
-                                                        [
-                                                            Html.option "Select One"
-                                                            state.AvailableFormSpecs
-                                                            |> List.sortBy (fun x -> x.Title)
-                                                            |> List.map (fun formSpec ->
-                                                                Html.option
-                                                                    [
-                                                                        prop.value formSpec.Title
-                                                                        prop.children
-                                                                            [
-                                                                                Html.text
-                                                                                    formSpec.Title
-                                                                            ]
-                                                                    ]
-                                                            )
-                                                            |> React.fragment
-                                                        ]
-                                                ]
-                                        ]
-                                ]
-                        ]
-                ]
+    Html.div [
+        prop.style [
+            style.margin 20
         ]
+        prop.children [
+            Bulma.field.div [
+                Bulma.label "Use Existing Form as Template"
+                Bulma.control.div [
+                    prop.children [
+                        Bulma.select [
+                            prop.defaultValue (
+                                match state.SelectedFormSpecOpt with
+                                | Some formSpec -> formSpec.Title
+                                | None -> ""
+                            )
+                            prop.onChange (fun title ->
+                                setDynamicForm (None)
+
+                                let selectedFormSpec =
+                                    state.AvailableFormSpecs
+                                    |> List.find (fun f -> f.Title = title)
+
+                                SelectFormSpec selectedFormSpec |> dispatch
+                            )
+                            prop.children [
+                                Html.option "Select One"
+                                state.AvailableFormSpecs
+                                |> List.sortBy (fun x -> x.Title)
+                                |> List.map (fun formSpec ->
+                                    Html.option [
+                                        prop.value formSpec.Title
+                                        prop.children [
+                                            Html.text formSpec.Title
+                                        ]
+                                    ]
+                                )
+                                |> React.fragment
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    ]
 
 [<ReactComponent>]
 let SpecValuesEditor
@@ -401,223 +446,192 @@ let SpecValuesEditor
         (dynamicForm: DynamicForm<Form.View.Model<DynamicStepValues>> option)
     )
     =
-    Html.form
-        [
-            prop.style [ style.margin 20 ]
-            prop.children
-                [
-                    Bulma.field.div
-                        [
-                            Bulma.label "Code"
-                            Bulma.control.div
-                                [
-                                    Bulma.input.text
-                                        [
-                                            prop.onChange (UpdateCode >> dispatch)
-                                            prop.placeholder "form name"
-                                            prop.value state.Form.Code
-                                        ]
-                                ]
-                        ]
-                    Bulma.field.div
-                        [
-                            Bulma.label "Title"
-                            Bulma.control.div
-                                [
-                                    Bulma.input.text
-                                        [
-                                            prop.onChange (UpdateTitle >> dispatch)
-                                            prop.placeholder "form title"
-                                            prop.value state.Form.Title
-                                        ]
-                                ]
-                        ]
-                    Bulma.field.div
-                        [
-                            Bulma.label "Abstract"
-                            Bulma.control.div
-                                [
-                                    Bulma.input.text
-                                        [
-                                            prop.onChange (UpdateAbstract >> dispatch)
-                                            prop.placeholder "short description of the form"
-                                        ]
-                                ]
-                        ]
-                    Bulma.field.div
-                        [
-                            Bulma.label "Status"
-                            Bulma.control.div
-                                [
-                                    Bulma.control.hasIconsLeft
-                                    // prop.onSelect (UpdateStatus >> dispatch)
-                                    prop.children
-                                        [
-                                            Bulma.select
-                                                [ Html.option "Enabled"; Html.option "Disabled" ]
-                                            Bulma.icon
-                                                [
-                                                    Bulma.icon.isSmall
-                                                    Bulma.icon.isLeft
-                                                    prop.children
-                                                        [ Html.i [ prop.className "fas fa-check" ] ]
-                                                ]
-                                        ]
-                                ]
-                        ]
-
-                    Bulma.field.div
-                        [
-                            Bulma.label "Spec"
-                            Bulma.control.div
-                                [
-                                    Bulma.textarea
-                                        [
-                                            prop.onChange (UpdateSpec >> dispatch)
-                                            prop.placeholder "Enter the FormSpec in JSON format"
-                                            prop.value (
-                                                // ""
-                                                // let specRes =
-                                                //     match Decode.Auto.fromString<FormSpec>(state.Form.Spec) with // state.Form.Spec
-                                                //     | Ok spec ->
-                                                //         UpdateSpec spec |> dispatch
-                                                //         ""
-                                                //     | Error a -> state.Form.Spec
-                                                // match state.SelectedFormSpecOpt with
-                                                // | Some formSpec ->
-                                                //     let formSpecJson = Encode.Auto.toString<FormSpec>(0, formSpec)
-                                                //     $"{formSpecJson}"
-                                                // | _ ->
-                                                //     state.Form.Spec
-                                                state.Form.SpecString
-                                            )
-                                        ]
-                                ]
-                        ]
-                    Bulma.field.div
-                        [
-                            Bulma.label "Values"
-                            Bulma.control.div
-                                [
-                                    Bulma.textarea
-                                        [
-                                            prop.onChange (fun formValuesJson ->
-                                                let dynamicFormRes =
-                                                    deserializeForm
-                                                        state.SelectedFormSpecOpt
-                                                        formValuesJson
-
-                                                match dynamicFormRes with
-                                                | Ok dynamicForm ->
-                                                    setDynamicForm (Some dynamicForm)
-
-                                                | Result.Error err ->
-                                                    toast (
-                                                        Html.div
-                                                            "Error decoding form values from string!"
-                                                    )
-                                                    |> ignore
-
-                                            )
-                                            prop.placeholder
-                                                "Enter is the dynamicForm in JSON format"
-                                            prop.value (
-                                                match dynamicForm with
-                                                | Some c -> serializeForm c
-                                                | None -> ""
-                                            )
-
-                                        ]
-                                ]
-                        ]
-
-                    Bulma.field.div
-                        [
-                            Bulma.label "Spec in FormSpec Base64"
-                            Html.span
-                                [
-                                    prop.className "control"
-                                    prop.style
-                                        [
-                                            style.display.block
-                                            style.overflowWrap.anywhere
-                                            style.fontSize 6
-                                        ]
-                                    prop.text (
-                                        match state.SelectedFormSpecOpt with
-                                        | Some formSpec ->
-                                            let formSpecJson =
-                                                Encode.Auto.toString<FormSpec> (0, formSpec)
-                                                |> Base64.encode
-
-                                            $"{formSpecJson}"
-                                        | _ -> ""
-                                    )
-                                ]
-                        ]
-
-                    // Bulma.field.div [
-                    //     Bulma.label "Spec in Base64 encoded format"
-                    //     Html.span [
-                    //         prop.className "control"
-                    //         prop.style [
-                    //             style.display.block
-                    //             style.overflowWrap.anywhere
-                    //             style.fontSize 6
-                    //         ]
-                    //         prop.text (state.Form.Spec |> Base64.encode)
-                    //     ]
-                    // ]
-                    Bulma.field.div
-                        [
-                            Bulma.field.isGrouped
-                            Bulma.field.isGroupedCentered
-                            prop.children
-                                [
-                                    Bulma.control.div
-                                        [
-                                            Bulma.button.a
-                                                [
-                                                    Bulma.color.isLink
-                                                    prop.onClick (fun _ -> Review |> dispatch)
-                                                    prop.text "Review"
-                                                ]
-                                        ]
-                                    Bulma.control.div
-                                        [
-                                            Bulma.button.a
-                                                [ Bulma.color.isLink; prop.text "Submit" ]
-                                        ]
-                                    Bulma.control.div
-                                        [
-                                            Bulma.button.a
-                                                [
-                                                    Bulma.color.isLink
-                                                    prop.text "Save"
-                                                    prop.onClick (fun _ -> SaveFormSpec |> dispatch)
-                                                ]
-                                        ]
-                                ]
-                        ]
-                ]
+    Html.form [
+        prop.style [
+            style.margin 20
         ]
+        prop.children [
+            Bulma.field.div [
+                Bulma.label "Code"
+                Bulma.control.div [
+                    Bulma.input.text [
+                        prop.onChange (UpdateCode >> dispatch)
+                        prop.placeholder "form name"
+                        prop.value state.Form.Code
+                    ]
+                ]
+            ]
+            Bulma.field.div [
+                Bulma.label "Title"
+                Bulma.control.div [
+                    Bulma.input.text [
+                        prop.onChange (UpdateTitle >> dispatch)
+                        prop.placeholder "form title"
+                        prop.value state.Form.Title
+                    ]
+                ]
+            ]
+            Bulma.field.div [
+                Bulma.label "Abstract"
+                Bulma.control.div [
+                    Bulma.input.text [
+                        prop.onChange (UpdateAbstract >> dispatch)
+                        prop.placeholder "short description of the form"
+                    ]
+                ]
+            ]
+            Bulma.field.div [
+                Bulma.label "Status"
+                Bulma.control.div [
+                    Bulma.control.hasIconsLeft
+                    // prop.onSelect (UpdateStatus >> dispatch)
+                    prop.children [
+                        Bulma.select [
+                            Html.option "Enabled"
+                            Html.option "Disabled"
+                        ]
+                        Bulma.icon [
+                            Bulma.icon.isSmall
+                            Bulma.icon.isLeft
+                            prop.children [
+                                Html.i [
+                                    prop.className "fas fa-check"
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+
+            Bulma.field.div [
+                Bulma.label "Spec"
+                Bulma.control.div [
+                    Bulma.textarea [
+                        prop.onChange (UpdateSpec >> dispatch)
+                        prop.placeholder "Enter the FormSpec in JSON format"
+                        prop.value (
+                            // ""
+                            // let specRes =
+                            //     match Decode.Auto.fromString<FormSpec>(state.Form.Spec) with // state.Form.Spec
+                            //     | Ok spec ->
+                            //         UpdateSpec spec |> dispatch
+                            //         ""
+                            //     | Error a -> state.Form.Spec
+                            // match state.SelectedFormSpecOpt with
+                            // | Some formSpec ->
+                            //     let formSpecJson = Encode.Auto.toString<FormSpec>(0, formSpec)
+                            //     $"{formSpecJson}"
+                            // | _ ->
+                            //     state.Form.Spec
+                            state.Form.SpecString
+                        )
+                    ]
+                ]
+            ]
+            Bulma.field.div [
+                Bulma.label "Values"
+                Bulma.control.div [
+                    Bulma.textarea [
+                        prop.onChange (fun formValuesJson ->
+                            let dynamicFormRes =
+                                deserializeForm state.SelectedFormSpecOpt formValuesJson
+
+                            match dynamicFormRes with
+                            | Ok dynamicForm -> setDynamicForm (Some dynamicForm)
+
+                            | Result.Error err ->
+                                toast (Html.div "Error decoding form values from string!")
+                                |> ignore
+
+                        )
+                        prop.placeholder "Enter is the dynamicForm in JSON format"
+                        prop.value (
+                            match dynamicForm with
+                            | Some c -> serializeForm c
+                            | None -> ""
+                        )
+
+                    ]
+                ]
+            ]
+
+            Bulma.field.div [
+                Bulma.label "Spec in FormSpec Base64"
+                Html.span [
+                    prop.className "control"
+                    prop.style [
+                        style.display.block
+                        style.overflowWrap.anywhere
+                        style.fontSize 6
+                    ]
+                    prop.text (
+                        match state.SelectedFormSpecOpt with
+                        | Some formSpec ->
+                            let formSpecJson =
+                                Encode.Auto.toString<FormSpec> (0, formSpec) |> Base64.encode
+
+                            $"{formSpecJson}"
+                        | _ -> ""
+                    )
+                ]
+            ]
+
+            // Bulma.field.div [
+            //     Bulma.label "Spec in Base64 encoded format"
+            //     Html.span [
+            //         prop.className "control"
+            //         prop.style [
+            //             style.display.block
+            //             style.overflowWrap.anywhere
+            //             style.fontSize 6
+            //         ]
+            //         prop.text (state.Form.Spec |> Base64.encode)
+            //     ]
+            // ]
+            Bulma.field.div [
+                Bulma.field.isGrouped
+                Bulma.field.isGroupedCentered
+                prop.children [
+                    Bulma.control.div [
+                        Bulma.button.a [
+                            Bulma.color.isLink
+                            prop.onClick (fun _ -> Review |> dispatch)
+                            prop.text "Review"
+                        ]
+                    ]
+                    Bulma.control.div [
+                        Bulma.button.a [
+                            Bulma.color.isLink
+                            prop.text "Submit"
+                        ]
+                    ]
+                    Bulma.control.div [
+                        Bulma.button.a [
+                            Bulma.color.isLink
+                            prop.text "Save"
+                            prop.onClick (fun _ -> SaveFormSpec |> dispatch)
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    ]
 
 [<ReactComponent>]
 let DynamicFormRenderer (formSpec, dispatch, formComposeMode, setDynamicForm, dynamicFormOpt) =
-    Bulma.column
-        [
-            FormCompose.FormCompose(
-                {|
-                    FormSpec = formSpec
-                    DynamicForm = dynamicFormOpt
-                    Mode = formComposeMode
-                    NavigateToStep = (fun _ -> ())
-                    FormChanged = fun dynamicForm -> setDynamicForm (Some dynamicForm)
-                    SaveFormValuesCallback = fun dynamicForm -> Submit dynamicForm |> dispatch
-                    SubmissionSuccess = false
-                |}
-            )
-        ]
+    Bulma.column [
+        FormCompose.FormCompose(
+            {|
+                FormSpec = formSpec
+                DynamicForm = dynamicFormOpt
+                Mode = formComposeMode
+                NavigateToStep = (fun _ -> ())
+                FormChanged = fun dynamicForm -> setDynamicForm (Some dynamicForm)
+                SaveFormValuesCallback = fun dynamicForm -> Submit dynamicForm |> dispatch
+                SubmissionSuccess = false
+            |}
+        )
+    ]
 
 // type FormReviewProps = {|
 //     State: State
@@ -680,50 +694,49 @@ let Editor () =
 
     let state, dispatch = React.useElmish (init (formDetails), update, [||])
 
-    Html.div
-        [
-            match state.ViewMode with
-            | Editor ->
-                SpecSelector(state, dispatch, setDynamicForm)
-                SpecValuesEditor(state, dispatch, setDynamicForm, dynamicFormOpt)
-            | FillForm -> Html.none
+    Html.div [
+        match state.ViewMode with
+        | Editor ->
+            SpecSelector(state, dispatch, setDynamicForm)
+            SpecValuesEditor(state, dispatch, setDynamicForm, dynamicFormOpt)
+        | FillForm -> Html.none
 
-            match state.Review with
-            | false -> Html.none
-            | true ->
-                match state.SelectedFormSpecOpt with
-                | None -> Html.div []
-                | Some formSpec ->
-                    Bulma.columns
-                        [
-                            //This one gets a DynamicForm *option*, because the composer doesn't need an initial state for the internal values.
-                            Bulma.column
-                                [
-                                    DynamicFormRenderer(
-                                        formSpec,
-                                        dispatch,
-                                        FormComposeMode.Editable,
-                                        setDynamicForm,
-                                        dynamicFormOpt
-                                    )
-                                ]
-                            Bulma.column
-                                [
-                                    match state.ViewMode with
-                                    | Editor ->
-                                        //This one gets a FLAT DynamicForm
-                                        // Flat because it reviews *all fields in one page* and *not an option* because we can't review a form without values.
+        match state.Review with
+        | false -> Html.none
+        | true ->
+            match state.SelectedFormSpecOpt with
+            | None -> Html.div []
+            | Some formSpec ->
+                Bulma.columns [
+                    //This one gets a DynamicForm *option*, because the composer doesn't need an initial state for the internal values.
+                    Bulma.column [
+                        DynamicFormRenderer(
+                            formSpec,
+                            dispatch,
+                            FormComposeMode.Editable,
+                            setDynamicForm,
+                            dynamicFormOpt
+                        )
+                    ]
+                    Bulma.column [
+                        match state.ViewMode with
+                        | Editor ->
+                            //This one gets a FLAT DynamicForm
+                            // Flat because it reviews *all fields in one page* and *not an option* because we can't review a form without values.
 
-                                        ///////TODO: This is what it *should be*!!! Figure out why this doesn't refresh the fable forms!!!!!
-                                        //////       As it is, FormReview it's just a fn copy of the FormCompose component 🤬
-                                        // DynamicFormRenderer ( flatSpec, dispatch, FormComposeMode.ReadOnly, setDynamicForm, flatDynamicForm )
-                                        match dynamicFormOpt with
-                                        | Some dynamicForm ->
-                                            SinglePageReview
-                                                {| FormSpec = formSpec; DynamicForm = dynamicForm |}
-                                        | None -> Html.none
+                            ///////TODO: This is what it *should be*!!! Figure out why this doesn't refresh the fable forms!!!!!
+                            //////       As it is, FormReview it's just a fn copy of the FormCompose component 🤬
+                            // DynamicFormRenderer ( flatSpec, dispatch, FormComposeMode.ReadOnly, setDynamicForm, flatDynamicForm )
+                            match dynamicFormOpt with
+                            | Some dynamicForm ->
+                                SinglePageReview
+                                    {|
+                                        FormSpec = formSpec
+                                        DynamicForm = dynamicForm
+                                    |}
+                            | None -> Html.none
 
-                                    | FillForm -> Html.none
-                                ]
-                        ]
-        ]
+                        | FillForm -> Html.none
+                    ]
+                ]
+    ]

@@ -46,11 +46,22 @@ type IDesignerField =
 // abstract RenderEditor : obj
 // abstract ToSpecs : FieldType
 
-type IDesignerFieldType =
-    abstract DesignerKey: string
+type RegisteredFields(fields: IDesignerField list) =
+    let cachedMap = fields |> List.map (fun field -> field.Key, field) |> Map.ofList
+
+    member _.AsList = fields
+
+    member _.TryGetByKey key = cachedMap.TryFind key
+
+    member _.GetByKey key = cachedMap[key]
+
+    member _.AsMap = cachedMap
 
 // Output of the designer
-type FormSpecs = { Fields: FieldType list }
+type FormSpecs =
+    {
+        Fields: FieldType list
+    }
 
 // Transformation FormSpecs to JSON
 // Save it to the database

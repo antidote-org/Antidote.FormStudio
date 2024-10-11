@@ -36,54 +36,58 @@ type StepBreakProps =
 
 [<ReactComponent>]
 let StepBreak (props: StepBreakProps) =
-    Html.div
-        [
-            prop.className
-                [
-                    classes.stepBreak
-                    if props.ActiveField.State = AddingDependantKeys then
-                        classes.disabled
-                    else
-                        ""
-                ]
-            prop.children
-                [
-                    Html.button
-                        [
-                            prop.className classes.buttonMinimal
-                            prop.text "+ ADD STEP"
-                            prop.onClick (fun _ ->
-                                //add new step
-                                let newStep =
-                                    {
-                                        StepOrder = props.FormSpec.Steps |> List.length
-                                        StepLabel = "New Step"
-                                        // Icon = "fas fa-font"
-                                        Fields =
-                                            [
-                                                {
-                                                    FieldOrder = 0
-                                                    FieldKey = Guid.NewGuid().ToString()
-                                                    FieldType = FieldType.Text { Value = None }
-                                                    Label = "New Field"
-                                                    IsOptional = false
-                                                    IsDeprecated = false
-                                                    // Flags = []
-                                                    DependsOn = None
-                                                }
-                                            ]
-                                    }
-
-                                let outFormSpec =
-                                    { props.FormSpec with
-                                        Steps = props.FormSpec.Steps @ [ newStep ]
-                                    }
-
-                                props.OnChange outFormSpec
-                            )
-                        ]
-                ]
+    Html.div [
+        prop.className [
+            classes.stepBreak
+            if props.ActiveField.State = AddingDependantKeys then
+                classes.disabled
+            else
+                ""
         ]
+        prop.children [
+            Html.button [
+                prop.className classes.buttonMinimal
+                prop.text "+ ADD STEP"
+                prop.onClick (fun _ ->
+                    //add new step
+                    let newStep =
+                        {
+                            StepOrder = props.FormSpec.Steps |> List.length
+                            StepLabel = "New Step"
+                            // Icon = "fas fa-font"
+                            Fields =
+                                [
+                                    {
+                                        FieldOrder = 0
+                                        FieldKey = Guid.NewGuid().ToString()
+                                        FieldType =
+                                            FieldType.Text
+                                                {
+                                                    Value = None
+                                                }
+                                        Label = "New Field"
+                                        IsOptional = false
+                                        IsDeprecated = false
+                                        // Flags = []
+                                        DependsOn = None
+                                    }
+                                ]
+                        }
+
+                    let outFormSpec =
+                        { props.FormSpec with
+                            Steps =
+                                props.FormSpec.Steps
+                                @ [
+                                    newStep
+                                ]
+                        }
+
+                    props.OnChange outFormSpec
+                )
+            ]
+        ]
+    ]
 
 [<RequireQualifiedAccess>]
 type private BulmaFleldLayout =
@@ -104,91 +108,80 @@ type private BulmaHorizontalFieldProps =
 
 [<ReactComponent>]
 let private BulmaHorizontalField (props: BulmaHorizontalFieldProps) =
-    Bulma.field.div
-        [
-            prop.style [ style.display.flex; style.alignItems.center ]
-            if props.Layout = BulmaFleldLayout.Horizontal then
-                field.isHorizontal
-            prop.className
-                [
-                    if props.ActiveField.State = AddingDependantKeys then
-                        classes.disabled
-                ]
-            prop.children
-                [
-                    match props.Label with
-                    | Some label ->
-                        Bulma.fieldLabel
-                            [ fieldLabel.isNormal; prop.children [ Bulma.label label ] ]
-                    | None -> ()
-
-                    Bulma.fieldBody
-                        [
-                            Bulma.field.div
-                                [
-                                    prop.children
-                                        [
-                                            Bulma.control.p
-                                                [
-                                                    if props.LeftIcon |> Option.isSome then
-                                                        control.hasIconsLeft
-                                                    if props.RightIcon |> Option.isSome then
-                                                        control.hasIconsRight
-                                                    prop.children
-                                                        [
-                                                            Bulma.input.text
-                                                                [
-                                                                    input.isSmall
-                                                                    prop.placeholder
-                                                                        props.Placeholder
-                                                                    prop.value props.Value
-                                                                    prop.onChange props.OnChange
-                                                                ]
-
-                                                            match props.LeftIcon with
-                                                            | Some iconClass ->
-                                                                Bulma.icon
-                                                                    [
-                                                                        icon.isSmall
-                                                                        icon.isLeft
-                                                                        prop.children
-                                                                            [
-                                                                                Html.i
-                                                                                    [
-                                                                                        prop.classes
-                                                                                            [
-                                                                                                iconClass
-                                                                                            ]
-                                                                                    ]
-                                                                            ]
-                                                                    ]
-                                                            | None -> ()
-
-                                                            match props.RightIcon with
-                                                            | Some iconClass ->
-                                                                Bulma.icon
-                                                                    [
-                                                                        icon.isSmall
-                                                                        icon.isRight
-                                                                        prop.children
-                                                                            [
-                                                                                Html.i
-                                                                                    [
-                                                                                        prop.classes
-                                                                                            [
-                                                                                                iconClass
-                                                                                            ]
-                                                                                    ]
-                                                                            ]
-                                                                    ]
-                                                            | None -> ()
-                                                        ]
-                                                ]
-                                        ]
-                                ]
-                        ]
-                ]
+    Bulma.field.div [
+        prop.style [
+            style.display.flex
+            style.alignItems.center
         ]
+        if props.Layout = BulmaFleldLayout.Horizontal then
+            field.isHorizontal
+        prop.className [
+            if props.ActiveField.State = AddingDependantKeys then
+                classes.disabled
+        ]
+        prop.children [
+            match props.Label with
+            | Some label ->
+                Bulma.fieldLabel [
+                    fieldLabel.isNormal
+                    prop.children [
+                        Bulma.label label
+                    ]
+                ]
+            | None -> ()
+
+            Bulma.fieldBody [
+                Bulma.field.div [
+                    prop.children [
+                        Bulma.control.p [
+                            if props.LeftIcon |> Option.isSome then
+                                control.hasIconsLeft
+                            if props.RightIcon |> Option.isSome then
+                                control.hasIconsRight
+                            prop.children [
+                                Bulma.input.text [
+                                    input.isSmall
+                                    prop.placeholder props.Placeholder
+                                    prop.value props.Value
+                                    prop.onChange props.OnChange
+                                ]
+
+                                match props.LeftIcon with
+                                | Some iconClass ->
+                                    Bulma.icon [
+                                        icon.isSmall
+                                        icon.isLeft
+                                        prop.children [
+                                            Html.i [
+                                                prop.classes [
+                                                    iconClass
+                                                ]
+                                            ]
+                                        ]
+                                    ]
+                                | None -> ()
+
+                                match props.RightIcon with
+                                | Some iconClass ->
+                                    Bulma.icon [
+                                        icon.isSmall
+                                        icon.isRight
+                                        prop.children [
+                                            Html.i [
+                                                prop.classes [
+                                                    iconClass
+                                                ]
+                                            ]
+                                        ]
+                                    ]
+                                | None -> ()
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    ]
 
 type LabelEditProps =
     {|
@@ -202,25 +195,29 @@ type LabelEditProps =
 [<ReactComponent>]
 let LabelEdit (props: LabelEditProps) =
     if props.ActiveField.State = AddingDependantKeys then
-        Html.p [ prop.text props.FormField.Label ]
+        Html.p [
+            prop.text props.FormField.Label
+        ]
     else
-        Html.input
-            [
-                if not (System.String.IsNullOrWhiteSpace(props.FormField.Label)) then
-                    prop.className classes.inputAsLabel
-                else
-                    prop.className "input is-danger"
+        Html.input [
+            if not (System.String.IsNullOrWhiteSpace(props.FormField.Label)) then
+                prop.className classes.inputAsLabel
+            else
+                prop.className "input is-danger"
 
-                prop.onChange (fun (e: string) ->
-                    let newFormField = { props.FormField with Label = e }
+            prop.onChange (fun (e: string) ->
+                let newFormField =
+                    { props.FormField with
+                        Label = e
+                    }
 
-                    let outFormSpec =
-                        props.FormSpec |> updateFormFieldInFormSpecStep newFormField props.FormStep
+                let outFormSpec =
+                    props.FormSpec |> updateFormFieldInFormSpecStep newFormField props.FormStep
 
-                    props.OnChange outFormSpec
-                )
-                prop.value props.FormField.Label
-            ]
+                props.OnChange outFormSpec
+            )
+            prop.value props.FormField.Label
+        ]
 
 type FieldToolbarProps =
     {|
@@ -240,158 +237,169 @@ let FieldToolbar (props: FieldToolbarProps) =
         props.ActiveField.State = AddingDependantKeys
         && props.FormField.FieldOrder < props.ActiveField.FormFieldNumber
     then
-        Bulma.tag
-            [
-                Bulma.tag.isRounded
-                prop.style [ style.marginTop 5 ]
-                prop.classes [ "has-background-success"; "has-text-white"; "has-text-weight-bold" ]
-                prop.children
-                    [
-                        Html.span
-                            [
-                                prop.className "icon"
-                                prop.children [ Html.i [ prop.className "fas fa-arrows-alt" ] ]
-                            ]
-                        Html.span [ prop.text "Drag Me!" ]
-                    ]
-
+        Bulma.tag [
+            Bulma.tag.isRounded
+            prop.style [
+                style.marginTop 5
             ]
+            prop.classes [
+                "has-background-success"
+                "has-text-white"
+                "has-text-weight-bold"
+            ]
+            prop.children [
+                Html.span [
+                    prop.className "icon"
+                    prop.children [
+                        Html.i [
+                            prop.className "fas fa-arrows-alt"
+                        ]
+                    ]
+                ]
+                Html.span [
+                    prop.text "Drag Me!"
+                ]
+            ]
+
+        ]
     else if props.FormField.FieldOrder = props.ActiveField.FormFieldNumber then
-        Bulma.buttons
-            [
-                prop.style [ style.paddingBottom 10 ]
-                prop.children
-                    [
-                        Bulma.button.button
-                            [
-                                Bulma.color.isPrimary
-                                Bulma.button.isText
-                                prop.style [ style.textDecoration.none; style.marginTop 10 ]
-                                prop.disabled (props.FormField.FieldOrder <= 1)
-
-                                prop.onClick (fun e ->
-                                    e.stopPropagation ()
-
-                                    let step =
-                                        props.FormSpec
-                                        |> tryFindFormStepByStepNumber props.FormStepNumber
-
-                                    let outFormSpec =
-                                        props.FormSpec
-                                        |> moveFormFieldUpInFormSpec
-                                            props.FormStepNumber
-                                            props.FormField
-
-                                    props.OnChange outFormSpec
-
-                                    props.SetActiveField
-                                        { props.ActiveField with
-                                            FormFieldNumber = props.FormField.FieldOrder - 1
-                                            State = Idle
-                                        }
-                                )
-                                prop.classes [ "button"; "is-small"; "is-primary" ]
-                                // prop.type' "button"
-                                prop.children
-                                    [
-                                        Html.span
-                                            [
-                                                prop.className "icon"
-                                                prop.children
-                                                    [
-                                                        Html.i
-                                                            [
-                                                                prop.className
-                                                                    "fas fa-caret-square-up"
-                                                            ]
-                                                    ]
-                                            ]
-                                    ]
-                            ]
-                        Bulma.button.button
-                            [
-                                Bulma.color.isPrimary
-                                Bulma.button.isText
-                                prop.style [ style.textDecoration.none; style.marginTop 10 ]
-                                prop.disabled (
-                                    let currentStep =
-                                        match step with
-                                        | Some step -> (step.Fields |> List.length) - 1
-                                        | None -> 0
-
-                                    props.FormField.FieldOrder = currentStep
-                                )
-                                prop.onClick (fun e ->
-                                    e.stopPropagation ()
-
-                                    let outFormSpec =
-                                        props.FormSpec
-                                        |> moveFormFieldDownInFormSpec
-                                            props.FormStepNumber
-                                            props.FormField
-
-                                    props.OnChange outFormSpec
-
-                                    props.SetActiveField
-                                        { props.ActiveField with
-                                            FormFieldNumber = props.FormField.FieldOrder + 1
-                                            State = Idle
-                                        }
-                                )
-                                prop.classes [ "button"; "is-small"; "is-primary" ]
-                                // prop.type' "button"
-                                prop.children
-                                    [
-                                        Html.span
-                                            [
-                                                prop.className "icon"
-                                                prop.children
-                                                    [
-                                                        Html.i
-                                                            [
-                                                                prop.className
-                                                                    "fas fa-caret-square-down"
-                                                            ]
-                                                    ]
-                                            ]
-                                    ]
-                            ]
-                        Bulma.button.button
-                            [
-                                Bulma.color.isPrimary
-                                Bulma.button.isText
-                                prop.style [ style.textDecoration.none; style.marginTop 10 ]
-                                prop.onClick (fun e ->
-                                    e.stopPropagation ()
-
-                                    let outFormSpec =
-                                        props.FormSpec
-                                        |> removeFormFieldFromFormSpec
-                                            props.FormStepNumber
-                                            props.FormField
-
-                                    props.OnChange outFormSpec
-
-                                    props.SetActiveField
-                                        { props.ActiveField with
-                                            FormFieldNumber = props.FormField.FieldOrder - 1
-                                            State = Idle
-                                        }
-                                )
-                                prop.classes [ "button"; "is-small"; "is-danger" ]
-                                // prop.type' "button"
-                                prop.children
-                                    [
-                                        Html.span
-                                            [
-                                                prop.className "icon"
-                                                prop.children
-                                                    [ Html.i [ prop.className "fas fa-trash" ] ]
-                                            ]
-                                    ]
-                            ]
-                    ]
+        Bulma.buttons [
+            prop.style [
+                style.paddingBottom 10
             ]
+            prop.children [
+                Bulma.button.button [
+                    Bulma.color.isPrimary
+                    Bulma.button.isText
+                    prop.style [
+                        style.textDecoration.none
+                        style.marginTop 10
+                    ]
+                    prop.disabled (props.FormField.FieldOrder <= 1)
+
+                    prop.onClick (fun e ->
+                        e.stopPropagation ()
+
+                        let step =
+                            props.FormSpec |> tryFindFormStepByStepNumber props.FormStepNumber
+
+                        let outFormSpec =
+                            props.FormSpec
+                            |> moveFormFieldUpInFormSpec props.FormStepNumber props.FormField
+
+                        props.OnChange outFormSpec
+
+                        props.SetActiveField
+                            { props.ActiveField with
+                                FormFieldNumber = props.FormField.FieldOrder - 1
+                                State = Idle
+                            }
+                    )
+                    prop.classes [
+                        "button"
+                        "is-small"
+                        "is-primary"
+                    ]
+                    // prop.type' "button"
+                    prop.children [
+                        Html.span [
+                            prop.className "icon"
+                            prop.children [
+                                Html.i [
+                                    prop.className "fas fa-caret-square-up"
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+                Bulma.button.button [
+                    Bulma.color.isPrimary
+                    Bulma.button.isText
+                    prop.style [
+                        style.textDecoration.none
+                        style.marginTop 10
+                    ]
+                    prop.disabled (
+                        let currentStep =
+                            match step with
+                            | Some step -> (step.Fields |> List.length) - 1
+                            | None -> 0
+
+                        props.FormField.FieldOrder = currentStep
+                    )
+                    prop.onClick (fun e ->
+                        e.stopPropagation ()
+
+                        let outFormSpec =
+                            props.FormSpec
+                            |> moveFormFieldDownInFormSpec props.FormStepNumber props.FormField
+
+                        props.OnChange outFormSpec
+
+                        props.SetActiveField
+                            { props.ActiveField with
+                                FormFieldNumber = props.FormField.FieldOrder + 1
+                                State = Idle
+                            }
+                    )
+                    prop.classes [
+                        "button"
+                        "is-small"
+                        "is-primary"
+                    ]
+                    // prop.type' "button"
+                    prop.children [
+                        Html.span [
+                            prop.className "icon"
+                            prop.children [
+                                Html.i [
+                                    prop.className "fas fa-caret-square-down"
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+                Bulma.button.button [
+                    Bulma.color.isPrimary
+                    Bulma.button.isText
+                    prop.style [
+                        style.textDecoration.none
+                        style.marginTop 10
+                    ]
+                    prop.onClick (fun e ->
+                        e.stopPropagation ()
+
+                        let outFormSpec =
+                            props.FormSpec
+                            |> removeFormFieldFromFormSpec props.FormStepNumber props.FormField
+
+                        props.OnChange outFormSpec
+
+                        props.SetActiveField
+                            { props.ActiveField with
+                                FormFieldNumber = props.FormField.FieldOrder - 1
+                                State = Idle
+                            }
+                    )
+                    prop.classes [
+                        "button"
+                        "is-small"
+                        "is-danger"
+                    ]
+                    // prop.type' "button"
+                    prop.children [
+                        Html.span [
+                            prop.className "icon"
+                            prop.children [
+                                Html.i [
+                                    prop.className "fas fa-trash"
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ]
     else
         Html.none
 
@@ -407,228 +415,231 @@ type FieldContainerProps =
         SetActiveField: ActiveField -> unit
         IsFieldDragging: bool
         SetFieldDragging: bool -> unit
-        ListOfFields: IDesignerField list
+        RegisteredFields: RegisteredFields
     |}
 
 [<ReactComponent>]
 let FieldContainer (props: FieldContainerProps) =
     let isBeingDraggedOver, setIsBeingDraggedOver = React.useState false
 
-    Html.div
-        [
-            prop.name "field-container"
-            // prop.style [
-            //     style.display.flex
-            //     // style.justifyContent.start
-            //     style.alignItems.center
-            // ]
-            prop.draggable true
+    Html.div [
+        prop.name "field-container"
+        // prop.style [
+        //     style.display.flex
+        //     // style.justifyContent.start
+        //     style.alignItems.center
+        // ]
+        prop.draggable true
 
-            prop.onDragStart (fun e ->
-                let data =
-                    (DragSource.Designer_FormField_FieldKey props.FormField.FieldKey).ToPlainText
+        prop.onDragStart (fun e ->
+            let data =
+                (DragSource.Designer_FormField_FieldKey props.FormField.FieldKey).ToPlainText
 
-                e.dataTransfer.setData ("text/plain", data) |> ignore
+            e.dataTransfer.setData ("text/plain", data) |> ignore
 
-                props.SetFieldDragging true
-            )
+            props.SetFieldDragging true
+        )
 
-            prop.onDragEnter (fun (e: Types.DragEvent) ->
-                e.preventDefault ()
-                props.SetFieldDragging true
-            )
+        prop.onDragEnter (fun (e: Types.DragEvent) ->
+            e.preventDefault ()
+            props.SetFieldDragging true
+        )
 
-            prop.onDragLeave (fun (e: Types.DragEvent) ->
-                e.preventDefault ()
-                setIsBeingDraggedOver false
-            // props.SetFieldDragging false
-            )
+        prop.onDragLeave (fun (e: Types.DragEvent) ->
+            e.preventDefault ()
+            setIsBeingDraggedOver false
+        // props.SetFieldDragging false
+        )
 
-            prop.onDragEnd (fun (e: Types.DragEvent) ->
-                e.preventDefault ()
-                props.SetFieldDragging false
-            )
+        prop.onDragEnd (fun (e: Types.DragEvent) ->
+            e.preventDefault ()
+            props.SetFieldDragging false
+        )
 
-            prop.onDragOver (fun (e: Types.DragEvent) ->
-                e.preventDefault ()
-                setIsBeingDraggedOver true
-            )
+        prop.onDragOver (fun (e: Types.DragEvent) ->
+            e.preventDefault ()
+            setIsBeingDraggedOver true
+        )
 
-            prop.onDrop (fun (e: Types.DragEvent) ->
-                e.preventDefault ()
-                setIsBeingDraggedOver false
-                props.SetFieldDragging false
+        prop.onDrop (fun (e: Types.DragEvent) ->
+            e.preventDefault ()
+            setIsBeingDraggedOver false
+            props.SetFieldDragging false
 
-                let dragSource = e.dataTransfer.getData ("text/plain") |> tryGetDragSourceFromData
+            let dragSource = e.dataTransfer.getData ("text/plain") |> tryGetDragSourceFromData
 
-                match dragSource with
-                | Some(DragSource.Designer_FormFieldType_Key key) ->
-                    let outFormSpec =
-                        insertDesignerFieldTypeToStepAt
-                            key
-                            props.FormStep.StepOrder
-                            props.FormField.FieldOrder
-                            props.FormSpec
-                            props.ListOfFields
+            match dragSource with
+            | Some(DragSource.Designer_FormFieldType_Key key) ->
+                let outFormSpec =
+                    insertDesignerFieldTypeToStepAt
+                        key
+                        props.FormStep.StepOrder
+                        props.FormField.FieldOrder
+                        props.FormSpec
+                        props.RegisteredFields
 
-                    props.OnChange outFormSpec
+                props.OnChange outFormSpec
 
-                | Some(DragSource.Designer_FormField_FieldKey fieldKey) ->
-                    let fields = props.FormStep.Fields
-                    let fieldBeingInserted = fields |> List.find (fun f -> f.FieldKey = fieldKey)
-                    let thisField = props.FormField
+            | Some(DragSource.Designer_FormField_FieldKey fieldKey) ->
+                let fields = props.FormStep.Fields
+                let fieldBeingInserted = fields |> List.find (fun f -> f.FieldKey = fieldKey)
+                let thisField = props.FormField
 
-                    let fields =
-                        props.FormSpec.Steps
-                        |> List.find (fun s -> s.StepOrder = props.FormStep.StepOrder)
-                        |> fun step -> step.Fields
+                let fields =
+                    props.FormSpec.Steps
+                    |> List.find (fun s -> s.StepOrder = props.FormStep.StepOrder)
+                    |> fun step -> step.Fields
 
-                    let outFields =
-                        fields
-                        |> List.map (fun f ->
-                            if f.FieldKey = fieldBeingInserted.FieldKey then
-                                thisField
-                            elif f.FieldKey = thisField.FieldKey then
-                                fieldBeingInserted
-                            else
-                                f
-                        )
-                        |> List.mapi (fun i f -> { f with FieldOrder = i + 1 })
+                let outFields =
+                    fields
+                    |> List.map (fun f ->
+                        if f.FieldKey = fieldBeingInserted.FieldKey then
+                            thisField
+                        elif f.FieldKey = thisField.FieldKey then
+                            fieldBeingInserted
+                        else
+                            f
+                    )
+                    |> List.mapi (fun i f ->
+                        { f with
+                            FieldOrder = i + 1
+                        }
+                    )
 
-                    let outFormSpec =
-                        { props.FormSpec with
-                            Steps =
-                                props.FormSpec.Steps
-                                |> List.map (fun s ->
-                                    if s.StepOrder = props.FormStep.StepOrder then
-                                        { s with Fields = outFields }
-                                    else
-                                        s
-                                )
+                let outFormSpec =
+                    { props.FormSpec with
+                        Steps =
+                            props.FormSpec.Steps
+                            |> List.map (fun s ->
+                                if s.StepOrder = props.FormStep.StepOrder then
+                                    { s with
+                                        Fields = outFields
+                                    }
+                                else
+                                    s
+                            )
+                    }
+
+                props.OnChange outFormSpec
+
+                // props.OnChange (props.FormSpec |> moveFieldByKeyToPositionInFormStepSpec fieldKey props.FormField.FieldOrder props.FormStep.StepOrder )
+                ()
+            | _ -> ()
+        )
+
+        prop.children [
+            //TODO: The before and after field container divs will serve as the drop targets for adding fields before and after the current field.
+            Html.div [
+                prop.className classes.fieldBeforeAndAfter
+            ]
+            Html.div [
+                prop.style [
+                    style.width (length.perc 100)
+                ]
+                prop.classes [
+                    classes.field
+                    if props.IsFieldDragging then
+                        classes.fieldDraggingHint
+
+                    if isBeingDraggedOver then
+                        classes.fieldIsBeingDraggedOver
+
+                    if
+                        props.FormField.FieldOrder = props.ActiveField.FormFieldNumber
+                        && props.FormStep.StepOrder = props.SelectedStepNumber
+                    then
+                        classes.fieldSelected
+                    else if
+                        props.ActiveField.State = AddingDependantKeys
+                        && props.FormField.FieldOrder < props.ActiveField.FormFieldNumber
+                        && props.FormStep.StepOrder = props.SelectedStepNumber
+                    then
+                        classes.fieldDrag
+                    else if
+                        props.ActiveField.State = AddingDependantKeys
+                        && props.FormField.FieldOrder > props.ActiveField.FormFieldNumber
+                    then //&& step.StepOrder < props.SelectedStepNumber then
+                        classes.disabled
+                    else if
+                        props.ActiveField.State = AddingDependantKeys
+                        && props.FormStep.StepOrder <> props.SelectedStepNumber
+                    then
+                        classes.disabled
+                ]
+
+                prop.onClick (fun _ ->
+                    props.SetActiveField
+                        {
+                            FormStepNumber = props.FormStep.StepOrder
+                            FormFieldNumber = props.FormField.FieldOrder
+                            State = Idle
                         }
 
-                    props.OnChange outFormSpec
+                    props.SetStepNumber props.FormStep.StepOrder
+                )
+                prop.children [
 
-                    // props.OnChange (props.FormSpec |> moveFieldByKeyToPositionInFormStepSpec fieldKey props.FormField.FieldOrder props.FormStep.StepOrder )
-                    ()
-                | _ -> ()
-            )
-
-            prop.children
-                [
-                    //TODO: The before and after field container divs will serve as the drop targets for adding fields before and after the current field.
-                    Html.div [ prop.className classes.fieldBeforeAndAfter ]
-                    Html.div
-                        [
-                            prop.style [ style.width (length.perc 100) ]
-                            prop.classes
-                                [
-                                    classes.field
-                                    if props.IsFieldDragging then
-                                        classes.fieldDraggingHint
-
-                                    if isBeingDraggedOver then
-                                        classes.fieldIsBeingDraggedOver
-
-                                    if
-                                        props.FormField.FieldOrder = props.ActiveField.FormFieldNumber
-                                        && props.FormStep.StepOrder = props.SelectedStepNumber
-                                    then
-                                        classes.fieldSelected
-                                    else if
-                                        props.ActiveField.State = AddingDependantKeys
-                                        && props.FormField.FieldOrder < props.ActiveField.FormFieldNumber
-                                        && props.FormStep.StepOrder = props.SelectedStepNumber
-                                    then
-                                        classes.fieldDrag
-                                    else if
-                                        props.ActiveField.State = AddingDependantKeys
-                                        && props.FormField.FieldOrder > props.ActiveField.FormFieldNumber
-                                    then //&& step.StepOrder < props.SelectedStepNumber then
-                                        classes.disabled
-                                    else if
-                                        props.ActiveField.State = AddingDependantKeys
-                                        && props.FormStep.StepOrder <> props.SelectedStepNumber
-                                    then
-                                        classes.disabled
-                                ]
-
-                            prop.onClick (fun _ ->
-                                props.SetActiveField
-                                    {
-                                        FormStepNumber = props.FormStep.StepOrder
-                                        FormFieldNumber = props.FormField.FieldOrder
-                                        State = Idle
-                                    }
-
-                                props.SetStepNumber props.FormStep.StepOrder
-                            )
-                            prop.children
-                                [
-
-                                    Html.div
-                                        [
-                                            prop.style
-                                                [
-                                                    style.display.flex
-                                                    style.justifyContent.spaceBetween
-                                                ]
-                                            prop.children
-                                                [
-                                                    LabelEdit
-                                                        {|
-                                                            FormSpec = props.FormSpec
-                                                            FormStep = props.FormStep
-                                                            FormField = props.FormField
-                                                            OnChange = props.OnChange
-                                                            ActiveField = props.ActiveField
-                                                        |}
-
-                                                    FieldToolbar
-                                                        {|
-                                                            FormSpec = props.FormSpec
-                                                            FormStepNumber =
-                                                                props.ActiveField.FormStepNumber
-                                                            FormField = props.FormField
-                                                            OnChange = props.OnChange
-                                                            ActiveField = props.ActiveField
-                                                            SetActiveField = props.SetActiveField
-                                                        |}
-                                                ]
-                                        ]
-                                    MockField.MockField
-                                        {|
-                                            FormSpec = props.FormSpec
-                                            FormStep = props.FormStep
-                                            FormField = props.FormField
-                                            ActiveField = props.ActiveField
-                                            SetActiveField = props.SetActiveField
-                                            OnChange = props.OnChange
-                                            ListOfFields = props.ListOfFields
-                                        |}
-                                ]
+                    Html.div [
+                        prop.style [
+                            style.display.flex
+                            style.justifyContent.spaceBetween
                         ]
-                    Html.div [ prop.className classes.fieldBeforeAndAfter ]
-                // Html.span [
-                //     // prop.onDragStart (fun e ->
-                //     //     let data = (DragSource.Designer_FormField_FieldKey props.FormField.FieldKey).ToPlainText
-                //     //     e.dataTransfer.setData("text/plain", data)
-                //     //     |> ignore
-                //     // )
-                //     prop.children [
-                //         Bulma.icon [
-                //             Html.i [
-                //                 prop.style [
-                //                     style.color "#bfbfbf"
-                //                 ]
-                //                 prop.className "fas fa-bars"
-                //             ]
-                //         ]
-                //     ]
+                        prop.children [
+                            LabelEdit
+                                {|
+                                    FormSpec = props.FormSpec
+                                    FormStep = props.FormStep
+                                    FormField = props.FormField
+                                    OnChange = props.OnChange
+                                    ActiveField = props.ActiveField
+                                |}
 
-                // ]
+                            FieldToolbar
+                                {|
+                                    FormSpec = props.FormSpec
+                                    FormStepNumber = props.ActiveField.FormStepNumber
+                                    FormField = props.FormField
+                                    OnChange = props.OnChange
+                                    ActiveField = props.ActiveField
+                                    SetActiveField = props.SetActiveField
+                                |}
+                        ]
+                    ]
+                    MockField.MockField
+                        {|
+                            FormSpec = props.FormSpec
+                            FormStep = props.FormStep
+                            FormField = props.FormField
+                            ActiveField = props.ActiveField
+                            SetActiveField = props.SetActiveField
+                            OnChange = props.OnChange
+                            RegisteredFields = props.RegisteredFields
+                        |}
                 ]
+            ]
+            Html.div [
+                prop.className classes.fieldBeforeAndAfter
+            ]
+        // Html.span [
+        //     // prop.onDragStart (fun e ->
+        //     //     let data = (DragSource.Designer_FormField_FieldKey props.FormField.FieldKey).ToPlainText
+        //     //     e.dataTransfer.setData("text/plain", data)
+        //     //     |> ignore
+        //     // )
+        //     prop.children [
+        //         Bulma.icon [
+        //             Html.i [
+        //                 prop.style [
+        //                     style.color "#bfbfbf"
+        //                 ]
+        //                 prop.className "fas fa-bars"
+        //             ]
+        //         ]
+        //     ]
+
+        // ]
         ]
+    ]
 
 type DynamicFormSpecDetailsProps =
     {|
@@ -643,58 +654,69 @@ let DynamicFormSpecDetails (props: DynamicFormSpecDetailsProps) =
 
     let formSpecBase64, setFormSpecBase64 = React.useState ""
 
-    React.fragment
-        [
-            Html.hr []
-            Bulma.columns
-                [
-                    Bulma.column
-                        [
+    React.fragment [
+        Html.hr []
+        Bulma.columns [
+            Bulma.column [
 
-                            BulmaHorizontalField
-                                {|
-                                    Label = Some "Title"
-                                    Placeholder = "Name as it will appear in the assessments list"
-                                    Value = props.FormSpec.Title
-                                    Layout = BulmaFleldLayout.Horizontal
-                                    OnChange =
-                                        (fun e ->
-                                            props.OnChange(
-                                                { props.FormSpec with
-                                                    Id = Guid.NewGuid()
-                                                    Title = e
-                                                }
-                                            )
-                                        )
-                                    LeftIcon = Some("fas fa-heading")
-                                    RightIcon = None
-                                    ActiveField = props.ActiveField
-                                |}
-                            BulmaHorizontalField
-                                {|
-                                    Label = Some "Abstract"
-                                    Placeholder = "Short description of the form, and its purpose"
-                                    Value = props.FormSpec.Abstract
-                                    Layout = BulmaFleldLayout.Horizontal
-                                    OnChange =
-                                        (fun e ->
-                                            props.OnChange({ props.FormSpec with Abstract = e })
-                                        )
-                                    LeftIcon = Some("fas fa-paragraph")
-                                    RightIcon = None
-                                    ActiveField = props.ActiveField
-                                |}
+                BulmaHorizontalField
+                    {|
+                        Label = Some "Title"
+                        Placeholder = "Name as it will appear in the assessments list"
+                        Value = props.FormSpec.Title
+                        Layout = BulmaFleldLayout.Horizontal
+                        OnChange =
+                            (fun e ->
+                                props.OnChange(
+                                    { props.FormSpec with
+                                        Id = Guid.NewGuid()
+                                        Title = e
+                                    }
+                                )
+                            )
+                        LeftIcon = Some("fas fa-heading")
+                        RightIcon = None
+                        ActiveField = props.ActiveField
+                    |}
+                BulmaHorizontalField
+                    {|
+                        Label = Some "Abstract"
+                        Placeholder = "Short description of the form, and its purpose"
+                        Value = props.FormSpec.Abstract
+                        Layout = BulmaFleldLayout.Horizontal
+                        OnChange =
+                            (fun e ->
+                                props.OnChange(
+                                    { props.FormSpec with
+                                        Abstract = e
+                                    }
+                                )
+                            )
+                        LeftIcon = Some("fas fa-paragraph")
+                        RightIcon = None
+                        ActiveField = props.ActiveField
+                    |}
 
-                            Antidote.React.FormDesigner.Designer.CategoryTags.CategoryTags
-                                {| FormSpec = props.FormSpec; OnChange = props.OnChange |}
-                            Antidote.React.FormDesigner.Designer.AssociatedCodes.AssociatedCodes
-                                {| FormSpec = props.FormSpec; OnChange = props.OnChange |}
-                            SpecScore {| FormSpec = props.FormSpec; OnChange = props.OnChange |}
-                        ]
-                // Bulma.column [
-                // ]
-                ]
+                Antidote.React.FormDesigner.Designer.CategoryTags.CategoryTags
+                    {|
+                        FormSpec = props.FormSpec
+                        OnChange = props.OnChange
+                    |}
+                Antidote.React.FormDesigner.Designer.AssociatedCodes.AssociatedCodes
+                    {|
+                        FormSpec = props.FormSpec
+                        OnChange = props.OnChange
+                    |}
+                SpecScore
+                    {|
+                        FormSpec = props.FormSpec
+                        OnChange = props.OnChange
+                    |}
+            ]
+        // Bulma.column [
+        // ]
         ]
+    ]
 
 // type FormSpecCategory =
 //     | Template
@@ -916,391 +938,288 @@ let NavigationMenu (props: NavigationMenuProps) =
     let navbarBurgerIsActive, setNavbarBurgerIsActive = React.useState false
     // let showLoadExistingForm, setShowLoadExistingForm = React.useState false
 
-    Html.nav
-        [
-            prop.className
-                [
-                    if props.ActiveField.State = AddingDependantKeys then
-                        classes.disabled
-                ]
-
-            prop.className "navbar is-dark"
-            prop.style [ style.custom ("zIndex", "unset") ]
-            prop.children
-                [
-                    Html.div
-                        [
-                            prop.className "container"
-                            prop.children
-                                [
-
-                                    Html.div
-                                        [
-                                            prop.className "navbar-brand"
-                                            prop.children
-                                                [
-                                                    // Html.a [
-                                                    //     prop.className "navbar-item"
-                                                    //     prop.href "https://bulma.io"
-                                                    //     prop.children [
-                                                    //         Html.img [
-                                                    //             prop.src "https://bulma.io/images/bulma-logo.png"
-                                                    //             prop.alt "Bulma: a modern CSS framework based on Flexbox"
-                                                    //             prop.width 112
-                                                    //             prop.height 28
-                                                    //         ]
-                                                    //     ]
-                                                    // ]
-                                                    Html.a
-                                                        [
-                                                            prop.text "NEW"
-                                                            prop.onClick (fun _ ->
-                                                                props.OnChange defaultFormSpec
-                                                            )
-                                                            prop.classes
-                                                                [
-                                                                    "navbar-item"
-                                                                    "is-hidden-desktop"
-                                                                ]
-                                                        ]
-                                                    Html.a
-                                                        [
-                                                            prop.text "SAVE"
-                                                            prop.onClick (fun _ ->
-                                                                props.SaveFormSpec false
-                                                            )
-                                                            prop.classes
-                                                                [
-                                                                    "navbar-item"
-                                                                    "is-hidden-desktop"
-                                                                ]
-                                                        ]
-
-                                                    Html.a
-                                                        [
-                                                            prop.text "PUBLISH"
-                                                            prop.onClick (fun _ ->
-                                                                props.SaveFormSpec true
-                                                            )
-                                                            prop.classes
-                                                                [
-                                                                    "navbar-item"
-                                                                    "is-hidden-desktop"
-                                                                ]
-                                                        ]
-
-                                                    Html.a
-                                                        [
-                                                            prop.onClick (fun _ ->
-                                                                props.SetIsLoadExistingFormShowing
-                                                                    true
-                                                            )
-                                                            prop.text "LOAD"
-                                                            prop.classes
-                                                                [
-                                                                    "navbar-item"
-                                                                    "is-hidden-desktop"
-                                                                ]
-                                                        ]
-
-                                                    Html.div
-                                                        [
-                                                            prop.classes
-                                                                [
-                                                                    "navbar-item"
-                                                                    "is-hidden-desktop"
-                                                                ]
-                                                            prop.children
-                                                                [
-                                                                    Html.div
-                                                                        [
-                                                                            prop.classes
-                                                                                [
-                                                                                    "field"
-                                                                                    "is-grouped"
-                                                                                ]
-                                                                            prop.children
-                                                                                [
-                                                                                    Html.p
-                                                                                        [
-                                                                                            prop.className
-                                                                                                "control"
-                                                                                            prop.children
-                                                                                                [
-                                                                                                    Html.a
-                                                                                                        [
-                                                                                                            prop.classes
-                                                                                                                [
-                                                                                                                    "button"
-                                                                                                                    "is-primary"
-                                                                                                                ]
-                                                                                                            if
-                                                                                                                props.FormSpec.Steps
-                                                                                                                |> allStepsHaveFields
-                                                                                                            then
-                                                                                                                prop.onClick (fun
-                                                                                                                                  _ ->
-                                                                                                                    props.SetIsPreview
-                                                                                                                        true
-                                                                                                                )
-                                                                                                            else
-                                                                                                                prop.disabled
-                                                                                                                    true
-
-                                                                                                            prop.children
-                                                                                                                [
-                                                                                                                    Html.span
-                                                                                                                        [
-                                                                                                                            prop.className
-                                                                                                                                "icon"
-                                                                                                                            prop.children
-                                                                                                                                [
-                                                                                                                                    Html.i
-                                                                                                                                        [
-                                                                                                                                            prop.classes
-                                                                                                                                                [
-                                                                                                                                                    "fas"
-                                                                                                                                                    "fa-eye"
-                                                                                                                                                ]
-                                                                                                                                        ]
-                                                                                                                                ]
-                                                                                                                        ]
-                                                                                                                    Html.span
-                                                                                                                        "PREVIEW"
-                                                                                                                ]
-                                                                                                        ]
-                                                                                                ]
-                                                                                        ]
-                                                                                ]
-                                                                        ]
-                                                                ]
-                                                        ]
-
-                                                // Html.div [
-                                                //     prop.onClick (fun _ -> setNavbarBurgerIsActive (not navbarBurgerIsActive) )
-                                                //     prop.classes [
-                                                //         "navbar-burger"
-                                                //         "burger"
-
-                                                //         if navbarBurgerIsActive
-                                                //         then "is-active"
-                                                //         else ""
-                                                //     ]
-                                                //     prop.children [
-                                                //         Html.span []
-                                                //         Html.span []
-                                                //         Html.span []
-                                                //     ]
-                                                // ]
-                                                ]
-                                        ]
-                                    Html.div
-                                        [
-                                            prop.className "navbar-menu"
-                                            prop.id "navMenuExample11"
-                                            prop.children
-                                                [
-                                                    Html.div
-                                                        [
-                                                            prop.classes
-                                                                [
-                                                                    "navbar-start"
-                                                                    if navbarBurgerIsActive then
-                                                                        "is-active"
-                                                                    else
-                                                                        ""
-                                                                ]
-                                                            prop.children
-                                                                [
-                                                                    Html.a
-                                                                        [
-                                                                            prop.text "NEW"
-                                                                            prop.onClick (fun _ ->
-                                                                                props.OnChange
-                                                                                    defaultFormSpec
-                                                                            )
-                                                                            prop.classes
-                                                                                [
-                                                                                    "navbar-item"
-                                                                                    ""
-                                                                                ]
-
-                                                                        ]
-
-                                                                    Html.a
-                                                                        [
-                                                                            prop.text "SAVE"
-                                                                            prop.onClick (fun _ ->
-                                                                                props.SaveFormSpec
-                                                                                    false
-                                                                            )
-                                                                            prop.classes
-                                                                                [
-                                                                                    "navbar-item"
-                                                                                    ""
-                                                                                ]
-                                                                        ]
-
-                                                                    Html.a
-                                                                        [
-                                                                            prop.text "PUBLISH"
-                                                                            prop.onClick (fun _ ->
-                                                                                props.SaveFormSpec
-                                                                                    true
-                                                                            )
-                                                                            prop.classes
-                                                                                [
-                                                                                    "navbar-item"
-                                                                                    ""
-                                                                                ]
-                                                                        ]
-
-                                                                    Html.a
-                                                                        [
-                                                                            prop.onClick (fun _ ->
-                                                                                props.SetIsLoadExistingFormShowing
-                                                                                    true
-                                                                            )
-                                                                            prop.text "LOAD"
-                                                                            prop.classes
-                                                                                [
-                                                                                    "navbar-item"
-                                                                                    ""
-                                                                                ]
-                                                                        ]
-
-                                                                    Html.div
-                                                                        [
-                                                                            prop.classes
-                                                                                [
-                                                                                    "navbar-item"
-                                                                                    "has-dropdown"
-                                                                                    "is-hoverable"
-                                                                                ]
-                                                                            prop.children
-                                                                                [
-                                                                                    Html.div
-                                                                                        [
-                                                                                            prop.className
-                                                                                                "navbar-link"
-                                                                                            prop.text
-                                                                                                "More "
-                                                                                        ]
-                                                                                    Html.div
-                                                                                        [
-                                                                                            prop.classes
-                                                                                                [
-                                                                                                    "navbar-dropdown"
-                                                                                                    ""
-                                                                                                ]
-                                                                                            prop.id
-                                                                                                "moreDropdown"
-                                                                                            prop.children
-                                                                                                [
-                                                                                                    Html.a
-                                                                                                        [
-                                                                                                            prop.text
-                                                                                                                "Log Spec"
-                                                                                                            prop.onClick (fun
-                                                                                                                              _ ->
-                                                                                                                printfn
-                                                                                                                    $"FormSpec: {Thoth.Json.Encode.Auto.toString (props.FormSpec)}"
-                                                                                                            // printfn $"Encoded: {Base64.encode(Thoth.Json.Encode.Auto.toString(props.FormSpec))}"
-                                                                                                            )
-                                                                                                            prop.classes
-                                                                                                                [
-                                                                                                                    "navbar-item"
-                                                                                                                    ""
-                                                                                                                ]
-                                                                                                        ]
-                                                                                                ]
-                                                                                        ]
-                                                                                ]
-                                                                        ]
-                                                                ]
-                                                        ]
-                                                    Html.div
-                                                        [
-                                                            prop.className "navbar-end"
-                                                            prop.children
-                                                                [
-                                                                    Html.div
-                                                                        [
-                                                                            prop.className
-                                                                                "navbar-item"
-                                                                            prop.children
-                                                                                [
-                                                                                    Html.div
-                                                                                        [
-                                                                                            prop.classes
-                                                                                                [
-                                                                                                    "field"
-                                                                                                    "is-grouped"
-                                                                                                ]
-                                                                                            prop.children
-                                                                                                [
-                                                                                                    Html.p
-                                                                                                        [
-                                                                                                            prop.className
-                                                                                                                "control"
-                                                                                                            prop.children
-                                                                                                                [
-                                                                                                                    Html.a
-                                                                                                                        [
-                                                                                                                            prop.classes
-                                                                                                                                [
-                                                                                                                                    "button"
-                                                                                                                                    "is-primary"
-                                                                                                                                ]
-                                                                                                                            if
-                                                                                                                                props.FormSpec.Steps
-                                                                                                                                |> allStepsHaveFields
-                                                                                                                            then
-                                                                                                                                prop.onClick (fun
-                                                                                                                                                  _ ->
-                                                                                                                                    props.SetIsPreview
-                                                                                                                                        true
-                                                                                                                                )
-                                                                                                                            else
-                                                                                                                                prop.disabled
-                                                                                                                                    true
-
-                                                                                                                            prop.children
-                                                                                                                                [
-                                                                                                                                    Html.span
-                                                                                                                                        [
-                                                                                                                                            prop.className
-                                                                                                                                                "icon"
-                                                                                                                                            prop.children
-                                                                                                                                                [
-                                                                                                                                                    Html.i
-                                                                                                                                                        [
-                                                                                                                                                            prop.classes
-                                                                                                                                                                [
-                                                                                                                                                                    "fas"
-                                                                                                                                                                    "fa-eye"
-                                                                                                                                                                ]
-                                                                                                                                                        ]
-                                                                                                                                                ]
-                                                                                                                                        ]
-                                                                                                                                    Html.span
-                                                                                                                                        "PREVIEW"
-                                                                                                                                ]
-                                                                                                                        ]
-                                                                                                                ]
-                                                                                                        ]
-                                                                                                ]
-                                                                                        ]
-                                                                                ]
-                                                                        ]
-                                                                ]
-                                                        ]
-                                                ]
-                                        ]
-                                ]
-                        ]
-                ]
+    Html.nav [
+        prop.className [
+            if props.ActiveField.State = AddingDependantKeys then
+                classes.disabled
         ]
+
+        prop.className "navbar is-dark"
+        prop.style [
+            style.custom ("zIndex", "unset")
+        ]
+        prop.children [
+            Html.div [
+                prop.className "container"
+                prop.children [
+
+                    Html.div [
+                        prop.className "navbar-brand"
+                        prop.children [
+                            // Html.a [
+                            //     prop.className "navbar-item"
+                            //     prop.href "https://bulma.io"
+                            //     prop.children [
+                            //         Html.img [
+                            //             prop.src "https://bulma.io/images/bulma-logo.png"
+                            //             prop.alt "Bulma: a modern CSS framework based on Flexbox"
+                            //             prop.width 112
+                            //             prop.height 28
+                            //         ]
+                            //     ]
+                            // ]
+                            Html.a [
+                                prop.text "NEW"
+                                prop.onClick (fun _ -> props.OnChange defaultFormSpec)
+                                prop.classes [
+                                    "navbar-item"
+                                    "is-hidden-desktop"
+                                ]
+                            ]
+                            Html.a [
+                                prop.text "SAVE"
+                                prop.onClick (fun _ -> props.SaveFormSpec false)
+                                prop.classes [
+                                    "navbar-item"
+                                    "is-hidden-desktop"
+                                ]
+                            ]
+
+                            Html.a [
+                                prop.text "PUBLISH"
+                                prop.onClick (fun _ -> props.SaveFormSpec true)
+                                prop.classes [
+                                    "navbar-item"
+                                    "is-hidden-desktop"
+                                ]
+                            ]
+
+                            Html.a [
+                                prop.onClick (fun _ -> props.SetIsLoadExistingFormShowing true)
+                                prop.text "LOAD"
+                                prop.classes [
+                                    "navbar-item"
+                                    "is-hidden-desktop"
+                                ]
+                            ]
+
+                            Html.div [
+                                prop.classes [
+                                    "navbar-item"
+                                    "is-hidden-desktop"
+                                ]
+                                prop.children [
+                                    Html.div [
+                                        prop.classes [
+                                            "field"
+                                            "is-grouped"
+                                        ]
+                                        prop.children [
+                                            Html.p [
+                                                prop.className "control"
+                                                prop.children [
+                                                    Html.a [
+                                                        prop.classes [
+                                                            "button"
+                                                            "is-primary"
+                                                        ]
+                                                        if
+                                                            props.FormSpec.Steps
+                                                            |> allStepsHaveFields
+                                                        then
+                                                            prop.onClick (fun _ ->
+                                                                props.SetIsPreview true
+                                                            )
+                                                        else
+                                                            prop.disabled true
+
+                                                        prop.children [
+                                                            Html.span [
+                                                                prop.className "icon"
+                                                                prop.children [
+                                                                    Html.i [
+                                                                        prop.classes [
+                                                                            "fas"
+                                                                            "fa-eye"
+                                                                        ]
+                                                                    ]
+                                                                ]
+                                                            ]
+                                                            Html.span "PREVIEW"
+                                                        ]
+                                                    ]
+                                                ]
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+
+                        // Html.div [
+                        //     prop.onClick (fun _ -> setNavbarBurgerIsActive (not navbarBurgerIsActive) )
+                        //     prop.classes [
+                        //         "navbar-burger"
+                        //         "burger"
+
+                        //         if navbarBurgerIsActive
+                        //         then "is-active"
+                        //         else ""
+                        //     ]
+                        //     prop.children [
+                        //         Html.span []
+                        //         Html.span []
+                        //         Html.span []
+                        //     ]
+                        // ]
+                        ]
+                    ]
+                    Html.div [
+                        prop.className "navbar-menu"
+                        prop.id "navMenuExample11"
+                        prop.children [
+                            Html.div [
+                                prop.classes [
+                                    "navbar-start"
+                                    if navbarBurgerIsActive then
+                                        "is-active"
+                                    else
+                                        ""
+                                ]
+                                prop.children [
+                                    Html.a [
+                                        prop.text "NEW"
+                                        prop.onClick (fun _ -> props.OnChange defaultFormSpec)
+                                        prop.classes [
+                                            "navbar-item"
+                                            ""
+                                        ]
+
+                                    ]
+
+                                    Html.a [
+                                        prop.text "SAVE"
+                                        prop.onClick (fun _ -> props.SaveFormSpec false)
+                                        prop.classes [
+                                            "navbar-item"
+                                            ""
+                                        ]
+                                    ]
+
+                                    Html.a [
+                                        prop.text "PUBLISH"
+                                        prop.onClick (fun _ -> props.SaveFormSpec true)
+                                        prop.classes [
+                                            "navbar-item"
+                                            ""
+                                        ]
+                                    ]
+
+                                    Html.a [
+                                        prop.onClick (fun _ ->
+                                            props.SetIsLoadExistingFormShowing true
+                                        )
+                                        prop.text "LOAD"
+                                        prop.classes [
+                                            "navbar-item"
+                                            ""
+                                        ]
+                                    ]
+
+                                    Html.div [
+                                        prop.classes [
+                                            "navbar-item"
+                                            "has-dropdown"
+                                            "is-hoverable"
+                                        ]
+                                        prop.children [
+                                            Html.div [
+                                                prop.className "navbar-link"
+                                                prop.text "More "
+                                            ]
+                                            Html.div [
+                                                prop.classes [
+                                                    "navbar-dropdown"
+                                                    ""
+                                                ]
+                                                prop.id "moreDropdown"
+                                                prop.children [
+                                                    Html.a [
+                                                        prop.text "Log Spec"
+                                                        prop.onClick (fun _ ->
+                                                            printfn
+                                                                $"FormSpec: {Thoth.Json.Encode.Auto.toString (props.FormSpec)}"
+                                                        // printfn $"Encoded: {Base64.encode(Thoth.Json.Encode.Auto.toString(props.FormSpec))}"
+                                                        )
+                                                        prop.classes [
+                                                            "navbar-item"
+                                                            ""
+                                                        ]
+                                                    ]
+                                                ]
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                            Html.div [
+                                prop.className "navbar-end"
+                                prop.children [
+                                    Html.div [
+                                        prop.className "navbar-item"
+                                        prop.children [
+                                            Html.div [
+                                                prop.classes [
+                                                    "field"
+                                                    "is-grouped"
+                                                ]
+                                                prop.children [
+                                                    Html.p [
+                                                        prop.className "control"
+                                                        prop.children [
+                                                            Html.a [
+                                                                prop.classes [
+                                                                    "button"
+                                                                    "is-primary"
+                                                                ]
+                                                                if
+                                                                    props.FormSpec.Steps
+                                                                    |> allStepsHaveFields
+                                                                then
+                                                                    prop.onClick (fun _ ->
+                                                                        props.SetIsPreview true
+                                                                    )
+                                                                else
+                                                                    prop.disabled true
+
+                                                                prop.children [
+                                                                    Html.span [
+                                                                        prop.className "icon"
+                                                                        prop.children [
+                                                                            Html.i [
+                                                                                prop.classes [
+                                                                                    "fas"
+                                                                                    "fa-eye"
+                                                                                ]
+                                                                            ]
+                                                                        ]
+                                                                    ]
+                                                                    Html.span "PREVIEW"
+                                                                ]
+                                                            ]
+                                                        ]
+                                                    ]
+                                                ]
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    ]
 
 type LoadExistingFormModalProps =
     {|
@@ -1312,45 +1231,46 @@ type LoadExistingFormModalProps =
 
 [<ReactComponent>]
 let LoadExistingFormModal (props: LoadExistingFormModalProps) =
-    Html.div
-        [
-            prop.classes
-                [
-                    "modal"
-                    if props.IsShowing then
-                        "is-active"
-                    else
-                        "is-hidden"
-                ]
-            prop.children
-                [
-                    Html.div
-                        [
-                            prop.className "modal-background"
-                            prop.onClick (fun _ -> props.SetIsShowing false)
-                        ]
-                    Html.div
-                        [
-                            prop.className "modal-content"
-                            prop.style [ style.backgroundColor "white" ]
-
-                            prop.children
-                                [
-                                // LoadExistingForm {|
-                                //     FormSpecCategory =
-                                //         FormSpecCategory.Draft
-                                //     SetFormSpec =
-                                //         fun formSpec ->
-                                //             props.SetStepNumber 1
-                                //             props.SetIsShowing false
-                                //             props.SetFormSpec formSpec
-                                // |}
-                                ]
-                        ]
-                    Html.button
-                        [ prop.classes [ "modal-close"; "is-large" ]; prop.ariaLabel "close" ]
-                ]
+    Html.div [
+        prop.classes [
+            "modal"
+            if props.IsShowing then
+                "is-active"
+            else
+                "is-hidden"
         ]
+        prop.children [
+            Html.div [
+                prop.className "modal-background"
+                prop.onClick (fun _ -> props.SetIsShowing false)
+            ]
+            Html.div [
+                prop.className "modal-content"
+                prop.style [
+                    style.backgroundColor "white"
+                ]
+
+                prop.children [
+                // LoadExistingForm {|
+                //     FormSpecCategory =
+                //         FormSpecCategory.Draft
+                //     SetFormSpec =
+                //         fun formSpec ->
+                //             props.SetStepNumber 1
+                //             props.SetIsShowing false
+                //             props.SetFormSpec formSpec
+                // |}
+                ]
+            ]
+            Html.button [
+                prop.classes [
+                    "modal-close"
+                    "is-large"
+                ]
+                prop.ariaLabel "close"
+            ]
+        ]
+    ]
 
 type FormSpecLayoutProps =
     {|
@@ -1361,158 +1281,141 @@ type FormSpecLayoutProps =
         SetStepNumber: int -> unit
         ActiveField: ActiveField
         SetActiveField: ActiveField -> unit
-        SaveFormSpec: bool -> unit
         IsFieldDragging: bool
         SetFieldDragging: bool -> unit
-        ListOfFields: IDesignerField list
+        RegisteredFields: RegisteredFields
     |}
 
 [<ReactComponent>]
 let FormSpecLayout (props: FormSpecLayoutProps) =
-    React.fragment
-        [
-            DynamicFormSpecDetails
-                {|
-                    FormSpec = props.FormSpec
-                    OnChange = props.OnChange
-                    ActiveField = props.ActiveField
-                |}
+    React.fragment [
+        DynamicFormSpecDetails
+            {|
+                FormSpec = props.FormSpec
+                OnChange = props.OnChange
+                ActiveField = props.ActiveField
+            |}
 
-            props.FormSpec.Steps
-            |> List.sortBy (fun s -> s.StepOrder)
-            |> List.map (fun step ->
-                Html.div
-                    [
-                        prop.className classes.step
-                        prop.children
-                            [
-                                if props.FormSpec.Steps.Length > 1 then
-                                    FormStepTools
+        props.FormSpec.Steps
+        |> List.sortBy (fun s -> s.StepOrder)
+        |> List.map (fun step ->
+            Html.div [
+                prop.className classes.step
+                prop.children [
+                    if props.FormSpec.Steps.Length > 1 then
+                        FormStepTools
+                            {|
+                                FormSpec = props.FormSpec
+                                FormStep = step
+                                OnChange = props.OnChange
+                            |}
+
+                    match step.Fields with
+                    | [] ->
+                        // Empty Fields. Show the dashed box to drop fields.
+                        Html.article [
+                            prop.classes [
+                                classes.dropFieldsContainer
+                            ]
+                            prop.onDragOver (fun (e: Types.DragEvent) -> e.preventDefault ())
+                            prop.onDrop (fun (e: Types.DragEvent) ->
+                                e.preventDefault ()
+
+                                let dragSource =
+                                    e.dataTransfer.getData ("text/plain")
+                                    |> tryGetDragSourceFromData
+
+                                match dragSource with
+                                | Some(DragSource.Designer_FormFieldType_Key key) ->
+                                    //add designer field type to selected step via DROP INTO EMPTY STEP
+                                    props.OnChange(
+                                        addDesignerFieldTypeToStep
+                                            key
+                                            step.StepOrder
+                                            props.FormSpec
+                                            props.RegisteredFields
+                                    )
+                                | _ -> ()
+                            )
+                            prop.children [
+
+                                Html.div [
+                                    prop.className ""
+                                    prop.style [
+                                        style.display.flex
+                                        style.flexDirection.column
+                                        style.justifyContent.center
+                                        style.alignItems.center
+                                        style.height (length.perc 100)
+                                    ]
+                                    prop.children [
+                                        Html.i [
+                                            prop.className "fas fa-arrows-alt"
+                                        ]
+                                        Html.span $"Drag fields for step {step.StepOrder} here"
+                                    ]
+                                ]
+                            ]
+                        ]
+                    | _ ->
+                        Html.div [
+                            prop.children [
+                                step.Fields
+                                |> List.sortBy (fun f -> f.FieldOrder)
+                                |> List.map (fun formField ->
+                                    // let isFieldSelected = selectField.IsSome && selectField.Value = formField
+
+                                    FieldContainer
                                         {|
                                             FormSpec = props.FormSpec
                                             FormStep = step
+                                            FormField = formField
+                                            ActiveField = props.ActiveField
                                             OnChange = props.OnChange
+                                            SelectedStepNumber = props.SelectedStepNumber
+                                            SetStepNumber = props.SetStepNumber
+                                            SetActiveField = props.SetActiveField
+                                            IsFieldDragging = props.IsFieldDragging
+                                            SetFieldDragging = props.SetFieldDragging
+                                            RegisteredFields = props.RegisteredFields
                                         |}
-
-                                match step.Fields with
-                                | [] ->
-                                    // Empty Fields. Show the dashed box to drop fields.
-                                    Html.article
-                                        [
-                                            prop.classes [ classes.dropFieldsContainer ]
-                                            prop.onDragOver (fun (e: Types.DragEvent) ->
-                                                e.preventDefault ()
-                                            )
-                                            prop.onDrop (fun (e: Types.DragEvent) ->
-                                                e.preventDefault ()
-
-                                                let dragSource =
-                                                    e.dataTransfer.getData ("text/plain")
-                                                    |> tryGetDragSourceFromData
-
-                                                match dragSource with
-                                                | Some(DragSource.Designer_FormFieldType_Key key) ->
-                                                    //add designer field type to selected step via DROP INTO EMPTY STEP
-                                                    props.OnChange(
-                                                        addDesignerFieldTypeToStep
-                                                            key
-                                                            step.StepOrder
-                                                            props.FormSpec
-                                                            props.ListOfFields
-                                                    )
-                                                | _ -> ()
-                                            )
-                                            prop.children
-                                                [
-
-                                                    Html.div
-                                                        [
-                                                            prop.className ""
-                                                            prop.style
-                                                                [
-                                                                    style.display.flex
-                                                                    style.flexDirection.column
-                                                                    style.justifyContent.center
-                                                                    style.alignItems.center
-                                                                    style.height (length.perc 100)
-                                                                ]
-                                                            prop.children
-                                                                [
-                                                                    Html.i
-                                                                        [
-                                                                            prop.className
-                                                                                "fas fa-arrows-alt"
-                                                                        ]
-                                                                    Html.span
-                                                                        $"Drag fields for step {step.StepOrder} here"
-                                                                ]
-                                                        ]
-                                                ]
-                                        ]
-                                | _ ->
-                                    Html.div
-                                        [
-                                            prop.children
-                                                [
-                                                    step.Fields
-                                                    |> List.sortBy (fun f -> f.FieldOrder)
-                                                    |> List.map (fun formField ->
-                                                        // let isFieldSelected = selectField.IsSome && selectField.Value = formField
-
-                                                        FieldContainer
-                                                            {|
-                                                                FormSpec = props.FormSpec
-                                                                FormStep = step
-                                                                FormField = formField
-                                                                ActiveField = props.ActiveField
-                                                                OnChange = props.OnChange
-                                                                SelectedStepNumber =
-                                                                    props.SelectedStepNumber
-                                                                SetStepNumber =
-                                                                    props.SetStepNumber
-                                                                SetActiveField =
-                                                                    props.SetActiveField
-                                                                IsFieldDragging =
-                                                                    props.IsFieldDragging
-                                                                SetFieldDragging =
-                                                                    props.SetFieldDragging
-                                                                ListOfFields = props.ListOfFields
-                                                            |}
-                                                    )
-                                                    |> React.fragment
-                                                ]
-                                        ]
-
-                                StepBreak
-                                    {|
-                                        FormSpec = props.FormSpec
-                                        ActiveField = props.ActiveField
-                                        OnChange =
-                                            (fun formSpec ->
-                                                let newStep =
-                                                    {
-                                                        StepOrder =
-                                                            (props.FormSpec.Steps |> List.length)
-                                                            + 1
-                                                        StepLabel = $"Untitled Step"
-                                                        Fields = []
-                                                    }
-
-                                                let newFormSpec =
-                                                    { props.FormSpec with
-                                                        Steps = props.FormSpec.Steps @ [ newStep ]
-                                                    }
-
-                                                props.OnChange newFormSpec
-                                                props.SetStepNumber(newStep.StepOrder)
-
-                                            )
-                                    |}
+                                )
+                                |> React.fragment
                             ]
-                    ]
-            )
-            |> React.fragment
-        ]
+                        ]
+
+                    StepBreak
+                        {|
+                            FormSpec = props.FormSpec
+                            ActiveField = props.ActiveField
+                            OnChange =
+                                (fun formSpec ->
+                                    let newStep =
+                                        {
+                                            StepOrder = (props.FormSpec.Steps |> List.length) + 1
+                                            StepLabel = $"Untitled Step"
+                                            Fields = []
+                                        }
+
+                                    let newFormSpec =
+                                        { props.FormSpec with
+                                            Steps =
+                                                props.FormSpec.Steps
+                                                @ [
+                                                    newStep
+                                                ]
+                                        }
+
+                                    props.OnChange newFormSpec
+                                    props.SetStepNumber(newStep.StepOrder)
+
+                                )
+                        |}
+                ]
+            ]
+        )
+        |> React.fragment
+    ]
 
 type FormSpecToolsProps =
     {|
@@ -1521,178 +1424,53 @@ type FormSpecToolsProps =
         FormSpecChanged: FormSpec -> unit
         IsPreview: bool
         ActiveField: ActiveField
-        ListOfFields: IDesignerField list
+        RegisteredFields: RegisteredFields
     |}
 
 [<ReactComponent>]
 let FormSpecTools (props: FormSpecToolsProps) =
-    Html.div
-        [
-            prop.className "panel"
-            prop.children
-                [
-                    props.ListOfFields
-                    |> List.map (fun designerFieldType ->
-                        Html.a
-                            [
-                                prop.onClick (fun e ->
-                                    //add designer field type to selected step via CLICK
-                                    let outFormSpec =
-                                        addDesignerFieldTypeToStep
-                                            designerFieldType.Key
-                                            props.SelectedStepNumber
-                                            props.FormSpec
-                                            props.ListOfFields
+    Html.div [
+        prop.className "panel"
+        prop.children [
+            props.RegisteredFields.AsList
+            |> List.map (fun designerFieldType ->
+                Html.a [
+                    prop.onClick (fun e ->
+                        //add designer field type to selected step via CLICK
+                        let outFormSpec =
+                            addDesignerFieldTypeToStep
+                                designerFieldType.Key
+                                props.SelectedStepNumber
+                                props.FormSpec
+                                props.RegisteredFields
 
-                                    props.FormSpecChanged outFormSpec
-                                )
-                                prop.draggable true
-                                prop.onDragStart (fun e ->
-                                    let data =
-                                        (DragSource.Designer_FormFieldType_Key
-                                            designerFieldType.Key)
-                                            .ToPlainText
-
-                                    e.dataTransfer.setData ("text/plain", data) |> ignore
-                                )
-                                prop.className "panel-block"
-                                prop.children
-                                    [
-                                        Html.span
-                                            [
-                                                prop.className "panel-icon"
-                                                prop.children
-                                                    [
-                                                        Html.i
-                                                            [
-                                                                prop.className
-                                                                    designerFieldType.Icon
-                                                            ]
-                                                    ]
-                                            ]
-                                        Html.text designerFieldType.Key
-                                    ]
-                            ]
+                        props.FormSpecChanged outFormSpec
                     )
-                    |> React.fragment
+                    prop.draggable true
+                    prop.onDragStart (fun e ->
+                        let data =
+                            (DragSource.Designer_FormFieldType_Key designerFieldType.Key)
+                                .ToPlainText
+
+                        e.dataTransfer.setData ("text/plain", data) |> ignore
+                    )
+                    prop.className "panel-block"
+                    prop.children [
+                        Html.span [
+                            prop.className "panel-icon"
+                            prop.children [
+                                Html.i [
+                                    prop.className designerFieldType.Icon
+                                ]
+                            ]
+                        ]
+                        Html.text designerFieldType.Key
+                    ]
                 ]
+            )
+            |> React.fragment
         ]
-// availableComponents
-// |> List.map (fun designerFieldType ->
-//     Html.a [
-//         prop.onClick (fun e ->
-//             //add designer field type to selected step via CLICK
-//             let outFormSpec = addDesignerFieldTypeToStep designerFieldType.Key props.SelectedStepNumber props.FormSpec
-
-//             props.FormSpecChanged outFormSpec
-//         )
-//         prop.draggable true
-
-//         prop.onDragStart (fun e ->
-//             let data = (DragSource.Designer_FormFieldType_Key designerFieldType.Key).ToPlainText
-//             e.dataTransfer.setData("text/plain", data) |> ignore
-//         )
-//         prop.classes [
-//             "panel-block" //; "is-active"
-//             // classes.toolbarItem
-//             // classes.toolbarItemContainer
-//         ]
-//         prop.children [
-//             Html.span [
-//                 prop.className "panel-icon"
-//                 prop.children [
-//                     Html.i [
-//                         // prop.className
-//                         prop.className designerFieldType.Icon
-//                     ]
-//                 ]
-//             ]
-//             Html.text designerFieldType.Key
-//         ]
-//     ]
-// ) |> React.fragment
-// Html.aside [
-//     prop.classes [
-//         classes.toolbarComponentLeft
-//         if props.IsPreview then
-//             classes.toolbarComponentLeftHidden
-//         if props.ActiveField.State = AddingDependantKeys then
-//             classes.disabled
-//     ]
-//     prop.children [
-//         Html.nav [
-//             prop.classes [
-//                 "panel"
-//                 classes.toolbarPanel
-//             ]
-//             prop.children [
-//                 Html.p [
-//                     prop.className "panel-heading"
-//                     prop.text "Components "
-//                 ]
-//                 Html.div [
-//                     prop.className "panel-block"
-//                     prop.children [
-//                         Html.p [
-//                             prop.classes [ "control"; "has-icons-left" ]
-//                             prop.children [
-//                                 Html.input [
-//                                     prop.className "input"
-//                                     prop.type' "text"
-//                                     prop.placeholder "Search"
-//                                 ]
-//                                 Html.span [
-//                                     prop.classes [ "icon"; "is-left" ]
-//                                     prop.children [
-//                                         Html.i [
-//                                             prop.classes [ "fas"; "fa-search" ]
-//                                             // prop.ariaHidden "true"
-//                                         ]
-//                                     ]
-//                                 ]
-//                             ]
-//                         ]
-//                     ]
-//                 ]
-
-//                 availableComponents
-//                 |> List.map (fun designerFieldType ->
-//                     Html.a [
-//                         prop.onClick (fun e ->
-//                             //add designer field type to selected step via CLICK
-//                             let outFormSpec = addDesignerFieldTypeToStep designerFieldType.Key props.SelectedStepNumber props.FormSpec
-
-//                             props.FormSpecChanged outFormSpec
-//                         )
-//                         prop.draggable true
-
-//                         prop.onDragStart (fun e ->
-//                             let data = (DragSource.Designer_FormFieldType_Key designerFieldType.Key).ToPlainText
-//                             e.dataTransfer.setData("text/plain", data) |> ignore
-//                         )
-//                         prop.classes [
-//                             "panel-block" //; "is-active"
-//                             classes.toolbarItem
-//                             // classes.toolbarItemContainer
-//                         ]
-//                         prop.children [
-//                             Html.span [
-//                                 prop.className "panel-icon"
-//                                 prop.children [
-//                                     Html.i [
-//                                         // prop.className
-//                                         prop.className designerFieldType.Icon
-//                                     ]
-//                                 ]
-//                             ]
-//                             Html.text designerFieldType.Key
-//                         ]
-//                     ]
-//                 ) |> React.fragment
-//             ]
-//         ]
-//     ]
-// ]
+    ]
 
 type DynamicFormPreviewProps =
     {|
@@ -1710,146 +1488,105 @@ let DynamicFormPreview (props: DynamicFormPreviewProps) =
     let showValuesReview, setShowValuesReview = React.useState false
     let dynamicForm, setDynamicForm = React.useState None
 
-    Bulma.columns
-        [
+    Bulma.columns [
 
-            Bulma.column
-                [
-                    if showValuesReview then
-                        column.is6
-                    else
-                        column.is12
-                    prop.children[Bulma.button.a
-                                      [
-                                          color.isPrimary
-                                          prop.style [ style.marginBottom 15; style.marginTop 15 ]
-                                          prop.text "Exit Preview Mode"
-                                          prop.onClick (fun _ -> props.SetIsPreview false)
-                                      ]
+        Bulma.column [
+            if showValuesReview then
+                column.is6
+            else
+                column.is12
 
-                                  FormCompose.FormCompose(
-                                      {|
-                                          FormSpec = props.FormSpec
-                                          DynamicForm = None
-                                          Mode = FormComposeMode.Editable
-                                          NavigateToStep = (fun _ -> ())
-                                          FormChanged = (fun _ -> ())
-                                          SaveFormValuesCallback =
-                                              fun dynamicFormValues ->
-                                                  setShowValuesReview true
-                                                  setDynamicForm (Some dynamicFormValues)
-
-                                          SubmissionSuccess = false
-                                          RenderUserField = props.RenderUserField
-                                      |}
-                                  )]
+            prop.children [
+                Bulma.button.a [
+                    color.isPrimary
+                    prop.style [
+                        style.marginBottom 15
+                        style.marginTop 15
+                    ]
+                    prop.text "Exit Preview Mode"
+                    prop.onClick (fun _ -> props.SetIsPreview false)
                 ]
 
-            if showValuesReview && dynamicForm.IsSome then
-                let formResultData: DynamicFormResultData =
-                    dynamicForm.Value |> Antidote.FormDesigner.Helper.extractDataFromFableFormsModel
+                FormCompose.FormCompose(
+                    {|
+                        FormSpec = props.FormSpec
+                        DynamicForm = None
+                        Mode = FormComposeMode.Editable
+                        NavigateToStep = (fun _ -> ())
+                        FormChanged = (fun _ -> ())
+                        SaveFormValuesCallback =
+                            fun dynamicFormValues ->
+                                setShowValuesReview true
+                                setDynamicForm (Some dynamicFormValues)
 
-                let dynamicFormResultDataJsonEncoded =
-                    formResultData
-                    |> Antidote.Core.FormProcessor.JSON.Values.v2_0_1.DynamicFormResultData.encode
-                    |> Thoth.Json.Encode.toString 4
-
-                // let simplifiedFieldDetails = formResultData |> mapDynamicFormResultDataToSimplifiedResultData
-
-                // let formResultDataKeyValueList =
-                //     formResultData
-                //     |> Antidote.FormSpec.ResultExtract.dynamicFormResultDataToList
-
-                // let str =
-                //     Antidote.FormSpec.ResultExtract.discoverableDataGraph formResultDataKeyValueList
-
-                // // printfn "%s" str
-
-                // let stringified =
-                //     simplifiedFieldDetails
-                //     |> Thoth.Json.Encode.Auto.toString
-                // // debuglog $"DynamicForm: {dynamicForm.Value}"
-                // debuglog $"DynamicFormResultData: {stringified}"
-
-                let formCode =
-                    match dynamicForm.Value.DynamicFormSpecDetails.FormSpecCode with
-                    | Some formCode -> formCode
-                    | None -> ""
-
-                Bulma.column
-                    [
-                        column.is6
-                        prop.children
-                            [
-                                Bulma.button.a
-                                    [
-                                        color.isPrimary
-                                        prop.style [ style.marginBottom 15; style.marginTop 15 ]
-                                        prop.text "Hide Form Review"
-                                        prop.onClick (fun _ -> setShowValuesReview false)
-                                    ]
-
-                                match props.FormSpec.Score with
-                                | Some _ ->
-                                    // let score, flags =
-                                    //     dynamicForm.Value
-                                    //     |> Antidote.FormDesigner.Helper.flattenFormSteps
-                                    //     |> (Antidote.Core.FormProcessor.Processors.Default.getCalculator formCode)
-
-                                    // formCode
-                                    // |> Antidote.React.Components.FormWizard.Processors.Components.getResultOutput
-                                    // |> fun resultOutputFunc -> resultOutputFunc score flags
-                                    // |> Antidote.React.Components.FormWizard.Processors.Components.formResultRenderer
-                                    Html.span "IMPLEMENT CALCULATORS"
-
-                                | None ->
-                                    Html.div
-                                        [
-                                            Html.span
-                                                [
-                                                    prop.style
-                                                        [
-                                                            style.fontSize (length.px 16)
-                                                            style.fontWeight 600
-                                                            style.color "#bfbfbf"
-                                                        ]
-                                                    prop.text "** THIS FORM IS NOT SCORED **"
-                                                ]
-                                        ]
-
-                                SinglePageReview
-                                    {|
-                                        FormSpec = props.FormSpec
-                                        DynamicForm = dynamicForm.Value
-                                        RenderUserField = props.RenderUserField
-                                    |}
-                            ]
-                    ]
+                        SubmissionSuccess = false
+                        RenderUserField = props.RenderUserField
+                    |}
+                )
+            ]
         ]
 
-type private State =
-    {
-        FormSpec: FormSpec
-        SelectedStepNumber: int
-        ActiveField: ActiveField
-        IsFieldDragging: bool
-        IsPreview: bool
-    }
+        if showValuesReview && dynamicForm.IsSome then
+            let formResultData: DynamicFormResultData =
+                dynamicForm.Value |> Antidote.FormDesigner.Helper.extractDataFromFableFormsModel
 
-// type StateV2 =
-//     | New
-//     | Designing
-//     | Previewing
+            let dynamicFormResultDataJsonEncoded =
+                formResultData
+                |> Antidote.Core.FormProcessor.JSON.Values.v2_0_1.DynamicFormResultData.encode
+                |> Thoth.Json.Encode.toString 4
 
-// type FormStudioToolDelegation = {|
-//     FormStudioFieldTools: ReactElement -> unit
-//     FormStudioPropertyEditor: ReactElement -> unit
-//     SetFormStudioPropertyEditorActive: unit -> unit
-// |}
+            let formCode =
+                match dynamicForm.Value.DynamicFormSpecDetails.FormSpecCode with
+                | Some formCode -> formCode
+                | None -> ""
 
-// type FormStudioProps =
-//     | StandAlone
-//     | DelegateTools of FormStudioToolDelegation
+            Bulma.column [
+                column.is6
+                prop.children [
+                    Bulma.button.a [
+                        color.isPrimary
+                        prop.style [
+                            style.marginBottom 15
+                            style.marginTop 15
+                        ]
+                        prop.text "Hide Form Review"
+                        prop.onClick (fun _ -> setShowValuesReview false)
+                    ]
+
+                    match props.FormSpec.Score with
+                    | Some _ ->
+                        // let score, flags =
+                        //     dynamicForm.Value
+                        //     |> Antidote.FormDesigner.Helper.flattenFormSteps
+                        //     |> (Antidote.Core.FormProcessor.Processors.Default.getCalculator formCode)
+
+                        // formCode
+                        // |> Antidote.React.Components.FormWizard.Processors.Components.getResultOutput
+                        // |> fun resultOutputFunc -> resultOutputFunc score flags
+                        // |> Antidote.React.Components.FormWizard.Processors.Components.formResultRenderer
+                        Html.span "IMPLEMENT CALCULATORS"
+
+                    | None ->
+                        Html.div [
+                            Html.span [
+                                prop.style [
+                                    style.fontSize (length.px 16)
+                                    style.fontWeight 600
+                                    style.color "#bfbfbf"
+                                ]
+                                prop.text "** THIS FORM IS NOT SCORED **"
+                            ]
+                        ]
+
+                    SinglePageReview
+                        {|
+                            FormSpec = props.FormSpec
+                            DynamicForm = dynamicForm.Value
+                            RenderUserField = props.RenderUserField
+                        |}
+                ]
+            ]
+    ]
 
 [<ReactComponent>]
 let DynamicFormDesigner
@@ -1865,8 +1602,6 @@ let DynamicFormDesigner
             State = Idle
         }
 
-    // let formSpec, setFormSpec = React.useState defaultFormSpec
-
     let selectedStepNumber, setSelectedStepNumber =
         React.useState (formSpec.Steps.[0].StepOrder)
 
@@ -1878,11 +1613,6 @@ let DynamicFormDesigner
         if activeField.FormFieldNumber < 1 then
             setActiveField defaultActiveField
         else
-            // match props with
-            // | DelegateTools formStudioToolDelegation ->
-            //     formStudioToolDelegation.SetFormStudioPropertyEditorActive ()
-            // | _ -> ()
-
             setActiveField activeField
 
     let isPreviewing, setIsPreviewing = React.useState false
@@ -1891,188 +1621,104 @@ let DynamicFormDesigner
 
     let isLoadExistingFormShowing, setIsLoadExistingFormShowing = React.useState false
 
-    React.useEffect (
-        fun _ ->
-            // match props with
+    let registeredFields = RegisteredFields registeredFields
 
-            // | DelegateTools formStudioToolDelegation ->
-            //     printfn $"Active Field: {activeField}"
-            //     formStudioToolDelegation.FormStudioFieldTools (
-            //         FormSpecTools {|
-            //             FormSpec = formSpec
-            //             SelectedStepNumber = selectedStepNumber
-            //             IsPreview = isPreviewing
-            //             FormSpecChanged = setFormSpecWrapper
-            //             ActiveField = activeField
-            //             ListOfFields = defaultDesignerFields
-            //         |}
-            //     )
+    React.fragment [
+        LoadExistingFormModal
+            {|
+                IsShowing = isLoadExistingFormShowing
+                SetIsShowing = setIsLoadExistingFormShowing
+                SetStepNumber = setSelectedStepNumber
+                SetFormSpec = setFormSpec
+            |}
 
-            //     formStudioToolDelegation.FormStudioPropertyEditor (
-            //         PropertyEditor {|
-            //             IsPreview = isPreviewing
-            //             FormSpec = formSpec
-            //             ActiveField = activeField
-            //             SetActiveField = setActiveFieldWrapper
-            //             FormSpecChanged = setFormSpecWrapper
-            //         |}
-            //     )
-            // | _ -> ()
-            ()
-
-        , [| box formSpec; box activeField |]
-    )
-
-    React.fragment
-        [
-            LoadExistingFormModal
+        if isPreviewing then
+            DynamicFormPreview
                 {|
-                    IsShowing = isLoadExistingFormShowing
-                    SetIsShowing = setIsLoadExistingFormShowing
-                    SetStepNumber = setSelectedStepNumber
-                    SetFormSpec = setFormSpec
+                    FormSpec = formSpec
+                    SetIsPreview = setIsPreviewing
+                    RenderUserField = renderUserField
                 |}
+        else
+            Html.header [
+                prop.children [
+                    NavigationMenu
+                        {|
+                            FormSpec = formSpec
+                            OnChange = setFormSpecWrapper
+                            SetIsPreview = setIsPreviewing
+                            ActiveField = activeField
+                            SetIsLoadExistingFormShowing = setIsLoadExistingFormShowing
+                            SaveFormSpec =
+                                fun isPublish ->
+                                    // let validationRes = Antidote.Core.V2.Validator.FormSpec.validateFormSpec formSpec
+                                    // match validationRes with
+                                    // | Ok formSpec ->
+                                    //     Antidote.FormDesigner.Helper.saveFormSpec
+                                    //         formSpec
+                                    //         {
+                                    //             IsPrivate = false
+                                    //             Status =
+                                    //                 if isPublish
+                                    //                 then SpecStatus.Types.SpecStatus.Published
+                                    //                 else SpecStatus.Types.SpecStatus.Draft
+                                    //         }
+                                    //         setFormSpecWrapper
 
-            if isPreviewing then
-                DynamicFormPreview
-                    {|
-                        FormSpec = formSpec
-                        SetIsPreview = setIsPreviewing
-                        RenderUserField = renderUserField
-                    |}
-            else
-                Html.header
-                    [
-                        prop.children
-                            [
-                                NavigationMenu
-                                    {|
-                                        FormSpec = formSpec
-                                        OnChange = setFormSpecWrapper
-                                        SetIsPreview = setIsPreviewing
-                                        ActiveField = activeField
-                                        SetIsLoadExistingFormShowing = setIsLoadExistingFormShowing
-                                        SaveFormSpec =
-                                            fun isPublish ->
-                                                // let validationRes = Antidote.Core.V2.Validator.FormSpec.validateFormSpec formSpec
-                                                // match validationRes with
-                                                // | Ok formSpec ->
-                                                //     Antidote.FormDesigner.Helper.saveFormSpec
-                                                //         formSpec
-                                                //         {
-                                                //             IsPrivate = false
-                                                //             Status =
-                                                //                 if isPublish
-                                                //                 then SpecStatus.Types.SpecStatus.Published
-                                                //                 else SpecStatus.Types.SpecStatus.Draft
-                                                //         }
-                                                //         setFormSpecWrapper
+                                    // | Error errs ->
+                                    //     for err in errs do
+                                    //         toast ( Html.div $"Validation error: {err}" ) |> ignore
+                                    printfn "IMPLEMENT SAVE!!!#"
+                        |}
+                ]
+            ]
 
-                                                // | Error errs ->
-                                                //     for err in errs do
-                                                //         toast ( Html.div $"Validation error: {err}" ) |> ignore
-                                                printfn "IMPLEMENT SAVE!!!#"
-                                    |}
-                            ]
-                    ]
-
-                Html.section
-                    [
-                        prop.className "section"
-                        prop.children
-                            [
-                                Html.div
-                                    [
-                                        prop.className "container"
-                                        prop.children
-                                            [
-                                                Html.div
-                                                    [
-                                                        prop.className "columns"
-                                                        prop.children
-                                                            [
-                                                                // match props with
-                                                                // | DelegateTools _ -> Html.none
-                                                                // | _ ->
-                                                                Html.div
-                                                                    [
-                                                                        prop.className "colum is-4"
-                                                                        prop.children
-                                                                            [
-                                                                                FormSpecTools
-                                                                                    {|
-                                                                                        FormSpec =
-                                                                                            formSpec
-                                                                                        SelectedStepNumber =
-                                                                                            selectedStepNumber
-                                                                                        IsPreview =
-                                                                                            isPreviewing
-                                                                                        FormSpecChanged =
-                                                                                            setFormSpecWrapper
-                                                                                        ActiveField =
-                                                                                            activeField
-                                                                                        ListOfFields =
-                                                                                            registeredFields
-                                                                                    |}
-                                                                            ]
-                                                                    ]
-
-                                                                Html.div
-                                                                    [
-                                                                        prop.className "column is-8"
-                                                                        prop.children
-                                                                            [
-                                                                                FormSpecLayout
-                                                                                    {|
-                                                                                        ListOfFields =
-                                                                                            registeredFields
-                                                                                        FormSpec =
-                                                                                            formSpec
-                                                                                        OnChange =
-                                                                                            setFormSpecWrapper
-                                                                                        SetIsPreview =
-                                                                                            setIsPreviewing
-                                                                                        SelectedStepNumber =
-                                                                                            selectedStepNumber
-                                                                                        SetStepNumber =
-                                                                                            setSelectedStepNumber
-                                                                                        ActiveField =
-                                                                                            activeField
-                                                                                        SetActiveField =
-                                                                                            setActiveFieldWrapper
-                                                                                        SaveFormSpec =
-                                                                                            fun
-                                                                                                isPublish ->
-                                                                                                // let validationRes = Antidote.Core.V2.Validator.FormSpec.validateFormSpec formSpec
-                                                                                                // match validationRes with
-                                                                                                // | Ok formSpec ->
-                                                                                                //     Antidote.FormDesigner.Helper.saveFormSpec
-                                                                                                //         formSpec
-                                                                                                //         {
-                                                                                                //             IsPrivate = false
-                                                                                                //             Status =
-                                                                                                //                 if isPublish
-                                                                                                //                 then SpecStatus.Types.SpecStatus.Published
-                                                                                                //                 else SpecStatus.Types.SpecStatus.Draft
-                                                                                                //         }
-                                                                                                //         setFormSpecWrapper
-
-                                                                                                // | Error errs ->
-                                                                                                //     for err in errs do
-                                                                                                //         toast ( Html.div $"Validation error: {err}" ) |> ignore
-                                                                                                printfn
-                                                                                                    "IMPLEME2NT SAVE!!!#"
-                                                                                        IsFieldDragging =
-                                                                                            isFieldDragging
-                                                                                        SetFieldDragging =
-                                                                                            setFieldDragging
-                                                                                    |}
-                                                                            ]
-                                                                    ]
-                                                            ]
-                                                    ]
-                                            ]
+            Html.section [
+                prop.className "section"
+                prop.children [
+                    Html.div [
+                        prop.className "container"
+                        prop.children [
+                            Html.div [
+                                prop.className "columns"
+                                prop.children [
+                                    Html.div [
+                                        prop.className "colum is-4"
+                                        prop.children [
+                                            FormSpecTools
+                                                {|
+                                                    FormSpec = formSpec
+                                                    SelectedStepNumber = selectedStepNumber
+                                                    IsPreview = isPreviewing
+                                                    FormSpecChanged = setFormSpecWrapper
+                                                    ActiveField = activeField
+                                                    RegisteredFields = registeredFields
+                                                |}
+                                        ]
                                     ]
+
+                                    Html.div [
+                                        prop.className "column is-8"
+                                        prop.children [
+                                            FormSpecLayout
+                                                {|
+                                                    RegisteredFields = registeredFields
+                                                    FormSpec = formSpec
+                                                    OnChange = setFormSpecWrapper
+                                                    SetIsPreview = setIsPreviewing
+                                                    SelectedStepNumber = selectedStepNumber
+                                                    SetStepNumber = setSelectedStepNumber
+                                                    ActiveField = activeField
+                                                    SetActiveField = setActiveFieldWrapper
+                                                    IsFieldDragging = isFieldDragging
+                                                    SetFieldDragging = setFieldDragging
+                                                |}
+                                        ]
+                                    ]
+                                ]
                             ]
+                        ]
                     ]
-        ]
+                ]
+            ]
+    ]

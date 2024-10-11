@@ -7,7 +7,7 @@ open Resources
 let changeLanguage (lang: string) =
     I18n.ChangeLanguage(lang) |> Promise.start
 
-let t (key:string) = I18n.Translate key
+let t (key: string) = I18n.Translate key
 
 type Intl = Keys.Intl
 

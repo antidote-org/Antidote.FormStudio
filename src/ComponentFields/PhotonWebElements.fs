@@ -11,7 +11,11 @@ open Fable.Form.Antidote
 open Fable.Form.Antidote.Field.ReactComponentField
 open Photon.Types
 
-type EPrescribeOrderCreatedPayload = {| PhotonOrderId: string; PhotonOrder: PhotonOrder |}
+type EPrescribeOrderCreatedPayload =
+    {|
+        PhotonOrderId: string
+        PhotonOrder: PhotonOrder
+    |}
 
 [<ReactComponent>]
 let ePrescribeComponent (props: ReactComponentFieldProps) =
@@ -20,31 +24,32 @@ let ePrescribeComponent (props: ReactComponentFieldProps) =
 
     let ePrescribeRef = React.useRef None
 
-    Html.div
-        [
-            // PageHeader.PageHeader
-            //     {|
-            //         Title = "ePrescribe"
-            //         LeftAction = Some (fun t -> navigate.Invoke "/")
-            //         HasSearch = true
-            //         IsNative = false
-            //         RightAction = None
-            //     |}
+    Html.div [
+        // PageHeader.PageHeader
+        //     {|
+        //         Title = "ePrescribe"
+        //         LeftAction = Some (fun t -> navigate.Invoke "/")
+        //         HasSearch = true
+        //         IsNative = false
+        //         RightAction = None
+        //     |}
 
-            Html.div
-                [
-                    ePrescribe
-                        {|
-                            OnOrderCreated =
-                                (fun o ->
-                                    let payload: EPrescribeOrderCreatedPayload =
-                                        {| PhotonOrderId = o.id; PhotonOrder = o |}
+        Html.div [
+            ePrescribe
+                {|
+                    OnOrderCreated =
+                        (fun o ->
+                            let payload: EPrescribeOrderCreatedPayload =
+                                {|
+                                    PhotonOrderId = o.id
+                                    PhotonOrder = o
+                                |}
 
-                                    props.OnChange(Thoth.Json.Encode.Auto.toString payload)
-                                )
-                        |}
-                ]
+                            props.OnChange(Thoth.Json.Encode.Auto.toString payload)
+                        )
+                |}
         ]
+    ]
 
 let ePrescribeFieldField: Form.Form<string, _, IReactProperty> =
     Form.reactComponentField
@@ -53,5 +58,9 @@ let ePrescribeFieldField: Form.Form<string, _, IReactProperty> =
             Value = (fun value -> value)
             Update = fun newValue values -> newValue
             Error = fun _ -> None
-            Attributes = { Label = "ePrescribe Field"; Render = ePrescribeComponent }
+            Attributes =
+                {
+                    Label = "ePrescribe Field"
+                    Render = ePrescribeComponent
+                }
         }

@@ -60,7 +60,11 @@ let totalNumberOfFieldsInSpec formSpec =
 
 // let ccc =["A";"B"] |> List.insertAt "C" "A"
 
-type FormMetaData = { IsPrivate: bool; Status: Antidote.FormStudio.SpecStatus.Types.SpecStatus }
+type FormMetaData =
+    {
+        IsPrivate: bool
+        Status: Antidote.FormStudio.SpecStatus.Types.SpecStatus
+    }
 
 let saveFormSpec
     (formSpec: Antidote.Core.FormProcessor.Spec.v2_0_1.FormSpec)
@@ -74,7 +78,10 @@ let saveFormSpec
             else
                 formSpec.Id
 
-        let formSpecWithCorrectGuid = { formSpec with Id = formSpecId }
+        let formSpecWithCorrectGuid =
+            { formSpec with
+                Id = formSpecId
+            }
         // hack so we can play with the designer for now.
         // let request : Antidote.Core.V2.Domain.Form.Request.SaveFormSpec = {
         //     Id = formSpecId
@@ -131,10 +138,8 @@ let saveFormSpec
     }
     |> Async.StartImmediate
 
-let getDesignerFieldType fieldName (listOfFields: IDesignerField list) =
-    listOfFields
-    |> List.tryFind (fun f -> f.Key = fieldName)
-    |> Option.defaultWith (fun () -> failwithf "Unknown field type: %s" fieldName)
+let getDesignerFieldType fieldName (registeredFields: RegisteredFields) =
+    registeredFields.GetByKey fieldName
 
 let severityColorToClasses severityColor =
     match severityColor with
@@ -494,17 +499,62 @@ let updateOptionInField (field: FormField) (option: FieldOption) =
 
 let createFormFieldWithOptions field options =
     match field.FieldType with
-    | Dropdown f -> { field with FieldType = Dropdown { f with Options = f.Options @ options } }
-    | TagList f -> { field with FieldType = TagList { f with Options = f.Options @ options } }
-    | Radio f -> { field with FieldType = Radio { f with Options = f.Options @ options } }
+    | Dropdown f ->
+        { field with
+            FieldType =
+                Dropdown
+                    { f with
+                        Options = f.Options @ options
+                    }
+        }
+    | TagList f ->
+        { field with
+            FieldType =
+                TagList
+                    { f with
+                        Options = f.Options @ options
+                    }
+        }
+    | Radio f ->
+        { field with
+            FieldType =
+                Radio
+                    { f with
+                        Options = f.Options @ options
+                    }
+        }
     | CheckboxList f ->
-        { field with FieldType = CheckboxList { f with Options = f.Options @ options } }
+        { field with
+            FieldType =
+                CheckboxList
+                    { f with
+                        Options = f.Options @ options
+                    }
+        }
     | MultiChoice f ->
-        { field with FieldType = MultiChoice { f with Options = f.Options @ options } }
+        { field with
+            FieldType =
+                MultiChoice
+                    { f with
+                        Options = f.Options @ options
+                    }
+        }
     | SingleChoice f ->
-        { field with FieldType = SingleChoice { f with Options = f.Options @ options } }
+        { field with
+            FieldType =
+                SingleChoice
+                    { f with
+                        Options = f.Options @ options
+                    }
+        }
     | TextAutoComplete f ->
-        { field with FieldType = TextAutoComplete { f with Options = f.Options @ options } }
+        { field with
+            FieldType =
+                TextAutoComplete
+                    { f with
+                        Options = f.Options @ options
+                    }
+        }
 
     | Image(_) -> failwith "Not Implemented for image"
     | Message(_) -> failwith "Not Implemented for message"
@@ -564,7 +614,14 @@ let updateFormFieldInFormSpecStep
 
 let addFormFieldToStep (formStep: FormStep) (formSpec: FormSpec) (formField: FormField) : FormSpec =
 
-    let outStep = { formStep with Fields = formStep.Fields @ [ formField ] }
+    let outStep =
+        { formStep with
+            Fields =
+                formStep.Fields
+                @ [
+                    formField
+                ]
+        }
 
     let newFormSpec =
         { formSpec with
@@ -585,7 +642,11 @@ let insertFormFieldToStepAt (formStep: FormStep) newPositionFieldOrder fieldKey 
     |> List.insertAt
         (newPositionFieldOrder - 1)
         (formStep.Fields |> List.find (fun f -> f.FieldKey = fieldKey))
-    |> List.mapi (fun index f -> { f with FieldOrder = index + 1 })
+    |> List.mapi (fun index f ->
+        { f with
+            FieldOrder = index + 1
+        }
+    )
 
 let tryFindFormStepByStepNumber (stepNumber: int) (formSpec: FormSpec) : FormStep option =
     formSpec.Steps |> List.tryFind (fun step -> step.StepOrder = stepNumber)
@@ -601,14 +662,22 @@ let moveFormFieldUpInFormSpec (formStepOrder) (formField: FormField) (formSpec: 
                             s.Fields
                             |> List.map (fun f ->
                                 if f.FieldOrder = formField.FieldOrder then
-                                    { f with FieldOrder = formField.FieldOrder - 1 }
+                                    { f with
+                                        FieldOrder = formField.FieldOrder - 1
+                                    }
                                 else if f.FieldOrder = formField.FieldOrder - 1 then
-                                    { f with FieldOrder = formField.FieldOrder }
+                                    { f with
+                                        FieldOrder = formField.FieldOrder
+                                    }
                                 else
                                     f
                             )
                             |> List.sortBy (fun f -> f.FieldOrder)
-                            |> List.mapi (fun index f -> { f with FieldOrder = index + 1 })
+                            |> List.mapi (fun index f ->
+                                { f with
+                                    FieldOrder = index + 1
+                                }
+                            )
                     }
                 else
                     s
@@ -626,14 +695,22 @@ let moveFormFieldDownInFormSpec (formStepOrder) (formField: FormField) (formSpec
                             s.Fields
                             |> List.map (fun f ->
                                 if f.FieldOrder = formField.FieldOrder then
-                                    { f with FieldOrder = formField.FieldOrder + 1 }
+                                    { f with
+                                        FieldOrder = formField.FieldOrder + 1
+                                    }
                                 else if f.FieldOrder = formField.FieldOrder + 1 then
-                                    { f with FieldOrder = formField.FieldOrder }
+                                    { f with
+                                        FieldOrder = formField.FieldOrder
+                                    }
                                 else
                                     f
                             )
                             |> List.sortBy (fun f -> f.FieldOrder)
-                            |> List.mapi (fun index f -> { f with FieldOrder = index + 1 })
+                            |> List.mapi (fun index f ->
+                                { f with
+                                    FieldOrder = index + 1
+                                }
+                            )
                     }
                 else
                     s
@@ -663,7 +740,11 @@ let moveFieldByKeyToPositionInFormStepSpec
                                     (newPositionFieldOrder - 1)
                                     (s.Fields |> List.find (fun f -> f.FieldKey = fieldKey))
                                 |> List.distinct
-                                |> List.mapi (fun index f -> { f with FieldOrder = index + 1 })
+                                |> List.mapi (fun index f ->
+                                    { f with
+                                        FieldOrder = index + 1
+                                    }
+                                )
 
                         }
                     else
@@ -681,7 +762,11 @@ let removeFormFieldFromFormSpec (formStepOrder: int) (formField: FormField) (for
                         Fields =
                             s.Fields
                             |> List.filter (fun f -> f.FieldOrder <> formField.FieldOrder)
-                            |> List.mapi (fun i f -> { f with FieldOrder = i + 1 })
+                            |> List.mapi (fun i f ->
+                                { f with
+                                    FieldOrder = i + 1
+                                }
+                            )
                     }
                 else
                     s
@@ -694,16 +779,24 @@ let moveFormStepUpInFormSpec (formStepOrder: int) (formSpec: FormSpec) =
             formSpec.Steps
             |> List.map (fun innerStep ->
                 if innerStep.StepOrder = (formStepOrder - 1) then
-                    { innerStep with StepOrder = (formStepOrder + 1) }
+                    { innerStep with
+                        StepOrder = (formStepOrder + 1)
+                    }
 
                 else if innerStep.StepOrder = formStepOrder then
-                    { innerStep with StepOrder = formStepOrder - 1 }
+                    { innerStep with
+                        StepOrder = formStepOrder - 1
+                    }
 
                 else
                     innerStep
             )
             |> List.sortBy (fun s -> s.StepOrder)
-            |> List.mapi (fun i s -> { s with StepOrder = i + 1 })
+            |> List.mapi (fun i s ->
+                { s with
+                    StepOrder = i + 1
+                }
+            )
     }
 
 let moveFormStepDownInFormSpec (formStepOrder: int) (formSpec: FormSpec) =
@@ -712,16 +805,24 @@ let moveFormStepDownInFormSpec (formStepOrder: int) (formSpec: FormSpec) =
             formSpec.Steps
             |> List.map (fun innerStep ->
                 if innerStep.StepOrder = (formStepOrder + 1) then
-                    { innerStep with StepOrder = (formStepOrder - 1) }
+                    { innerStep with
+                        StepOrder = (formStepOrder - 1)
+                    }
 
                 else if innerStep.StepOrder = formStepOrder then
-                    { innerStep with StepOrder = formStepOrder + 1 }
+                    { innerStep with
+                        StepOrder = formStepOrder + 1
+                    }
 
                 else
                     innerStep
             )
             |> List.sortBy (fun s -> s.StepOrder)
-            |> List.mapi (fun i s -> { s with StepOrder = i + 1 })
+            |> List.mapi (fun i s ->
+                { s with
+                    StepOrder = i + 1
+                }
+            )
     }
 
 let removeFormStepFromFormSpec (formStepOrder: int) (formSpec: FormSpec) =
@@ -729,7 +830,11 @@ let removeFormStepFromFormSpec (formStepOrder: int) (formSpec: FormSpec) =
         Steps =
             formSpec.Steps
             |> List.filter (fun s -> s.StepOrder <> formStepOrder)
-            |> List.mapi (fun i s -> { s with StepOrder = i + 1 })
+            |> List.mapi (fun i s ->
+                { s with
+                    StepOrder = i + 1
+                }
+            )
     }
 
 let tryGetStepByNumber (stepNumber: int) (formSpec: FormSpec) =
@@ -865,16 +970,18 @@ let insertDesignerFieldTypeToStepAt
     (stepNumber: int)
     (at: int)
     (formSpec: FormSpec)
-    (listOfFields: IDesignerField list)
+    (registeredFields: RegisteredFields)
     : FormSpec
     =
     let step = formSpec.Steps |> List.find (fun step -> step.StepOrder = stepNumber)
 
     let ff =
-        getDesignerFieldType source listOfFields
-        |> getDefaultFormFieldByDesignerFieldType at
+        registeredFields.GetByKey source |> getDefaultFormFieldByDesignerFieldType at
 
-    let newStep = { step with Fields = step.Fields |> List.insertAt (at - 1) ff }
+    let newStep =
+        { step with
+            Fields = step.Fields |> List.insertAt (at - 1) ff
+        }
 
     { formSpec with
         Steps =
@@ -891,13 +998,13 @@ let addDesignerFieldTypeToStep
     (source: string)
     (stepNumber: int)
     (formSpec: FormSpec)
-    (listOfFields: IDesignerField list)
+    (registeredFields: RegisteredFields)
     : FormSpec
     =
 
     let formStep = formSpec.Steps |> List.find (fun step -> step.StepOrder = stepNumber)
 
-    getDesignerFieldType source listOfFields
+    registeredFields.GetByKey source
     |> getDefaultFormFieldByDesignerFieldType (formStep.Fields.Length + 1)
     |> addFormFieldToStep formStep formSpec
 
@@ -932,7 +1039,9 @@ let flattenSpecSteps formSpec : FormSpec =
             let reorderedFields =
                 step.Fields
                 |> List.map (fun field ->
-                    { field with FieldOrder = step.StepOrder * 1000 + field.FieldOrder }
+                    { field with
+                        FieldOrder = step.StepOrder * 1000 + field.FieldOrder
+                    }
                 )
 
             flatten rest (acc @ reorderedFields)
@@ -960,7 +1069,9 @@ let flattenFormSteps
         |> Form.View.idle
         |> fun x -> Map[StepOrder 1, x]
 
-    { dynamicForm with Steps = flatForm }
+    { dynamicForm with
+        Steps = flatForm
+    }
 
 let extractDataFromFableFormsModel
     (dynamicForm: DynamicForm<Form.View.Model<DynamicStepValues>>)

@@ -8,7 +8,8 @@ open Feliz.Bulma
 open Fable.Form.Antidote.Field.ReactComponentField
 // open Antidote.AI.GPT.ChatGPTv4
 
-let private classes : CssModules.ComponentFields.SpeechToText = import "default" "./SpeechToText.module.scss"
+let private classes: CssModules.ComponentFields.SpeechToText =
+    import "default" "./SpeechToText.module.scss"
 
 let clinicalCopilotSystemMessage =
     [
@@ -18,8 +19,8 @@ let clinicalCopilotSystemMessage =
         "You always respond with the cleaned up version of the message."
         "All your responses are formatted as markdown."
         "Breakdown the conversation into bullet points, numerical points, or bolded titles when nessesary."
-    ] |> String.concat ". \n"
-
+    ]
+    |> String.concat ". \n"
 
 // let initChatModel: InitChatModel =
 //     {
@@ -41,10 +42,10 @@ type SpeechRecognition =
     abstract onerror: (obj -> unit)
 
 [<Emit("new webkitSpeechRecognition()")>]
-let webkitSpeechRecognition() : SpeechRecognition = jsNative
+let webkitSpeechRecognition () : SpeechRecognition = jsNative
 
 [<Emit("new SpeechRecognition()")>]
-let speechRecognition() : SpeechRecognition = jsNative
+let speechRecognition () : SpeechRecognition = jsNative
 
 type RecognitionSupport =
     | Webkit
@@ -62,27 +63,24 @@ let getSpeechRecognition () =
 
     let speechRecognition: SpeechRecognition option =
         match recognitionSupport with
-        | Webkit ->
-            Some (webkitSpeechRecognition())
+        | Webkit -> Some(webkitSpeechRecognition ())
 
-        | Standard ->
-            Some (speechRecognition())
-        | Unsupported ->
-            None
+        | Standard -> Some(speechRecognition ())
+        | Unsupported -> None
 
     speechRecognition
 
-
-type SpeechToTextProps = {|
-    SpeechRecognized: string -> unit
-    Send: unit -> unit
-    IsBusy: bool
-|}
+type SpeechToTextProps =
+    {|
+        SpeechRecognized: string -> unit
+        Send: unit -> unit
+        IsBusy: bool
+    |}
 
 [<ReactComponent>]
-let SpeechToText(props: ReactComponentFieldProps ) =
+let SpeechToText (props: ReactComponentFieldProps) =
     let (isListening, setIsListening) = React.useState false
-    let recognitionOpt, setRecognitionOpt = React.useState (getSpeechRecognition())
+    let recognitionOpt, setRecognitionOpt = React.useState (getSpeechRecognition ())
 
     // let cleanedupVersion, setCleandupVersion = React.useState ""
 
@@ -116,84 +114,85 @@ let SpeechToText(props: ReactComponentFieldProps ) =
         setCurrentTextBoxValue originalRecognition
         props.OnChange originalRecognition
 
-    let recognitionEffect  =
+    let recognitionEffect =
         (fun () ->
             recognitionOpt?continuous <- true
             recognitionOpt?interimResults <- true
             recognitionOpt?lang <- "en-US"
-            recognitionOpt?onresult <- (fun event ->
-                // props.OnChange("ONRESULT")
-                let currentTranscript =
-                    event?results
-                    |> Array.ofSeq
-                    |> Array.map (fun result ->
-                        // if result?isFinal then
-                        //     debuglog ("Speech Recognition Final Result:", result)
-                        // else
-                        //     debuglog ("Speech Recognition Result:", result)
-                        (unbox<string array>result).[0]
-                    )
-                    |> Array.map (fun result -> result?transcript)
-                    |> String.concat ""
-                printfn $"recognitionEffect: currentTranscript: {currentTranscript}"
-                setCurrentTextBoxValue currentTranscript
-                setOriginalRecognition currentTranscript
-            )
 
-            recognitionOpt?speechend <- (fun _ ->
-                setIsListening false
-            )
+            recognitionOpt?onresult <-
+                (fun event ->
+                    // props.OnChange("ONRESULT")
+                    let currentTranscript =
+                        event?results
+                        |> Array.ofSeq
+                        |> Array.map (fun result ->
+                            // if result?isFinal then
+                            //     debuglog ("Speech Recognition Final Result:", result)
+                            // else
+                            //     debuglog ("Speech Recognition Result:", result)
+                            (unbox<string array> result).[0]
+                        )
+                        |> Array.map (fun result -> result?transcript)
+                        |> String.concat ""
 
-            recognitionOpt?onend <- (fun _ ->
-                setIsListening false
-            )
+                    printfn $"recognitionEffect: currentTranscript: {currentTranscript}"
+                    setCurrentTextBoxValue currentTranscript
+                    setOriginalRecognition currentTranscript
+                )
 
-            recognitionOpt?onstart <- (fun _ ->
-                setIsListening true
-            )
+            recognitionOpt?speechend <- (fun _ -> setIsListening false)
 
-            recognitionOpt?onerror <- (fun event -> log event?error )
+            recognitionOpt?onend <- (fun _ -> setIsListening false)
+
+            recognitionOpt?onstart <- (fun _ -> setIsListening true)
+
+            recognitionOpt?onerror <- (fun event -> log event?error)
         )
 
     React.useEffect (
-        fun _ ->
-            props.OnChange currentTextBoxValue
-        ,[|box currentTextBoxValue|]
+        fun _ -> props.OnChange currentTextBoxValue
+        , [|
+            box currentTextBoxValue
+        |]
     )
 
-    React.useEffectOnce(
+    React.useEffectOnce (
         match recognitionOpt with
         | Some recognition -> recognitionEffect
-        | None -> (fun _ ->
-            printfn "Speech recognition is not supported on this browser"
-            ()
-        )
+        | None ->
+            (fun _ ->
+                printfn "Speech recognition is not supported on this browser"
+                ()
+            )
     )
 
     let toggleListening recognition =
         if isListening then
             printfn "Stopping recognition"
-            recognition?stop()
+            recognition?stop ()
         else
             printfn "Starting recognition"
-            recognition?start()
+            recognition?start ()
 
     Bulma.control.div [
         control.hasIconsRight
-        prop.style [ style.position.relative ]
+        prop.style [
+            style.position.relative
+        ]
         prop.children [
-            if props.Disabled
-            then
+            if props.Disabled then
                 Bulma.content [
                     Feliz.Markdown.Markdown.markdown props.Value
                 ]
             else
                 Bulma.textarea [
                     prop.placeholder "Write or click the microphone to transcribe"
-                    prop.value (currentTextBoxValue
-                        // if props.Disabled
-                        // then currentTextBoxValue
-                        // else props.Value
+                    prop.value (
+                        currentTextBoxValue
+                    // if props.Disabled
+                    // then currentTextBoxValue
+                    // else props.Value
                     )
                     prop.onChange (fun str ->
                         setCurrentTextBoxValue str
@@ -255,17 +254,18 @@ let SpeechToText(props: ReactComponentFieldProps ) =
                             prop.classes [
                                 "fas"
                                 "fa-undo"
-                                if isListening then "is-hidden"
+                                if isListening then
+                                    "is-hidden"
                             ]
                         ]
                     ]
                 ]
+
                 Bulma.icon [
                     icon.isRight
                     prop.onClick (fun _ ->
                         match recognitionOpt with
-                        | Some recognition ->
-                            toggleListening (recognition)
+                        | Some recognition -> toggleListening (recognition)
                         | None -> printfn "Why you here?"
                     )
                     prop.style [
@@ -280,7 +280,10 @@ let SpeechToText(props: ReactComponentFieldProps ) =
                     prop.children [
                         Html.i [
                             prop.classes [
-                                if isListening then "fas fa-stop" else "fas fa-microphone"
+                                if isListening then
+                                    "fas fa-stop"
+                                else
+                                    "fas fa-microphone"
                             ]
                         ]
                     ]

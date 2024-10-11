@@ -6,16 +6,17 @@ open Fable.Core.JsInterop
 open Antidote.Core.FormProcessor.Spec.v2_0_1
 open Antidote.Core.FormProcessor.Spec.Types
 
-let private classes : CssModules.DynamicFormDesigner = import "default" "./DynamicFormDesigner.module.scss"
+let private classes: CssModules.DynamicFormDesigner =
+    import "default" "./DynamicFormDesigner.module.scss"
 
-
-type AssociatedCodesProps = {|
-    FormSpec: FormSpec
-    OnChange: FormSpec -> unit
-|}
+type AssociatedCodesProps =
+    {|
+        FormSpec: FormSpec
+        OnChange: FormSpec -> unit
+    |}
 
 [<ReactComponent>]
-let AssociatedCodes(props:AssociatedCodesProps) =
+let AssociatedCodes (props: AssociatedCodesProps) =
     let newAssociatedCode, setNewAssociatedCode = React.useState ""
 
     // let exists code = props.FormSpec.AssociatedCodes |> List.contains code
@@ -40,23 +41,23 @@ let AssociatedCodes(props:AssociatedCodesProps) =
                                 prop.value newAssociatedCode
                                 prop.placeholder "Enter Code"
                                 prop.onChange setNewAssociatedCode
-                                // prop.onKeyPress (fun e ->
-                                //     if e.code = "13" then
-                                //         let newAssociatedCodes =
-                                //         // if isChecked then
-                                //         // props.FormSpec.AssociatedCodes
-                                //         // |> List.filter (fun x -> x <> associatedCode)
-                                //         // else
-                                //             newAssociatedCode :: props.FormSpec.AssociatedCodes
-                                //         props.OnChange {
-                                //             props.FormSpec with
-                                //                 AssociatedCodes = newAssociatedCodes
-                                //         }
-                                //         setNewAssociatedCode ""
-                                //     else
-                                //         setNewAssociatedCode e.code
+                            // prop.onKeyPress (fun e ->
+                            //     if e.code = "13" then
+                            //         let newAssociatedCodes =
+                            //         // if isChecked then
+                            //         // props.FormSpec.AssociatedCodes
+                            //         // |> List.filter (fun x -> x <> associatedCode)
+                            //         // else
+                            //             newAssociatedCode :: props.FormSpec.AssociatedCodes
+                            //         props.OnChange {
+                            //             props.FormSpec with
+                            //                 AssociatedCodes = newAssociatedCodes
+                            //         }
+                            //         setNewAssociatedCode ""
+                            //     else
+                            //         setNewAssociatedCode e.code
 
-                                // )
+                            // )
                             ]
                         ]
                     ]
@@ -68,17 +69,20 @@ let AssociatedCodes(props:AssociatedCodesProps) =
                         prop.onClick (fun _ ->
                             // Compute the new state
                             let newAssociatedCodes =
-                                if props.FormSpec.AssociatedCodes |> List.contains newAssociatedCode
+                                if
+                                    props.FormSpec.AssociatedCodes
+                                    |> List.contains newAssociatedCode
                                 then
                                     props.FormSpec.AssociatedCodes
                                 else
                                     newAssociatedCode :: props.FormSpec.AssociatedCodes
 
                             // Save the new state
-                            props.OnChange {
-                                props.FormSpec with
+                            props.OnChange
+                                { props.FormSpec with
                                     AssociatedCodes = newAssociatedCodes
-                            }
+                                }
+
                             setNewAssociatedCode ""
                         )
                     ]
@@ -98,9 +102,10 @@ let AssociatedCodes(props:AssociatedCodesProps) =
                 Bulma.fieldBody [
                     Bulma.field.div [
                         prop.children [
-                            let toOption (associatedCode:string) =
+                            let toOption (associatedCode: string) =
                                 let exists =
                                     List.contains associatedCode props.FormSpec.AssociatedCodes
+
                                 Bulma.field.div [
                                     prop.children [
                                         Bulma.tag [
@@ -125,13 +130,16 @@ let AssociatedCodes(props:AssociatedCodesProps) =
                                                         // Compute the new state
                                                         let newAssociatedCodes =
                                                             props.FormSpec.AssociatedCodes
-                                                            |> List.filter (fun x -> x <> associatedCode)
+                                                            |> List.filter (fun x ->
+                                                                x <> associatedCode
+                                                            )
 
                                                         // Save the new state
-                                                        props.OnChange {
-                                                            props.FormSpec with
-                                                                AssociatedCodes = newAssociatedCodes
-                                                        }
+                                                        props.OnChange
+                                                            { props.FormSpec with
+                                                                AssociatedCodes =
+                                                                    newAssociatedCodes
+                                                            }
                                                     )
                                                 ]
                                             ]
@@ -140,11 +148,9 @@ let AssociatedCodes(props:AssociatedCodesProps) =
                                     ]
                                 ]
 
-
                             Bulma.tags [
-                                yield! props.FormSpec.AssociatedCodes
-                                |> List.sort
-                                |> List.map toOption
+                                yield!
+                                    props.FormSpec.AssociatedCodes |> List.sort |> List.map toOption
                             ]
                         ]
                     ]

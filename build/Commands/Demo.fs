@@ -20,23 +20,22 @@ type DemoCommand() =
         Command.Run("pnpm", "install", workingDirectory = Workspace.``.``)
 
         if settings.IsWatch then
-            Async.Parallel
-                [
-                    Command.RunAsync(
-                        "dotnet",
-                        CmdLine.empty
-                        |> CmdLine.appendRaw "fable"
-                        |> CmdLine.appendRaw "watch"
-                        |> CmdLine.appendRaw Workspace.demo.``.``
-                        |> CmdLine.appendRaw "--test:MSBuildCracker"
-                        |> CmdLine.appendRaw "--verbose"
-                        |> CmdLine.toString
-                    )
-                    |> Async.AwaitTask
+            Async.Parallel [
+                Command.RunAsync(
+                    "dotnet",
+                    CmdLine.empty
+                    |> CmdLine.appendRaw "fable"
+                    |> CmdLine.appendRaw "watch"
+                    |> CmdLine.appendRaw Workspace.demo.``.``
+                    |> CmdLine.appendRaw "--test:MSBuildCracker"
+                    |> CmdLine.appendRaw "--verbose"
+                    |> CmdLine.toString
+                )
+                |> Async.AwaitTask
 
-                    Command.RunAsync("npx", "vite", workingDirectory = Workspace.demo.``.``)
-                    |> Async.AwaitTask
-                ]
+                Command.RunAsync("npx", "vite", workingDirectory = Workspace.demo.``.``)
+                |> Async.AwaitTask
+            ]
             |> Async.RunSynchronously
             |> ignore
 

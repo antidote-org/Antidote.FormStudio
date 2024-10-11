@@ -91,8 +91,7 @@ type ReleaseCommand() =
             // Parse the commit to get the commit information
             |> Seq.choose (fun commit ->
                 match
-                    Parser.tryParseCommitMessage CommitParserConfig.Default commit.Message,
-                    commit
+                    Parser.tryParseCommitMessage CommitParserConfig.Default commit.Message, commit
                 with
                 | Ok semanticCommit, commit ->
                     Some
@@ -124,7 +123,8 @@ type ReleaseCommand() =
 
             let shouldBumpMajor =
                 settings.BumpMajor
-                || releaseCommits |> Seq.exists (fun commit -> commit.SemanticCommit.BreakingChange)
+                || releaseCommits
+                   |> Seq.exists (fun commit -> commit.SemanticCommit.BreakingChange)
 
             let shouldBumpMinor =
                 settings.BumpMinor
@@ -200,7 +200,10 @@ type ReleaseCommand() =
                     else
                         removeConsecutiveEmptyLines
                             (String.IsNullOrWhiteSpace(line))
-                            (result @ [ line ])
+                            (result
+                             @ [
+                                 line
+                             ])
                             rest
 
             let newChangelogContent =
@@ -256,12 +259,10 @@ type ReleaseCommand() =
             let nugetKey = Environment.GetEnvironmentVariable("NUGET_KEY")
 
             if nugetKey = null then
-                failwith "Please set the NUGET_KEY environment variable, you can get it from https://www.nuget.org/account/apikeys"
+                failwith
+                    "Please set the NUGET_KEY environment variable, you can get it from https://www.nuget.org/account/apikeys"
 
-            Nuget.push (
-                m.Groups.["nupkgPath"].Value,
-                nugetKey
-            )
+            Nuget.push (m.Groups.["nupkgPath"].Value, nugetKey)
 
             Command.Run("git", "add .")
 

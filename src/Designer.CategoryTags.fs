@@ -6,16 +6,17 @@ open Fable.Core.JsInterop
 open Antidote.Core.FormProcessor.Spec.v2_0_1
 open Antidote.Core.FormProcessor.Spec.Types
 
-let private classes : CssModules.DynamicFormDesigner = import "default" "./DynamicFormDesigner.module.scss"
+let private classes: CssModules.DynamicFormDesigner =
+    import "default" "./DynamicFormDesigner.module.scss"
 
-
-type CategoryTagsProps = {|
-    FormSpec: FormSpec
-    OnChange: FormSpec -> unit
-|}
+type CategoryTagsProps =
+    {|
+        FormSpec: FormSpec
+        OnChange: FormSpec -> unit
+    |}
 
 [<ReactComponent>]
-let CategoryTags(props:CategoryTagsProps) =
+let CategoryTags (props: CategoryTagsProps) =
     Bulma.field.div [
         field.isHorizontal
         prop.children [
@@ -28,9 +29,8 @@ let CategoryTags(props:CategoryTagsProps) =
             Bulma.fieldBody [
                 Bulma.field.div [
                     prop.children [
-                        let toOption (categoryTag:CategoryTag) =
-                            let isChecked =
-                                List.contains categoryTag props.FormSpec.CategoryTags
+                        let toOption (categoryTag: CategoryTag) =
+                            let isChecked = List.contains categoryTag props.FormSpec.CategoryTags
 
                             Bulma.tag [
                                 tag.isRounded
@@ -53,18 +53,17 @@ let CategoryTags(props:CategoryTagsProps) =
                                             categoryTag :: props.FormSpec.CategoryTags
 
                                     // Save the new state
-                                    props.OnChange {
-                                        props.FormSpec with
+                                    props.OnChange
+                                        { props.FormSpec with
                                             CategoryTags = newCategorTags
-                                    }
+                                        }
                                 )
 
                                 prop.text categoryTag.toString
                             ]
 
                         Bulma.tags [
-                            yield! availableCategoryTags
-                            |> List.map toOption
+                            yield! availableCategoryTags |> List.map toOption
                         ]
                     ]
                 ]

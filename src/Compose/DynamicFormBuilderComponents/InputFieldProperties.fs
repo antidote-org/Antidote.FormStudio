@@ -46,99 +46,93 @@ type InputFieldPropertiesProps =
 
 [<ReactComponent>]
 let InputFieldProperties () =
-    Bulma.panelBlock.div
-        [
-            Html.label
-                [
-                    prop.className "checkbox"
-                    prop.children
-                        [
-                            Html.input
-                                [
-                                    prop.isChecked props.FormField.IsOptional
-                                    prop.onChange (fun (e: bool) ->
-                                        let newFormField = { formField with IsOptional = e }
+    Bulma.panelBlock.div [
+        Html.label [
+            prop.className "checkbox"
+            prop.children [
+                Html.input [
+                    prop.isChecked props.FormField.IsOptional
+                    prop.onChange (fun (e: bool) ->
+                        let newFormField =
+                            { formField with
+                                IsOptional = e
+                            }
 
-                                        let newFormSpec =
-                                            { props.FormSpec with
-                                                Steps =
-                                                    props.FormSpec.Steps
-                                                    |> List.map (fun s ->
+                        let newFormSpec =
+                            { props.FormSpec with
+                                Steps =
+                                    props.FormSpec.Steps
+                                    |> List.map (fun s ->
+                                        if s.StepOrder = props.ActiveField.FormStepNumber then
+                                            { s with
+                                                Fields =
+                                                    s.Fields
+                                                    |> List.map (fun f ->
                                                         if
-                                                            s.StepOrder = props.ActiveField.FormStepNumber
+                                                            f.FieldOrder = props.ActiveField.FormFieldNumber
                                                         then
-                                                            { s with
-                                                                Fields =
-                                                                    s.Fields
-                                                                    |> List.map (fun f ->
-                                                                        if
-                                                                            f.FieldOrder = props.ActiveField.FormFieldNumber
-                                                                        then
-                                                                            newFormField
-                                                                        else
-                                                                            f
-                                                                    )
-                                                            }
+                                                            newFormField
                                                         else
-                                                            s
+                                                            f
                                                     )
                                             }
-
-                                        props.FormSpecChanged newFormSpec
+                                        else
+                                            s
                                     )
-                                    prop.type' "checkbox"
-                                ]
-                            Html.text " Optional"
-                        ]
+                            }
+
+                        props.FormSpecChanged newFormSpec
+                    )
+                    prop.type' "checkbox"
                 ]
+                Html.text " Optional"
+            ]
         ]
+    ]
 
-    Bulma.panelBlock.div
-        [
-            Html.label
-                [
-                    prop.className "checkbox"
-                    prop.children
-                        [
-                            Html.input
-                                [
-                                    prop.isChecked formField.IsDeprecated
-                                    prop.onChange (fun (e: bool) ->
-                                        let newFormField = { formField with IsDeprecated = e }
+    Bulma.panelBlock.div [
+        Html.label [
+            prop.className "checkbox"
+            prop.children [
+                Html.input [
+                    prop.isChecked formField.IsDeprecated
+                    prop.onChange (fun (e: bool) ->
+                        let newFormField =
+                            { formField with
+                                IsDeprecated = e
+                            }
 
-                                        let newFormSpec =
-                                            { props.FormSpec with
-                                                Steps =
-                                                    props.FormSpec.Steps
-                                                    |> List.map (fun s ->
+                        let newFormSpec =
+                            { props.FormSpec with
+                                Steps =
+                                    props.FormSpec.Steps
+                                    |> List.map (fun s ->
+                                        if s.StepOrder = props.ActiveField.FormStepNumber then
+                                            { s with
+                                                Fields =
+                                                    s.Fields
+                                                    |> List.map (fun f ->
                                                         if
-                                                            s.StepOrder = props.ActiveField.FormStepNumber
+                                                            f.FieldOrder = props.ActiveField.FormFieldNumber
                                                         then
-                                                            { s with
-                                                                Fields =
-                                                                    s.Fields
-                                                                    |> List.map (fun f ->
-                                                                        if
-                                                                            f.FieldOrder = props.ActiveField.FormFieldNumber
-                                                                        then
-                                                                            newFormField
-                                                                        else
-                                                                            f
-                                                                    )
-                                                            }
+                                                            newFormField
                                                         else
-                                                            s
+                                                            f
                                                     )
                                             }
-
-                                        props.FormSpecChanged newFormSpec
+                                        else
+                                            s
                                     )
-                                    prop.type' "checkbox"
-                                ]
-                            Html.text " Deprecated"
-                        ]
+                            }
+
+                        props.FormSpecChanged newFormSpec
+                    )
+                    prop.type' "checkbox"
                 ]
+                Html.text " Deprecated"
+            ]
         ]
+    ]
 // match isDeprecatedPending with
 // | false -> Html.none
 // | true ->

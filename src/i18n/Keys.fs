@@ -196,7 +196,6 @@ type Intl =
     | CatHighRisk
     | CatVeryHighRisk
 
-
     member this.Key =
         let key =
             match this with
@@ -268,10 +267,8 @@ type Intl =
             | Suicidal -> "suicidal"
             | Points -> "points"
 
-
             //Forms
             | SelectPlaceholder -> "select_placeholder"
-
 
             | ProviderCharting -> "provider_charting"
             | Results -> "results"
@@ -396,20 +393,20 @@ type Intl =
             | CatHighRisk -> "cat_high_risk"
             | CatVeryHighRisk -> "cat_very_high_risk"
 
-            //DSM-5-TR
-            //| ``Are you currently taking any prescription medications?`` -> "dsm5tr_q1"
-            // | ``Do you find that you're frequently consuming more of a substance, or using it for longer periods than you originally planned?`` -> "dsm5tr_q2"
-            // | DSM5TRQ3 -> "dsm5tr_q3"
-            // | DSM5TRQ4 -> "dsm5tr_q4"
-            // | DSM5TRQ5 -> "dsm5tr_q5"
-            // | DSM5TRQ6 -> "dsm5tr_q6"
-            // | DSM5TRQ7 -> "dsm5tr_q7"
-            // | DSM5TRQ8 -> "dsm5tr_q8"
-            // | DSM5TRQ9 -> "dsm5tr_q9"
-            // | DSM5TRQ10 -> "dsm5tr_q10"
-            // | DSM5TRQ11 -> "dsm5tr_q11"
-            // | DSM5TRQ12 -> "dsm5tr_q12"
-            // | DSM5TRQ13 -> "dsm5tr_q13"
-            // | DSM5TRQ14 -> "dsm5tr_q14"
+        //DSM-5-TR
+        //| ``Are you currently taking any prescription medications?`` -> "dsm5tr_q1"
+        // | ``Do you find that you're frequently consuming more of a substance, or using it for longer periods than you originally planned?`` -> "dsm5tr_q2"
+        // | DSM5TRQ3 -> "dsm5tr_q3"
+        // | DSM5TRQ4 -> "dsm5tr_q4"
+        // | DSM5TRQ5 -> "dsm5tr_q5"
+        // | DSM5TRQ6 -> "dsm5tr_q6"
+        // | DSM5TRQ7 -> "dsm5tr_q7"
+        // | DSM5TRQ8 -> "dsm5tr_q8"
+        // | DSM5TRQ9 -> "dsm5tr_q9"
+        // | DSM5TRQ10 -> "dsm5tr_q10"
+        // | DSM5TRQ11 -> "dsm5tr_q11"
+        // | DSM5TRQ12 -> "dsm5tr_q12"
+        // | DSM5TRQ13 -> "dsm5tr_q13"
+        // | DSM5TRQ14 -> "dsm5tr_q14"
 
         key.ToLower()

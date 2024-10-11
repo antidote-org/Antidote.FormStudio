@@ -14,7 +14,12 @@ let merge fields : Form.Form<DynamicStepValues, _, IReactProperty> =
     fields
     |> List.map (fun (name, form) ->
         // First, turn each individual form into one returning key-value pair
-        Form.succeed (fun result -> [ name, result ]) |> Form.append (form)
+        Form.succeed (fun result ->
+            [
+                name, result
+            ]
+        )
+        |> Form.append (form)
     )
     |> List.reduce (fun form1 form2 ->
         // Merge forms by taking two, appending them and concatenating the

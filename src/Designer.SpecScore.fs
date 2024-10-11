@@ -5,8 +5,8 @@ open Feliz.Bulma
 open Fable.Core.JsInterop
 open Antidote.Core.FormProcessor.Spec.v2_0_1
 
-
-let private classes : CssModules.DynamicFormDesigner = import "default" "./DynamicFormDesigner.module.scss"
+let private classes: CssModules.DynamicFormDesigner =
+    import "default" "./DynamicFormDesigner.module.scss"
 
 type SpecScoreProps =
     {|
@@ -15,21 +15,24 @@ type SpecScoreProps =
     |}
 
 [<ReactComponent>]
-let SpecScore (props:SpecScoreProps) =
+let SpecScore (props: SpecScoreProps) =
     // let scoreRange, setScoreRange = React.useState<ScoreRange list> []
     let tagDropDownOpenId, setTagDropDownOpenId = React.useState (System.Guid.Empty)
-    let enabled, setEnabled = React.useState ( props.FormSpec.Score.IsSome )
+    let enabled, setEnabled = React.useState (props.FormSpec.Score.IsSome)
 
     React.useEffect (
         fun _ -> setEnabled props.FormSpec.Score.IsSome
-        , [| box props.FormSpec |]
+        , [|
+            box props.FormSpec
+        |]
     )
 
     React.fragment [
         Bulma.field.div [
             field.isHorizontal
             field.hasAddons
-            prop.style[ style.display.flex ; style.alignItems.center]
+            prop.style[style.display.flex
+                       style.alignItems.center]
             prop.children [
                 Bulma.fieldLabel [
                     fieldLabel.isNormal
@@ -40,20 +43,34 @@ let SpecScore (props:SpecScoreProps) =
                 Bulma.fieldBody [
                     Html.label [
                         //prop.style [style.marginTop 7]
-                        prop.style[ style.display.flex ; style.alignItems.center]
+                        prop.style[style.display.flex
+                                   style.alignItems.center]
                         prop.className classes.switch
                         prop.children [
                             Html.input [
-                                prop.style [style.display.flex; style.flexDirection.row ; style.alignItems.center]
+                                prop.style [
+                                    style.display.flex
+                                    style.flexDirection.row
+                                    style.alignItems.center
+                                ]
                                 prop.isChecked enabled
-                                prop.onChange (fun (e:bool) ->
-                                    if not e
-                                    then props.OnChange { props.FormSpec with Score = None }
+                                prop.onChange (fun (e: bool) ->
+                                    if not e then
+                                        props.OnChange
+                                            { props.FormSpec with
+                                                Score = None
+                                            }
+
                                     setEnabled e
                                 )
                                 prop.type' "checkbox"
                             ]
-                            Html.span [ prop.classes [ classes.slider; classes.round ] ]
+                            Html.span [
+                                prop.classes [
+                                    classes.slider
+                                    classes.round
+                                ]
+                            ]
                         ]
                     ]
                 ]
@@ -77,17 +94,30 @@ let SpecScore (props:SpecScoreProps) =
                             prop.children [
                                 Bulma.input.number [
                                     input.isSmall
-                                    prop.defaultValue (props.FormSpec.Score |> Option.map (fun s -> s.MaxScore) |> Option.defaultValue 0)
-                                    prop.onChange (fun (e:int) ->
-                                        props.OnChange (
+                                    prop.defaultValue (
+                                        props.FormSpec.Score
+                                        |> Option.map (fun s -> s.MaxScore)
+                                        |> Option.defaultValue 0
+                                    )
+                                    prop.onChange (fun (e: int) ->
+                                        props.OnChange(
                                             match props.FormSpec.Score with
                                             | Some score ->
                                                 { props.FormSpec with
-                                                    Score =   Some { score with MaxScore = e }
+                                                    Score =
+                                                        Some
+                                                            { score with
+                                                                MaxScore = e
+                                                            }
                                                 }
                                             | None ->
                                                 { props.FormSpec with
-                                                    Score = Some { MaxScore = e; ScoreRanges = [] }
+                                                    Score =
+                                                        Some
+                                                            {
+                                                                MaxScore = e
+                                                                ScoreRanges = []
+                                                            }
                                                 }
                                         )
                                     )
@@ -111,22 +141,31 @@ let SpecScore (props:SpecScoreProps) =
                                                     Label = ""
                                                     Tag = Unspecified
                                                 }
+
                                             let newFormSpec =
-                                                {
-                                                    props.FormSpec with
-                                                        Score =
-                                                            match props.FormSpec.Score with
-                                                            | Some score ->
-                                                                Some {
-                                                                    score with
-                                                                        ScoreRanges = score.ScoreRanges @ [newScoreRange]
+                                                { props.FormSpec with
+                                                    Score =
+                                                        match props.FormSpec.Score with
+                                                        | Some score ->
+                                                            Some
+                                                                { score with
+                                                                    ScoreRanges =
+                                                                        score.ScoreRanges
+                                                                        @ [
+                                                                            newScoreRange
+                                                                        ]
                                                                 }
-                                                            | None ->
-                                                                Some {
+                                                        | None ->
+                                                            Some
+                                                                {
                                                                     MaxScore = 0
-                                                                    ScoreRanges = [newScoreRange]
+                                                                    ScoreRanges =
+                                                                        [
+                                                                            newScoreRange
+                                                                        ]
                                                                 }
                                                 }
+
                                             props.OnChange newFormSpec
                                         )
                                     ]
@@ -136,6 +175,7 @@ let SpecScore (props:SpecScoreProps) =
                     ]
                 ]
             ]
+
             yield!
                 match props.FormSpec.Score with
                 | None -> []
@@ -156,55 +196,78 @@ let SpecScore (props:SpecScoreProps) =
                                     Bulma.input.number [
                                         input.isSmall
                                         prop.defaultValue (r.Min)
-                                        prop.onChange (fun (e:int) ->
-                                            let newRange = { r with Min = e }
+                                        prop.onChange (fun (e: int) ->
+                                            let newRange =
+                                                { r with
+                                                    Min = e
+                                                }
+
                                             props.OnChange
-                                                {
-                                                    props.FormSpec with
-                                                        Score =
-                                                            match props.FormSpec.Score with
-                                                            | Some score ->
-                                                                Some {
-                                                                    score with
-                                                                        ScoreRanges =
-                                                                            score.ScoreRanges
-                                                                            |> List.map (fun r ->
-                                                                                if r.Id = newRange.Id
-                                                                                then newRange
-                                                                                else r
-                                                                            )
+                                                { props.FormSpec with
+                                                    Score =
+                                                        match props.FormSpec.Score with
+                                                        | Some score ->
+                                                            Some
+                                                                { score with
+                                                                    ScoreRanges =
+                                                                        score.ScoreRanges
+                                                                        |> List.map (fun r ->
+                                                                            if
+                                                                                r.Id = newRange.Id
+                                                                            then
+                                                                                newRange
+                                                                            else
+                                                                                r
+                                                                        )
                                                                 }
-                                                            | None ->
-                                                                Some { MaxScore = 0; ScoreRanges = [newRange] }
+                                                        | None ->
+                                                            Some
+                                                                {
+                                                                    MaxScore = 0
+                                                                    ScoreRanges =
+                                                                        [
+                                                                            newRange
+                                                                        ]
+                                                                }
                                                 }
                                         )
                                     ]
                                     Bulma.input.number [
                                         input.isSmall
                                         prop.defaultValue (r.Max)
-                                        prop.onChange (fun (e:int) ->
-                                            let newRange = { r with Max = e }
-                                            props.OnChange (
-                                                {
-                                                    props.FormSpec with
-                                                        Score =
-                                                            match props.FormSpec.Score with
-                                                            | Some score ->
-                                                                Some {
-                                                                    score with
-                                                                        ScoreRanges =
-                                                                            score.ScoreRanges
-                                                                            |> List.map (fun r ->
-                                                                                if r.Id = newRange.Id
-                                                                                then newRange
-                                                                                else r
-                                                                            )
+                                        prop.onChange (fun (e: int) ->
+                                            let newRange =
+                                                { r with
+                                                    Max = e
+                                                }
+
+                                            props.OnChange(
+                                                { props.FormSpec with
+                                                    Score =
+                                                        match props.FormSpec.Score with
+                                                        | Some score ->
+                                                            Some
+                                                                { score with
+                                                                    ScoreRanges =
+                                                                        score.ScoreRanges
+                                                                        |> List.map (fun r ->
+                                                                            if
+                                                                                r.Id = newRange.Id
+                                                                            then
+                                                                                newRange
+                                                                            else
+                                                                                r
+                                                                        )
 
                                                                 }
-                                                            | None ->
-                                                                Some {
+                                                        | None ->
+                                                            Some
+                                                                {
                                                                     MaxScore = 0
-                                                                    ScoreRanges = [newRange]
+                                                                    ScoreRanges =
+                                                                        [
+                                                                            newRange
+                                                                        ]
                                                                 }
                                                 }
                                             )
@@ -214,38 +277,55 @@ let SpecScore (props:SpecScoreProps) =
                                         input.isSmall
                                         prop.placeholder "Label"
                                         prop.value r.Label
-                                        prop.onChange (fun (e:string) ->
-                                            let newRange = { r with Label = e }
+                                        prop.onChange (fun (e: string) ->
+                                            let newRange =
+                                                { r with
+                                                    Label = e
+                                                }
+
                                             props.OnChange
-                                                {
-                                                    props.FormSpec with
-                                                        Score =
-                                                            match props.FormSpec.Score with
-                                                            | Some score ->
-                                                                Some {
-                                                                    score with
-                                                                        ScoreRanges =
-                                                                            score.ScoreRanges
-                                                                            |> List.map (fun r ->
-                                                                                if r.Id = newRange.Id
-                                                                                then {
-                                                                                    r with
-                                                                                        Label = e
+                                                { props.FormSpec with
+                                                    Score =
+                                                        match props.FormSpec.Score with
+                                                        | Some score ->
+                                                            Some
+                                                                { score with
+                                                                    ScoreRanges =
+                                                                        score.ScoreRanges
+                                                                        |> List.map (fun r ->
+                                                                            if
+                                                                                r.Id = newRange.Id
+                                                                            then
+                                                                                { r with
+                                                                                    Label = e
                                                                                 }
-                                                                                else r
-                                                                            )
+                                                                            else
+                                                                                r
+                                                                        )
 
                                                                 }
-                                                            | None ->
-                                                                Some {
+                                                        | None ->
+                                                            Some
+                                                                {
                                                                     MaxScore = 0
-                                                                    ScoreRanges = [r]
+                                                                    ScoreRanges =
+                                                                        [
+                                                                            r
+                                                                        ]
                                                                 }
                                                 }
                                         )
                                     ]
                                     Html.div [
-                                        prop.classes [ "dropdown"; "is-right"; "is-small"; (if tagDropDownOpenId = r.Id then "is-active" else "" )  ]
+                                        prop.classes [
+                                            "dropdown"
+                                            "is-right"
+                                            "is-small"
+                                            (if tagDropDownOpenId = r.Id then
+                                                 "is-active"
+                                             else
+                                                 "")
+                                        ]
                                         prop.children [
                                             Html.div [
                                                 prop.className "dropdown-trigger"
@@ -254,7 +334,8 @@ let SpecScore (props:SpecScoreProps) =
                                                         prop.classes [
                                                             "button"
                                                             "is-small"
-                                                            (Antidote.FormDesigner.Helper.severityColorToClasses r.Tag)
+                                                            (Antidote.FormDesigner.Helper.severityColorToClasses
+                                                                r.Tag)
                                                         ]
                                                         prop.onClick (fun _ ->
                                                             setTagDropDownOpenId r.Id
@@ -262,10 +343,16 @@ let SpecScore (props:SpecScoreProps) =
                                                         prop.children [
                                                             // Html.span (if r.Tag = "" then "Tag" else r.Tag)
                                                             Html.span [
-                                                                prop.classes [ "icon"; "is-small" ]
+                                                                prop.classes [
+                                                                    "icon"
+                                                                    "is-small"
+                                                                ]
                                                                 prop.children [
                                                                     Html.i [
-                                                                        prop.classes [ "fas"; "fa-angle-down" ]
+                                                                        prop.classes [
+                                                                            "fas"
+                                                                            "fa-angle-down"
+                                                                        ]
                                                                     ]
                                                                 ]
                                                             ]
@@ -282,41 +369,67 @@ let SpecScore (props:SpecScoreProps) =
                                                     Html.div [
                                                         prop.className "dropdown-content"
                                                         prop.children [
-                                                            let tagRender (severityColor: ScoreColor) =
+                                                            let tagRender
+                                                                (severityColor: ScoreColor)
+                                                                =
                                                                 Html.a [
 
-                                                                    prop.className ("dropdown-item " + (Antidote.FormDesigner.Helper.severityColorToClasses severityColor) )
-                                                                    prop.style [ style.height 25 ]
+                                                                    prop.className (
+                                                                        "dropdown-item "
+                                                                        + (Antidote.FormDesigner.Helper.severityColorToClasses
+                                                                            severityColor)
+                                                                    )
+                                                                    prop.style [
+                                                                        style.height 25
+                                                                    ]
                                                                     // prop.text (severityColor.ToString())
                                                                     prop.onClick (fun _ ->
-                                                                        let newRange = { r with Tag = severityColor }
+                                                                        let newRange =
+                                                                            { r with
+                                                                                Tag =
+                                                                                    severityColor
+                                                                            }
+
                                                                         props.OnChange
-                                                                            {
-                                                                                props.FormSpec with
-                                                                                    Score =
-                                                                                        match props.FormSpec.Score with
-                                                                                        | Some score ->
-                                                                                            Some {
-                                                                                                score with
-                                                                                                    ScoreRanges =
-                                                                                                        score.ScoreRanges
-                                                                                                        |> List.map (fun r ->
-                                                                                                            if r.Id = newRange.Id
-                                                                                                            then newRange
-                                                                                                            else r
-                                                                                                        )
+                                                                            { props.FormSpec with
+                                                                                Score =
+                                                                                    match
+                                                                                        props.FormSpec.Score
+                                                                                    with
+                                                                                    | Some score ->
+                                                                                        Some
+                                                                                            { score with
+                                                                                                ScoreRanges =
+                                                                                                    score.ScoreRanges
+                                                                                                    |> List.map (fun
+                                                                                                                     r ->
+                                                                                                        if
+                                                                                                            r.Id = newRange.Id
+                                                                                                        then
+                                                                                                            newRange
+                                                                                                        else
+                                                                                                            r
+                                                                                                    )
 
                                                                                             }
-                                                                                        | None ->
-                                                                                            Some {
-                                                                                                MaxScore = 0
-                                                                                                ScoreRanges = [newRange]
+                                                                                    | None ->
+                                                                                        Some
+                                                                                            {
+                                                                                                MaxScore =
+                                                                                                    0
+                                                                                                ScoreRanges =
+                                                                                                    [
+                                                                                                        newRange
+                                                                                                    ]
                                                                                             }
                                                                             }
 
-                                                                        setTagDropDownOpenId (System.Guid.Empty)
+                                                                        setTagDropDownOpenId (
+                                                                            System.Guid.Empty
+                                                                        )
                                                                     )
                                                                 ]
+
                                                             [
                                                                 // White
                                                                 // Black
@@ -343,5 +456,4 @@ let SpecScore (props:SpecScoreProps) =
                         ]
                     )
 
-
-        ]
+    ]

@@ -58,6 +58,7 @@ module Types =
             | SpecStatus.UnPublished -> "UnPublished"
             | SpecStatus.Archived -> "Archived"
             | SpecStatus.Deleted -> "Deleted"
+
         /// <summary>
         /// Retrieve the corresponding index for the given F# discriminated union value
         /// </summary>
@@ -80,7 +81,7 @@ module Types =
             | 2
             | 3
             | 4
-            | 5 ->  true
+            | 5 -> true
             | _ -> false
 
         let validateString (specStatusString: string) =
@@ -93,20 +94,20 @@ module Types =
             | "Deleted" -> true
             | _ -> false
 
-        // let tryParseIndex (specStatusIndex: int) = result {
-        //     do! Validators.Int.isNonNegative specStatusIndex "Spec Status cannot be negative"
-        //     do!
-        //         match validateIndex specStatusIndex with
-        //         | false -> Error $"Spec Status index {specStatusIndex} was invalid."
-        //         | true -> Ok()
-        //     return fromIndex specStatusIndex
-        // }
+// let tryParseIndex (specStatusIndex: int) = result {
+//     do! Validators.Int.isNonNegative specStatusIndex "Spec Status cannot be negative"
+//     do!
+//         match validateIndex specStatusIndex with
+//         | false -> Error $"Spec Status index {specStatusIndex} was invalid."
+//         | true -> Ok()
+//     return fromIndex specStatusIndex
+// }
 
-        // let tryParseString (specStatusString: string) = result {
-        //     do! Validators.String.nonEmpty specStatusString "Spec Status cannot be empty"
-        //     do!
-        //         match validateString specStatusString with
-        //         | false -> Error $"Spec Status string {specStatusString} is invalid."
-        //         | true -> Ok()
-        //     return fromString specStatusString
-        // }
+// let tryParseString (specStatusString: string) = result {
+//     do! Validators.String.nonEmpty specStatusString "Spec Status cannot be empty"
+//     do!
+//         match validateString specStatusString with
+//         | false -> Error $"Spec Status string {specStatusString} is invalid."
+//         | true -> Ok()
+//     return fromString specStatusString
+// }

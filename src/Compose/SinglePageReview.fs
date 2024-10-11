@@ -26,68 +26,66 @@ let SinglePageReview (props: SinglePageReviewProps) =
     let flatDynamicForm =
         props.DynamicForm |> Antidote.FormDesigner.Helper.flattenFormSteps
 
-    Html.div
-        [
-            prop.children
-                [
-                    match flatFormSpec.Steps |> List.tryFind (fun s -> s.StepOrder = 1) with
-                    | Some step ->
-                        Html.div
-                            [
-                                Html.h1
-                                    [
-                                        prop.className "title is-3 is-bold has-text-centered"
-                                        prop.text (t props.FormSpec.Title)
-                                    ]
-                                Html.p
-                                    [
-                                        prop.className "subtitle is-4 has-text-centered"
-                                        prop.text (t step.StepLabel)
-                                    ]
+    Html.div [
+        prop.children [
+            match flatFormSpec.Steps |> List.tryFind (fun s -> s.StepOrder = 1) with
+            | Some step ->
+                Html.div [
+                    Html.h1 [
+                        prop.className "title is-3 is-bold has-text-centered"
+                        prop.text (t props.FormSpec.Title)
+                    ]
+                    Html.p [
+                        prop.className "subtitle is-4 has-text-centered"
+                        prop.text (t step.StepLabel)
+                    ]
 
-                                Bulma.block
-                                    [
-                                        prop.classes [ "has-text-centered" ]
-                                        prop.children
-                                            [
-                                                Bulma.label
-                                                    [
-                                                        prop.classes [ "has-text-centered" ]
-                                                        prop.children
-                                                            [ Html.text (t "General Codes") ]
-                                                    ]
-                                                flatFormSpec.AssociatedCodes
-                                                |> List.map (fun code ->
-                                                    Bulma.tag
-                                                        [
-                                                            tag.isRounded
-                                                            prop.style [ style.cursor.pointer ]
-                                                            prop.key code
-                                                            color.hasBackgroundInfo
-                                                            color.hasTextWhite
-                                                            prop.children [ Html.text code ]
-                                                        ]
-                                                )
-                                                |> Html.div
-
-                                            ]
-                                    ]
-
-                                Html.div
-                                    [
-                                        // prop.className classes.formContainer
-                                        prop.children
-                                            [
-                                                flatFormSpec.Steps
-                                                |> List.find (fun s -> s.StepOrder = 1)
-                                                |> Composer.compose true props.RenderUserField
-                                                |> Composer.render
-                                                    flatDynamicForm.Steps[StepOrder 1]
-                                                    (fun _ -> ())
-                                                    (FormActions.formAction ReadOnly true)
-                                            ]
-                                    ]
+                    Bulma.block [
+                        prop.classes [
+                            "has-text-centered"
+                        ]
+                        prop.children [
+                            Bulma.label [
+                                prop.classes [
+                                    "has-text-centered"
+                                ]
+                                prop.children [
+                                    Html.text (t "General Codes")
+                                ]
                             ]
-                    | None -> Html.span "No step found"
+                            flatFormSpec.AssociatedCodes
+                            |> List.map (fun code ->
+                                Bulma.tag [
+                                    tag.isRounded
+                                    prop.style [
+                                        style.cursor.pointer
+                                    ]
+                                    prop.key code
+                                    color.hasBackgroundInfo
+                                    color.hasTextWhite
+                                    prop.children [
+                                        Html.text code
+                                    ]
+                                ]
+                            )
+                            |> Html.div
+
+                        ]
+                    ]
+
+                    Html.div [
+                        // prop.className classes.formContainer
+                        prop.children [
+                            flatFormSpec.Steps
+                            |> List.find (fun s -> s.StepOrder = 1)
+                            |> Composer.compose true props.RenderUserField
+                            |> Composer.render
+                                flatDynamicForm.Steps[StepOrder 1]
+                                (fun _ -> ())
+                                (FormActions.formAction ReadOnly true)
+                        ]
+                    ]
                 ]
+            | None -> Html.span "No step found"
         ]
+    ]
