@@ -1,27 +1,24 @@
-module Antidote.FormDesigner.FormStepTools
+module Antidote.FormStudio.UI.Designer.FormStepTools
 
 open Feliz
 open Feliz.Bulma
-open Antidote.Core.FormProcessor.Spec.v2_0_1
 open Fable.Core.JsInterop
+open Antidote.FormStudio
+open Antidote.FormStudio.Types
+open Antidote.FormStudio.Helper
 
-// open Feliz.Iconify
-// open type Offline.Exports
-// open Glutinum.IconifyIcons.Mdi
-open Helper
+let private classes : CssModules.UI.Designer_FormStepTools =
+    import "default" "./Designer.FormStepTools.module.scss"
 
-let private classes: CssModules.DynamicFormDesigner =
-    import "default" "./DynamicFormDesigner.module.scss"
-
-type FormStepTools =
+type FormStepTools<'UserField> =
     {|
-        FormSpec: FormSpec
-        FormStep: FormStep
-        OnChange: FormSpec -> unit
+        FormSpec: FormSpec<'UserField>
+        FormStep: FormStep<'UserField>
+        OnChange: FormSpec<'UserField> -> unit
     |}
 
 [<ReactComponent>]
-let FormStepTools (props: FormStepTools) =
+let FormStepTools (props: FormStepTools<'UserField>) =
     Html.div [
         prop.style [
             style.display.flex
@@ -31,8 +28,8 @@ let FormStepTools (props: FormStepTools) =
         prop.children [
             Html.input [
                 prop.classes [
-                    classes.inputAsLabel
-                    classes.inputStep
+                    GlobalCSS.classes.``input-as-label``
+                    classes.``input-step``
                 ]
                 prop.type' "text"
                 prop.value props.FormStep.StepLabel
@@ -46,11 +43,11 @@ let FormStepTools (props: FormStepTools) =
                         { props.FormSpec with
                             Steps =
                                 props.FormSpec.Steps
-                                |> List.map (fun s ->
-                                    if s.StepOrder = props.FormStep.StepOrder then
+                                |> List.map (fun step ->
+                                    if step.StepOrder = props.FormStep.StepOrder then
                                         newStep
                                     else
-                                        s
+                                        step
                                 )
                         }
 
@@ -63,8 +60,8 @@ let FormStepTools (props: FormStepTools) =
                 ]
                 prop.children [
                     Bulma.button.button [
-                        Bulma.color.isPrimary
-                        Bulma.button.isText
+                        color.isPrimary
+                        button.isText
                         prop.style [
                             style.textDecoration.none
                             style.marginTop 10
@@ -81,7 +78,6 @@ let FormStepTools (props: FormStepTools) =
                             "is-small"
                             "is-primary"
                         ]
-                        // prop.type' "button"
                         prop.children [
                             Html.span [
                                 prop.className "icon"
@@ -89,12 +85,6 @@ let FormStepTools (props: FormStepTools) =
                                     Html.i [
                                         prop.className "fas fa-caret-square-up"
                                     ]
-                                // Icon [
-                                //     icon.icon mdi.arrowUpBold
-                                //     icon.color "#FFFFFF"
-                                //     icon.width 35
-                                //     icon.height 35
-                                // ]
                                 ]
                             ]
                         ]
@@ -121,7 +111,6 @@ let FormStepTools (props: FormStepTools) =
                             "is-small"
                             "is-primary"
                         ]
-                        // prop.type' "button"
                         prop.children [
                             Html.span [
                                 prop.className "icon"
@@ -129,19 +118,13 @@ let FormStepTools (props: FormStepTools) =
                                     Html.i [
                                         prop.className "fas fa-caret-square-down"
                                     ]
-                                // Icon [
-                                //     icon.icon mdi.arrowDownBold
-                                //     icon.color "#FFFFFF"
-                                //     icon.width 35
-                                //     icon.height 35
-                                // ]
                                 ]
                             ]
                         ]
                     ]
                     Bulma.button.button [
-                        Bulma.color.isPrimary
-                        Bulma.button.isText
+                        color.isPrimary
+                        button.isText
                         prop.style [
                             style.textDecoration.none
                             style.marginTop 10
@@ -158,7 +141,6 @@ let FormStepTools (props: FormStepTools) =
                             "is-small"
                             "is-danger"
                         ]
-                        // prop.type' "button"
                         prop.children [
                             Html.span [
                                 prop.className "icon"
@@ -166,12 +148,6 @@ let FormStepTools (props: FormStepTools) =
                                     Html.i [
                                         prop.className "fas fa-trash"
                                     ]
-                                // Icon [
-                                //     icon.icon mdi.trashCan
-                                //     icon.color "#FFFFFF"
-                                //     icon.width 35
-                                //     icon.height 35
-                                // ]
                                 ]
                             ]
                         ]

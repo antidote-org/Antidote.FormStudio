@@ -7,8 +7,7 @@ open Elmish
 open Fable.Form.Antidote
 open Fable.Core.JsInterop
 open Antidote.FormStudio.Compose.Types
-open Antidote.Core.FormProcessor.Spec.v2_0_1
-open Antidote.Core.FormProcessor.Values.v2_0_1
+open Antidote.FormStudio.Types
 
 open FormActions
 open Antidote.FormStudio.i18n.Util
@@ -20,10 +19,10 @@ type ComposerFunc =
         -> Form.Form<DynamicStepValues, string, IReactProperty>
         -> Form.Form<DynamicStepValues, string, IReactProperty>
 
-type FormComposeProps =
+type FormComposeProps<'UserField> =
     {|
         // STRING CODE TO RETRIEVE THE SPEC FROM THE DATABASE
-        FormSpec: FormSpec
+        FormSpec: FormSpec<'UserField>
         DynamicForm: DynamicForm<Form.View.Model<DynamicStepValues>> option //Map<int,Form.View.Model<FormValues>>
         // EDIT OR READ-ONLY MODE
         Mode: FormComposeMode
@@ -34,11 +33,14 @@ type FormComposeProps =
         RenderUserField:
             bool
                 -> ComposerFunc
-                -> FormField
+                -> FormField<'UserField>
                 -> Form.Form<DynamicStepValues, string, IReactProperty>
     |}
 
-let dynamicFormInit (dynamicStepValuesOpt: DynamicStepValues option) (formSpec: FormSpec) =
+let dynamicFormInit
+    (dynamicStepValuesOpt: DynamicStepValues option)
+    (formSpec: FormSpec<'UserField>)
+    =
     let dynamicStepValues: DynamicStepValues =
         match dynamicStepValuesOpt with
         | Some dynamicStepValues -> dynamicStepValues
@@ -66,7 +68,7 @@ let dynamicFormInit (dynamicStepValuesOpt: DynamicStepValues option) (formSpec: 
 
     output
 
-let private init (props: FormComposeProps) =
+let private init (props: FormComposeProps<'UserField>) =
     {
         ResultViewMode = props.Mode
         FormSpec = props.FormSpec
@@ -88,7 +90,11 @@ let scrollElementByIdIntoView (elementId: string) =
     else
         elem.scrollIntoView ()
 
-let private update (props: FormComposeProps) (msg: Msg) (model: FormComposeState) =
+let private update
+    (props: FormComposeProps<'UserField>)
+    (msg: Msg)
+    (model: FormComposeState<'UserField>)
+    =
     match msg with
 
     | NavigateToStep newStep ->
@@ -183,7 +189,7 @@ let private wizardProgress (step: int) (totalSteps: int) =
     | _ -> Middle
 
 [<ReactComponent>]
-let FormCompose (props: FormComposeProps) =
+let FormCompose (props: FormComposeProps<'UserField>) =
     let state, dispatch = React.useElmish (init (props), update props, [||])
 
     let progress =

@@ -1,20 +1,14 @@
-module Antidote.FormDesigner.PropertyEditor
+module Antidote.FormStudio.UI.Designer.PropertyEditor
 
-open Browser
-open Antidote.Core.FormProcessor.Spec.v2_0_1
-open Antidote.FormDesigner.Types
+open Antidote.FormStudio.Types
 open Feliz
 open Feliz.Bulma
-open Fable.Core.JsInterop
-// open Feliz.Iconify
-// open type Offline.Exports
-// open Glutinum.IconifyIcons.Mdi
-open Helper
+open Antidote.FormStudio.UI.Components.Switch
+open Antidote.FormStudio.UI.Components.DropFieldsContainer
+open Antidote.FormStudio
+open Antidote.FormStudio.Helper
 
-let private classes: CssModules.DynamicFormDesigner =
-    import "default" "./DynamicFormDesigner.module.scss"
-
-let rec private tryFindFieldByFieldKeyInSpec (fieldKey: string) (spec: FormSpec) =
+let rec private tryFindFieldByFieldKeyInSpec (fieldKey: string) (spec: FormSpec<'UserField>) =
     match spec.Steps with
     | [] -> None
     | step :: steps ->
@@ -39,18 +33,18 @@ let rec private tryFindFieldByFieldKeyInSpec (fieldKey: string) (spec: FormSpec)
                             :: steps
                     }
 
-type CommonFieldPropertiesEditProps =
+type CommonFieldPropertiesEditProps<'UserField> =
     {|
-        FormSpec: FormSpec
-        FormStep: FormStep option
+        FormSpec: FormSpec<'UserField>
+        FormStep: FormStep<'UserField> option
         ActiveField: ActiveField
         SetActiveField: ActiveField -> unit
-        FormField: FormField
-        OnFormSpecChanged: FormSpec -> unit
+        FormField: FormField<'UserField>
+        OnFormSpecChanged: FormSpec<'UserField> -> unit
     |}
 
 [<ReactComponent>]
-let CommonFieldPropertiesEdit (props: CommonFieldPropertiesEditProps) =
+let CommonFieldPropertiesEdit (props: CommonFieldPropertiesEditProps<'UserField>) =
     // let isAddingDependentFields, setIsAddingDepenentFields = React.useState false
 
     React.fragment [
@@ -76,7 +70,7 @@ let CommonFieldPropertiesEdit (props: CommonFieldPropertiesEditProps) =
                             let newFormSpec =
                                 match props.FormStep with
                                 | Some formStep ->
-                                    Helper.updateFormFieldInFormSpecStep
+                                    updateFormFieldInFormSpecStep
                                         newFormField
                                         formStep
                                         props.FormSpec
@@ -119,7 +113,7 @@ let CommonFieldPropertiesEdit (props: CommonFieldPropertiesEditProps) =
                             let newFormSpec =
                                 match props.FormStep with
                                 | Some formStep ->
-                                    Helper.updateFormFieldInFormSpecStep
+                                    updateFormFieldInFormSpecStep
                                         newFormField
                                         formStep
                                         props.FormSpec
@@ -142,22 +136,10 @@ let CommonFieldPropertiesEdit (props: CommonFieldPropertiesEditProps) =
         ]
 
         Bulma.panelBlock.div [
-            Html.label [
-                prop.style [
-                    style.marginRight 5
-                ]
-                prop.className classes.switch
-                prop.children [
-                    Html.input [
-                        prop.style [
-                            style.display.flex
-                            style.flexDirection.row
-                        ]
-                        prop.isChecked (
-                            props.FormField.DependsOn.IsSome
-                            || props.ActiveField.State = AddingDependantKeys
-                        )
-                        prop.onChange (fun (e: bool) ->
+            Switch
+                {|
+                    OnChange =
+                        fun e ->
                             props.SetActiveField
                                 { props.ActiveField with
                                     State =
@@ -176,25 +158,18 @@ let CommonFieldPropertiesEdit (props: CommonFieldPropertiesEditProps) =
                                 let newFormSpec =
                                     match props.FormStep with
                                     | Some formStep ->
-                                        Helper.updateFormFieldInFormSpecStep
+                                        updateFormFieldInFormSpecStep
                                             newFormField
                                             formStep
                                             props.FormSpec
                                     | None -> failwith "FormStep not found"
 
                                 props.OnFormSpecChanged newFormSpec
-                        )
-                        prop.type' "checkbox"
+                    IsEnabled =
+                        props.FormField.DependsOn.IsSome
+                        || props.ActiveField.State = AddingDependantKeys
+                |}
 
-                    ]
-                    Html.span [
-                        prop.classes [
-                            classes.slider
-                            classes.round
-                        ]
-                    ]
-                ]
-            ]
             Html.text "Depends on fields"
         ]
 
@@ -237,7 +212,7 @@ let CommonFieldPropertiesEdit (props: CommonFieldPropertiesEditProps) =
                                         let newFormSpec =
                                             match props.FormStep with
                                             | Some formStep ->
-                                                Helper.updateFormFieldInFormSpecStep
+                                                updateFormFieldInFormSpecStep
                                                     newFormField
                                                     formStep
                                                     props.FormSpec
@@ -284,7 +259,7 @@ let CommonFieldPropertiesEdit (props: CommonFieldPropertiesEditProps) =
                             let newFormSpec =
                                 match props.FormStep with
                                 | Some formStep ->
-                                    Helper.updateFormFieldInFormSpecStep
+                                    updateFormFieldInFormSpecStep
                                         newFormField
                                         formStep
                                         props.FormSpec
@@ -306,59 +281,50 @@ let CommonFieldPropertiesEdit (props: CommonFieldPropertiesEditProps) =
             Bulma.panelBlock.div [
                 Html.div [
                     prop.children [
-                        Html.div [
-                            prop.className classes.dropFieldsContainer
-                            prop.children [
-                                Html.i [
-                                    prop.className "fas arrows-alt"
-                                ]
-                                // Icon [
-                                //     icon.icon mdi.dragVariant
-                                //     icon.width 35
-                                // ]
-                                Html.span "Drag the dependent fields here"
-                            ]
-                            prop.onDragOver (fun (e: Types.DragEvent) -> e.preventDefault ())
-                            prop.onDrop (fun e ->
-                                e.preventDefault ()
+                        DropFieldsContainer
+                            {|
+                                Children =
+                                    [
+                                        Html.i [
+                                            prop.className "fas arrows-alt"
+                                        ]
+                                        Html.span "Drag the dependent fields here"
+                                    ]
+                                OnDrop =
+                                    (fun dragSourceOpt ->
+                                        match dragSourceOpt with
+                                        | None -> ()
+                                        | Some(DragSource.Designer_FormField_FieldKey key) ->
+                                            let newFormField =
+                                                { props.FormField with
+                                                    DependsOn =
+                                                        Some
+                                                            {
+                                                                FieldKey = key
+                                                                FieldValue = ""
+                                                                Evaluator = Evaluator.Equals
+                                                            }
+                                                }
 
-                                let dragSource =
-                                    e.dataTransfer.getData ("text/plain")
-                                    |> tryGetDragSourceFromData
+                                            let newFormSpec =
+                                                match props.FormStep with
+                                                | Some formStep ->
+                                                    updateFormFieldInFormSpecStep
+                                                        newFormField
+                                                        formStep
+                                                        props.FormSpec
+                                                | None -> failwith "FormStep not found"
 
-                                match dragSource with
-                                | None -> ()
-                                | Some(DragSource.Designer_FormField_FieldKey key) ->
-                                    let newFormField =
-                                        { props.FormField with
-                                            DependsOn =
-                                                Some
-                                                    {
-                                                        FieldKey = key
-                                                        FieldValue = ""
-                                                        Evaluator = Evaluator.Equals
-                                                    }
-                                        }
-
-                                    let newFormSpec =
-                                        match props.FormStep with
-                                        | Some formStep ->
-                                            Helper.updateFormFieldInFormSpecStep
-                                                newFormField
-                                                formStep
-                                                props.FormSpec
-                                        | None -> failwith "FormStep not found"
-
-                                    props.OnFormSpecChanged newFormSpec
-                                | _ -> ()
-                            )
-                        ]
+                                            props.OnFormSpecChanged newFormSpec
+                                        | _ -> ()
+                                    )
+                            |}
                         Html.div [
                             prop.className [
                                 if props.FormField.DependsOn.IsSome then
                                     ""
                                 else
-                                    classes.disabled
+                                    GlobalCSS.classes.disabled
                             ]
                             prop.style [
                                 style.display.flex
@@ -406,17 +372,17 @@ let CommonFieldPropertiesEdit (props: CommonFieldPropertiesEditProps) =
             ]
     ]
 
-type PropertyEditorProps =
+type PropertyEditorProps<'UserField> =
     {|
-        FormSpec: FormSpec
+        FormSpec: FormSpec<'UserField>
         IsPreview: bool
         ActiveField: ActiveField
         SetActiveField: ActiveField -> unit
-        FormSpecChanged: FormSpec -> unit
+        FormSpecChanged: FormSpec<'UserField> -> unit
     |}
 
 [<ReactComponent>]
-let PropertyEditor (props: PropertyEditorProps) =
+let PropertyEditor (props: PropertyEditorProps<'UserField>) =
     let isShown, setIsShown = React.useState true
     let isDeprecatedPending, setIsDeprecatedPending = React.useState false
 

@@ -4,27 +4,26 @@ open Feliz
 open Feliz.Bulma
 open Fable.Form.Antidote
 open Antidote.FormStudio.Compose.Types
-open Antidote.Core.FormProcessor.Values.v2_0_1
-open Antidote.Core.FormProcessor.Spec.v2_0_1
 open Antidote.FormStudio.i18n.Util
+open Antidote.FormStudio.Types
 
-type SinglePageReviewProps =
+type SinglePageReviewProps<'UserField> =
     {|
-        FormSpec: FormSpec
+        FormSpec: FormSpec<'UserField>
         DynamicForm: DynamicForm<Form.View.Model<DynamicStepValues>>
         RenderUserField:
             bool
                 -> FormCompose.ComposerFunc
-                -> FormField
+                -> FormField<'UserField>
                 -> Form.Form<DynamicStepValues, string, IReactProperty>
     |}
 
 [<ReactComponent>]
-let SinglePageReview (props: SinglePageReviewProps) =
-    let flatFormSpec = props.FormSpec |> Antidote.FormDesigner.Helper.flattenSpecSteps
+let SinglePageReview (props: SinglePageReviewProps<'UserField>) =
+    let flatFormSpec = props.FormSpec |> Antidote.FormStudio.Helper.flattenSpecSteps
 
     let flatDynamicForm =
-        props.DynamicForm |> Antidote.FormDesigner.Helper.flattenFormSteps
+        props.DynamicForm |> Antidote.FormStudio.Helper.flattenFormSteps
 
     Html.div [
         prop.children [

@@ -1,8 +1,8 @@
 module Demo.Main
 
 open Fable.Core.JsInterop
-open Antidote.FormDesigner.ChoiceFieldComponent
-open Antidote.FormDesigner.Types
+open Antidote.FormStudio.UI.Components.ChoiceField
+open Antidote.FormStudio.Types
 open Antidote.Core.FormProcessor.Spec.v2_0_1
 open Antidote.FormStudio.DynamicFormDesigner
 open Feliz
@@ -176,7 +176,7 @@ module FormSpecRender =
 [<ReactComponent>]
 let App () =
     let formSpec, setFormSpec =
-        React.useState Antidote.FormDesigner.Helper.defaultFormSpec
+        React.useState Antidote.FormStudio.Helper.defaultFormSpec
 
     Bulma.section [
         Bulma.container [
@@ -194,7 +194,7 @@ let App () =
                         Bulma.button.button [
                             prop.text "Reset"
                             prop.onClick (fun _ ->
-                                setFormSpec Antidote.FormDesigner.Helper.defaultFormSpec
+                                setFormSpec Antidote.FormStudio.Helper.defaultFormSpec
                             )
                         ]
                     ]

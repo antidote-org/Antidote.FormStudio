@@ -6,6 +6,7 @@
     </PropertyGroup>
     <ItemGroup>
         <Compile Include="CssModules.fs" />
+        <Compile Include="GlobalCSS.fs" />
         <Compile Include="i18n/Types.fs" />
         <Compile Include="i18n/Languages/cr.fs" />
         <Compile Include="i18n/Languages/fr.fs" />
@@ -27,18 +28,29 @@
         <Compile Include="Compose/Composer.fs" />
         <Compile Include="Compose/FormCompose.fs" />
         <Compile Include="Compose/SinglePageReview.fs" />
-        <Compile Include="Compose/DynamicFormAsComponent.fs" />
 
         <!-- <Compile Include="Compose/Editor.fs" /> -->
         <!-- <Compile Include="FormDesigner/Designer.Context.fs" /> -->
 
-        <Compile Include="Designer.SpecScore.fs" />
         <Compile Include="Designer.AssociatedCodes.fs" />
         <Compile Include="Designer.CategoryTags.fs" />
-        <Compile Include="Designer.FormStepTools.fs" />
-        <Compile Include="Designer.PropertyEditor.fs" />
-        <Compile Include="Designer.ChoiceFieldComponent.fs" />
-        <Compile Include="Designer.MockField.fs" />
+        <Compile Include="UI/Components/BulmaHorizontalField.fs" />
+        <Compile Include="UI/Components/Switch.fs" />
+        <Compile Include="UI/Components/LabelEditor.fs" />
+        <Compile Include="UI/Components/DropFieldsContainer.fs" />
+        <Compile Include="UI/Components/ButtonMinimal.fs" />
+        <Compile Include="UI/Components/ChoiceField.fs" />
+        <Compile Include="UI/FieldPicker.fs" />
+        <Compile Include="UI/FieldToolBar.fs" />
+        <Compile Include="UI/StepBreak.fs" />
+        <Compile Include="UI/DynamicFormSpecDetails.fs" />
+        <Compile Include="UI/DynamicFormPreview.fs" />
+        <Compile Include="UI/Designer.SpecScore.fs" />
+        <Compile Include="UI/Designer.FormStepTools.fs" />
+        <Compile Include="UI/Designer.PropertyEditor.fs" />
+        <Compile Include="UI/Designer.MockField.fs" />
+        <Compile Include="UI/Designer.FieldEditorContainer.fs" />
+        <Compile Include="UI/FormSpecLayout.fs" />
         <Compile Include="DynamicFormDesigner.fs" />
     </ItemGroup>
     <PropertyGroup>

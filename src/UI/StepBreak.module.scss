@@ -1,0 +1,20 @@
+.step-break {
+    display: table;
+    margin: auto;
+    overflow: hidden;
+    position: relative;
+    text-align: center;
+    width: 100%;
+
+    &::before, &::after {
+        border-bottom: 2px dashed;
+        border-color: #c8ceed;
+        content: "";
+        display: inline-block;
+        height: 1px;
+        margin-top: -2px;
+        position: relative;
+        vertical-align: middle;
+        width: 25%;
+    }
+}

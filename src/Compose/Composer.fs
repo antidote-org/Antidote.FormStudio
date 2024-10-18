@@ -1,12 +1,8 @@
 module Antidote.React.Components.FormWizard.Composer
 
 open Fable.Form.Antidote
-open Antidote.Core.FormProcessor
 open Antidote.FormStudio.Compose.Types
-open Antidote.Core.FormProcessor.Spec.v2_0_1
-open Antidote.Core.FormProcessor.Values.v2_0_1
-open Antidote.Core.FormProcessor.Helpers.v2_0_1.Spec
-open Antidote.FormStudio.i18n.Util
+open Antidote.FormStudio.Types
 open Feliz
 
 let merge fields : Form.Form<DynamicStepValues, _, IReactProperty> =
@@ -40,7 +36,7 @@ let render model dispatch formAction fields =
     let outForm = config fields model
     outForm
 
-let compose (readOnly: bool) renderUserField (step: FormStep) =
+let compose (readOnly: bool) renderUserField (step: FormStep<'UserField>) =
 
     let dependencyMatch (dependsOnOpt: DependsOn option) field =
         let emptyForm = Form.succeed ""

@@ -1,12 +1,9 @@
 namespace Antidote.FormStudio.Compose
 
 open Feliz
-open System.Collections.Generic
-open System
-open Antidote.Core.FormProcessor.Spec.v2_0_1
 open Antidote.Core.FormProcessor.Values.v2_0_1
-open Antidote.Core.FormProcessor
 open Fable.Form.Antidote
+open Antidote.FormStudio.Types
 
 module Types =
 
@@ -28,20 +25,20 @@ module Types =
         | Editable
         | ReadOnly
 
-    type FormComposeState =
+    type FormComposeState<'UserField> =
         {
             ResultViewMode: FormComposeMode
-            FormSpec: FormSpec
+            FormSpec: FormSpec<'UserField>
             DynamicForm: DynamicForm<Form.View.Model<DynamicStepValues>>
             CurrentStep: int
             FormSaved: bool
 
         }
 
-    type FormProcessor =
+    type FormProcessor<'UserField> =
         {
             Result: int * bool -> ReactElement
-            Calculator: FormComposeState -> int * bool
+            Calculator: FormComposeState<'UserField> -> int * bool
         }
 
     type Msg =

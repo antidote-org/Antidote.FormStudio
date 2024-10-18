@@ -1,0 +1,36 @@
+.field {
+    border-radius: 5px;
+    border: 3px solid #ccc;
+    border-color: transparent;
+    padding: 0px;
+}
+
+.field-dragging-hint {
+    background-color: #00cdff2e;
+    border-radius: 5px;
+    border: 3px dashed #ccc;
+}
+
+.field-before-and-after {
+    height: 5px;
+    width: 100%;
+}
+
+.field-is-being-dragged-over {
+    background-color: #e4ff9893;
+    border-radius: 5px;
+    border: 3px dashed #ccc;
+}
+
+.field-selected {
+    border-radius: 5px;
+    border: 2px solid #ccc;
+    padding: 5px;
+}
+
+.field-drag {
+    border-radius: 5px;
+    border: 1.5px dashed #ccc;
+    padding: 5px;
+    cursor: grab;
+}

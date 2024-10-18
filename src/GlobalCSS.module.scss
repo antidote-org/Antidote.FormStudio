@@ -1,0 +1,18 @@
+.disabled {
+    opacity: 50%;
+    pointer-events: none;
+}
+
+.input-as-label {
+    width: 80%;
+    border: none;
+    color: #616161;
+    font-size: 16px;
+    font-weight: 700;
+    background-color: transparent;
+    padding: 10px;
+
+    &:focus {
+        outline: none;
+    }
+}

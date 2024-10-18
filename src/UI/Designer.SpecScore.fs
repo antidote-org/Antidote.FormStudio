@@ -1,21 +1,23 @@
-module Antidote.React.FormDesigner.Designer.SpecScore
+module Antidote.FormStudio.UI.Designer.SpecScore
 
 open Feliz
 open Feliz.Bulma
 open Fable.Core.JsInterop
-open Antidote.Core.FormProcessor.Spec.v2_0_1
+open Antidote.FormStudio.Types
+open Antidote.FormStudio.UI.Components.Switch
+open Antidote.FormStudio.UI.Components.ButtonMinimal
 
 let private classes: CssModules.DynamicFormDesigner =
     import "default" "./DynamicFormDesigner.module.scss"
 
-type SpecScoreProps =
+type SpecScoreProps<'UserField> =
     {|
-        FormSpec: FormSpec
-        OnChange: FormSpec -> unit
+        FormSpec: FormSpec<'UserField>
+        OnChange: FormSpec<'UserField> -> unit
     |}
 
 [<ReactComponent>]
-let SpecScore (props: SpecScoreProps) =
+let SpecScore (props: SpecScoreProps<'UserField>) =
     // let scoreRange, setScoreRange = React.useState<ScoreRange list> []
     let tagDropDownOpenId, setTagDropDownOpenId = React.useState (System.Guid.Empty)
     let enabled, setEnabled = React.useState (props.FormSpec.Score.IsSome)
@@ -31,8 +33,10 @@ let SpecScore (props: SpecScoreProps) =
         Bulma.field.div [
             field.isHorizontal
             field.hasAddons
-            prop.style[style.display.flex
-                       style.alignItems.center]
+            prop.style [
+                style.display.flex
+                style.alignItems.center
+            ]
             prop.children [
                 Bulma.fieldLabel [
                     fieldLabel.isNormal
@@ -41,20 +45,10 @@ let SpecScore (props: SpecScoreProps) =
                     ]
                 ]
                 Bulma.fieldBody [
-                    Html.label [
-                        //prop.style [style.marginTop 7]
-                        prop.style[style.display.flex
-                                   style.alignItems.center]
-                        prop.className classes.switch
-                        prop.children [
-                            Html.input [
-                                prop.style [
-                                    style.display.flex
-                                    style.flexDirection.row
-                                    style.alignItems.center
-                                ]
-                                prop.isChecked enabled
-                                prop.onChange (fun (e: bool) ->
+                    Switch
+                        {|
+                            OnChange =
+                                fun e ->
                                     if not e then
                                         props.OnChange
                                             { props.FormSpec with
@@ -62,17 +56,8 @@ let SpecScore (props: SpecScoreProps) =
                                             }
 
                                     setEnabled e
-                                )
-                                prop.type' "checkbox"
-                            ]
-                            Html.span [
-                                prop.classes [
-                                    classes.slider
-                                    classes.round
-                                ]
-                            ]
-                        ]
-                    ]
+                            IsEnabled = enabled
+                        |}
                 ]
             ]
         ]
@@ -129,46 +114,46 @@ let SpecScore (props: SpecScoreProps) =
                             field.hasAddons
                             prop.children [
                                 Bulma.fieldBody [
-                                    Html.button [
-                                        prop.className classes.buttonMinimal
-                                        prop.text "+ ADD RANGE"
-                                        prop.onClick (fun _ ->
-                                            let newScoreRange =
-                                                {
-                                                    Id = System.Guid.NewGuid()
-                                                    Min = 0
-                                                    Max = 0
-                                                    Label = ""
-                                                    Tag = Unspecified
-                                                }
+                                    ButtonMinimal
+                                        {|
+                                            Text = "+ ADD RANGE"
+                                            OnClick =
+                                                fun _ ->
+                                                    let newScoreRange =
+                                                        {
+                                                            Id = System.Guid.NewGuid()
+                                                            Min = 0
+                                                            Max = 0
+                                                            Label = ""
+                                                            Tag = Unspecified
+                                                        }
 
-                                            let newFormSpec =
-                                                { props.FormSpec with
-                                                    Score =
-                                                        match props.FormSpec.Score with
-                                                        | Some score ->
-                                                            Some
-                                                                { score with
-                                                                    ScoreRanges =
-                                                                        score.ScoreRanges
-                                                                        @ [
-                                                                            newScoreRange
-                                                                        ]
-                                                                }
-                                                        | None ->
-                                                            Some
-                                                                {
-                                                                    MaxScore = 0
-                                                                    ScoreRanges =
-                                                                        [
-                                                                            newScoreRange
-                                                                        ]
-                                                                }
-                                                }
+                                                    let newFormSpec =
+                                                        { props.FormSpec with
+                                                            Score =
+                                                                match props.FormSpec.Score with
+                                                                | Some score ->
+                                                                    Some
+                                                                        { score with
+                                                                            ScoreRanges =
+                                                                                score.ScoreRanges
+                                                                                @ [
+                                                                                    newScoreRange
+                                                                                ]
+                                                                        }
+                                                                | None ->
+                                                                    Some
+                                                                        {
+                                                                            MaxScore = 0
+                                                                            ScoreRanges =
+                                                                                [
+                                                                                    newScoreRange
+                                                                                ]
+                                                                        }
+                                                        }
 
-                                            props.OnChange newFormSpec
-                                        )
-                                    ]
+                                                    props.OnChange newFormSpec
+                                        |}
                                 ]
                             ]
                         ]
@@ -334,7 +319,7 @@ let SpecScore (props: SpecScoreProps) =
                                                         prop.classes [
                                                             "button"
                                                             "is-small"
-                                                            (Antidote.FormDesigner.Helper.severityColorToClasses
+                                                            (Antidote.FormStudio.Helper.severityColorToClasses
                                                                 r.Tag)
                                                         ]
                                                         prop.onClick (fun _ ->
@@ -376,7 +361,7 @@ let SpecScore (props: SpecScoreProps) =
 
                                                                     prop.className (
                                                                         "dropdown-item "
-                                                                        + (Antidote.FormDesigner.Helper.severityColorToClasses
+                                                                        + (Antidote.FormStudio.Helper.severityColorToClasses
                                                                             severityColor)
                                                                     )
                                                                     prop.style [

@@ -1,8 +1,7 @@
-module Antidote.FormDesigner.Types
+module Antidote.FormStudio.Types
 
 open Feliz
-open Feliz.Bulma
-open Antidote.Core.FormProcessor.Spec.v2_0_1
+// open Antidote.Core.FormProcessor.Spec.v2_0_1
 
 type FieldState =
     | Idle
@@ -15,38 +14,236 @@ type ActiveField =
         State: FieldState
     }
 
-type RenderPreviewProps =
+[<RequireQualifiedAccess>]
+type Evaluator =
+    | Equals
+    | NotEquals
+    | GreaterThan
+    | GreaterThanOrEquals
+    | LessThan
+    | LessThanOrEquals
+    | Exists
+    | IsEmpty
+
+    member x.Key =
+        match x with
+        | Equals -> "Equals"
+        | NotEquals -> "Not Equals"
+        | GreaterThan -> "Greater Than"
+        | GreaterThanOrEquals -> "Greater Than Or Equals"
+        | LessThan -> "Less Than"
+        | LessThanOrEquals -> "Less Than Or Equals"
+        | Exists -> "Exists"
+        | IsEmpty -> "Is Empty"
+
+let tryEvaluationKeyToEvaluation str : Evaluator option =
+    match str with
+    | "Equals" -> Some Evaluator.Equals
+    | "Not Equals" -> Some Evaluator.NotEquals
+    | "Greater Than" -> Some Evaluator.GreaterThan
+    | "Greater Than Or Equals" -> Some Evaluator.GreaterThanOrEquals
+    | "Less Than" -> Some Evaluator.LessThan
+    | "Less Than Or Equals" -> Some Evaluator.LessThanOrEquals
+    | "Exists" -> Some Evaluator.Exists
+    | "Is Empty" -> Some Evaluator.IsEmpty
+    | _ -> None
+
+let evaluators =
+    [
+        Evaluator.Equals
+        Evaluator.NotEquals
+        Evaluator.GreaterThan
+        Evaluator.GreaterThanOrEquals
+        Evaluator.LessThan
+        Evaluator.LessThanOrEquals
+        Evaluator.Exists
+        Evaluator.IsEmpty
+    ]
+
+type DependsOn =
     {
-        FormSpec: FormSpec
-        FormStep: FormStep
-        FormField: FormField
-        ActiveField: ActiveField
-        SetActiveField: ActiveField -> unit
-        OnChange: FormSpec -> unit
+        FieldKey: string
+        FieldValue: string
+        Evaluator: Evaluator
     }
 
-// type FormStep<'FieldType> =
-//     {
-//         StepOrder: int
-//         StepLabel: string
-//         Fields: 'FieldType list // This is user domain
-//     }
+type FormField<'UserField> =
+    {
+        FieldOrder: int
+        FieldKey: string
+        Label: string
+        DependsOn: DependsOn option
+        IsOptional: bool
+        IsDeprecated: bool
+        FieldType: 'UserField
+    }
 
-// type FormSpec<'FieldType> =
-//     {
-//         Title: string
-//         Steps: FormStep<'FieldType> list
-//     }
+type FormStep<'UserField> =
+    {
+        StepOrder: int
+        StepLabel: string
+        Fields: FormField<'UserField> list
+    }
 
-type IDesignerField =
+type ScoreColor =
+    // | White
+    // | Black
+    // | Light
+    // | Dark
+    | Unspecified
+    | Primary
+    | Link
+    | Info
+    | Success
+    | Warning
+    | Danger
+
+type ScoreRange =
+    {
+        Id: System.Guid
+        Min: int
+        Max: int
+        Label: string
+        Tag: ScoreColor
+    }
+
+type Score =
+    {
+        MaxScore: int
+        ScoreRanges: ScoreRange list
+    }
+
+type CategoryTag =
+    | MentalHealth
+    | IllicitDrugs
+    | Alcohol
+    | RiskScore
+    | COPD
+    | HRA
+    | HeartDisease
+    | GeneralWellness
+    | KidneyDisease
+    | Diabetes
+    | Hospital
+    | MedAdherance
+
+    member x.toString =
+        match x with
+        | MentalHealth -> "Mental Health"
+        | IllicitDrugs -> "Illicit Drugs"
+        | Alcohol -> "Alcohol"
+        | RiskScore -> "Risk Score"
+        | COPD -> "COPD"
+        | HRA -> "HRA"
+        | HeartDisease -> "Heart Disease"
+        | GeneralWellness -> "General Wellness"
+        | KidneyDisease -> "Kidney Disease"
+        | Diabetes -> "Diabetes"
+        | Hospital -> "Hospital"
+        | MedAdherance -> "Med Adherance"
+
+    static member fromString(s: string) =
+        match s with
+        | "Mental Health" -> MentalHealth
+        | "Illicit Drugs" -> IllicitDrugs
+        | "Alcohol" -> Alcohol
+        | "Risk Score" -> RiskScore
+        | "COPD" -> COPD
+        | "HRA" -> HRA
+        | "Heart Disease" -> HeartDisease
+        | "General Wellness" -> GeneralWellness
+        | "Kidney Disease" -> KidneyDisease
+        | "Diabetes" -> Diabetes
+        | "Hospital" -> Hospital
+        | "Med Adherance" -> MedAdherance
+        | _ -> failwithf "Unknown category tag: %s" s
+
+type FormSpec<'UserField> =
+    {
+        Id: System.Guid
+        Code: string option
+        Title: string
+        Abstract: string
+        Version: string
+        FormSpecVersion: string
+        Steps: FormStep<'UserField> list
+        CategoryTags: CategoryTag list
+        Score: Score option
+        AssociatedCodes: string list
+    }
+
+type RenderPreviewProps<'UserField> =
+    {
+        FormSpec: FormSpec<'UserField>
+        FormStep: FormStep<'UserField>
+        FormField: FormField<'UserField>
+        ActiveField: ActiveField
+        SetActiveField: ActiveField -> unit
+        OnChange: FormSpec<'UserField> -> unit
+    }
+
+type FieldAnswer =
+    {
+        FieldKey: string
+        Description: string
+        Value: string
+    }
+
+type FieldOption =
+    {
+        OptionKey: string
+        Description: string
+        Value: string
+    }
+
+type FieldValue =
+    | Single of FieldAnswer
+    | Multiple of Set<FieldAnswer>
+
+type StepOrder = StepOrder of int
+type FieldKey = FieldKey of string
+
+type FieldDetails =
+    {
+        FieldOrder: int
+        Key: FieldKey
+        Label: string
+        FieldValue: FieldValue
+        Options: FieldOption list
+    }
+
+type DynamicStepValues = Map<FieldKey, FieldDetails>
+
+type DynamicFormSpecDetails =
+    {
+        FormSpecId: System.Guid
+        FormSpecCode: string option
+        FormSpecTitle: string
+        FormSpecAbstract: string
+        FormSpecVersion: string
+        DynamicVersion: string
+        MaxScore: Score option
+    }
+
+type DynamicForm<'FableFormModel> =
+    {
+        DynamicFormSpecDetails: DynamicFormSpecDetails
+        Steps: Map<StepOrder, 'FableFormModel>
+    }
+
+type DynamicFormResultData =
+    {
+        ResultFormSpecDetails: DynamicFormSpecDetails
+        ResultSteps: Map<StepOrder, DynamicStepValues>
+    }
+
+type IDesignerField<'UserField> =
     abstract Icon: string
     abstract Key: string
-    abstract FieldType: FieldType
-    abstract RenderPreview: RenderPreviewProps -> ReactElement
-// abstract RenderEditor : obj
-// abstract ToSpecs : FieldType
+    abstract FieldType: 'UserField //FormField<'UserField>
+    abstract RenderPreview: RenderPreviewProps<'UserField> -> ReactElement
 
-type RegisteredFields(fields: IDesignerField list) =
+type RegisteredFields<'UserField>(fields: IDesignerField<'UserField> list) =
     let cachedMap = fields |> List.map (fun field -> field.Key, field) |> Map.ofList
 
     member _.AsList = fields
@@ -56,155 +253,3 @@ type RegisteredFields(fields: IDesignerField list) =
     member _.GetByKey key = cachedMap[key]
 
     member _.AsMap = cachedMap
-
-// Output of the designer
-type FormSpecs =
-    {
-        Fields: FieldType list
-    }
-
-// Transformation FormSpecs to JSON
-// Save it to the database
-
-[<RequireQualifiedAccess>]
-type DesignerFieldType =
-    | Image
-    | Message
-    | Signature
-    | SingleChoice
-    | MultiChoice
-    | Text
-    | TextArea
-    | Tel
-    | Date
-    | Time
-    | Number
-    | StateSelectorUSA
-    | YesNo
-    | TrueFalse
-    | Radio
-    | Checkbox
-    | CheckboxList
-    | Dropdown
-    | TagList
-    | Switch
-    | TextAutoComplete
-    | EPrescribe
-    | SpeechToText
-    | DrugFinder
-    | DrugFinderWithFrequency
-    // TODO: Unify these controls after extending the
-    // FormSpec to include properties for determining the appropriate 'finder'
-    | AllergyFinder
-    | CPTFinder
-    | ICD10Finder
-
-    member x.Key =
-        match x with
-        | DrugFinder -> "Drug Finder"
-        | DrugFinderWithFrequency -> "Drug Finder With Frequency"
-        | SpeechToText -> "Speech To Text"
-        | Image -> "Image"
-        | Text -> "Text"
-        | TextArea -> "Text Area"
-        | Tel -> "Tel"
-        | Date -> "Date"
-        | Time -> "Time"
-        | Number -> "Number"
-        | SingleChoice -> "Single Choice"
-        | MultiChoice -> "Multi Choice"
-        | StateSelectorUSA -> "USA State Selector"
-        | YesNo -> "Yes / No"
-        | TrueFalse -> "True / False"
-        | Message -> "Message"
-        | Signature -> "Signature"
-        | Radio -> "Radio"
-        | Checkbox -> "Checkbox"
-        | CheckboxList -> "Checkbox List"
-        | Dropdown -> "Dropdown"
-        | TagList -> "Tag List"
-        | Switch -> "Switch"
-        | TextAutoComplete -> "Text Auto Complete"
-        | EPrescribe -> "ePrescribe"
-        // TODO: Unify these controls after extending the
-        // FormSpec to include properties for determining the appropriate 'finder'
-        | AllergyFinder -> "Allergy Finder"
-        | CPTFinder -> "CPT Finder"
-        | ICD10Finder -> "ICD10 Finder"
-
-    member x.Icon =
-        match x with
-        | DrugFinder -> "fas fa-prescription-bottle-alt"
-        | DrugFinderWithFrequency -> "fas fa-file-prescription"
-        | SpeechToText -> "fas fa-microphone"
-        | Image -> "fas fa-image"
-        | Message -> "fas fa-info"
-        | Signature -> "fas fa-signature"
-        | SingleChoice -> "fas fa-dot-circle"
-        | MultiChoice -> "fas fa-check-square"
-        | Text -> "fas fa-font"
-        | TextArea -> "fas fa-font"
-        | Tel -> "fas fa-phone"
-        | Date -> "fas fa-calendar"
-        | Time -> "fas fa-clock"
-        | Number -> "fas fa-hashtag"
-        | StateSelectorUSA -> "fas fa-map"
-        | YesNo -> "fas fa-dot-circle"
-        | TrueFalse -> "fas fa-dot-circle"
-        | Radio -> "fas fa-dot-circle"
-        | Checkbox -> "fas fa-check-square"
-        | CheckboxList -> "fas fa-check-square"
-        | Dropdown -> "fas fa-caret-down"
-        | TagList -> "fas fa-tags"
-        | Switch -> "fas fa-toggle-on"
-        | TextAutoComplete -> "fas fa-font"
-        | EPrescribe -> "fas fa-prescription"
-        // TODO: Unify these controls after extending the
-        // FormSpec to include properties for determining the appropriate 'finder'
-        | AllergyFinder -> "fas fa-file-medical"
-        | CPTFinder -> "fas fa-clipboard-list"
-        | ICD10Finder -> "fas fa-list-alt"
-
-let availableComponents =
-    [
-        DesignerFieldType.Image
-        DesignerFieldType.Text
-        DesignerFieldType.TextArea
-        DesignerFieldType.Tel
-        DesignerFieldType.Date
-        DesignerFieldType.Time
-        DesignerFieldType.Number
-        DesignerFieldType.SingleChoice
-        DesignerFieldType.MultiChoice
-        DesignerFieldType.StateSelectorUSA
-        DesignerFieldType.YesNo
-        DesignerFieldType.TrueFalse
-        DesignerFieldType.Signature
-        DesignerFieldType.Radio
-        DesignerFieldType.Checkbox
-        DesignerFieldType.CheckboxList
-        DesignerFieldType.Dropdown
-        DesignerFieldType.TagList
-        DesignerFieldType.Switch
-        DesignerFieldType.TextAutoComplete
-        DesignerFieldType.EPrescribe
-        DesignerFieldType.SpeechToText
-        // DesignerFieldType.DrugFinder
-        DesignerFieldType.DrugFinderWithFrequency
-        // TODO: Unify these controls after extending the
-        // FormSpec to include properties for determining the appropriate 'finder'
-        DesignerFieldType.AllergyFinder
-        DesignerFieldType.CPTFinder
-        DesignerFieldType.ICD10Finder
-    // DesignerFieldType.Message
-    ]
-
-type TextFieldComponentProps =
-    {
-        FormSpec: FormSpec
-        FormStep: FormStep
-        FormField: FormField
-        ActiveField: ActiveField
-        SetActiveField: ActiveField -> unit
-        OnChange: FormSpec -> unit
-    }

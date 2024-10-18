@@ -51,7 +51,7 @@ let SignatureField (key: string) (props: Field.ReactComponentField.ReactComponen
         ]
         prop.children [
             Html.div [
-                prop.className classes.signatureField
+                prop.className classes.``signature-field``
                 prop.children [
                     if props.Disabled then
                         if props.Value <> "" then
@@ -68,7 +68,7 @@ let SignatureField (key: string) (props: Field.ReactComponentField.ReactComponen
                             signatureCanvas.ref canvasRef
                             signatureCanvas.canvasProps [
                                 prop.key key
-                                prop.className classes.signatureCanvas
+                                prop.className classes.``signature-canvas``
                                 prop.width (unbox<int> "inherit") // Missing property in Feliz
                                 prop.height (unbox<int> "inherit") // Missing property in Feliz
                             ]

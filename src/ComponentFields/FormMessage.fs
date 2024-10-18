@@ -58,7 +58,7 @@ let FormMessageField
     React.useEffect ((fun _ -> props.OnChange("N/A")), [||])
 
     Bulma.card [
-        prop.className classes.centerWidth
+        prop.className classes.``center-width``
         prop.children [
             Bulma.cardHeader [
                 prop.classes [
@@ -126,7 +126,7 @@ let FormMessageField
                 prop.children [
                     Html.div [
                         prop.className [
-                            classes.textContainer
+                            classes.``text-container``
                         ]
                         prop.style [
                             style.fontSize 17

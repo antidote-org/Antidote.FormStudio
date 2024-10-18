@@ -1,15 +1,10 @@
-module Antidote.FormDesigner.Helper
+module Antidote.FormStudio.Helper
 
 open System
-open Feliz
-open type Feliz.Toastify.Exports
-open Antidote.FormDesigner.Types
-open Antidote.Core.FormProcessor
+open Antidote.FormStudio.Types
 open Fable.Form.Antidote
-open Antidote.Core.FormProcessor.Values.v2_0_1
-open Antidote.Core.FormProcessor.Spec.v2_0_1
 
-let defaultFormSpec: FormSpec =
+let defaultFormSpec<'UserField> : FormSpec<'UserField> =
     {
         Id = Guid.NewGuid()
         Code = None
@@ -30,115 +25,7 @@ let defaultFormSpec: FormSpec =
         AssociatedCodes = []
     }
 
-let allStepsHaveFields (formSteps: FormStep list) =
-    formSteps |> List.forall (fun s -> s.Fields |> List.isEmpty |> not)
-
-let totalNumberOfFieldsInSpec formSpec =
-    formSpec.Steps |> List.sumBy (fun step -> step.Fields |> List.length)
-
-// let insertAt itemBeingInserted at (list: 'a list) =
-//     let insertedItemIdex =
-//         list
-//         |> List.findIndex (fun x -> x = itemBeingInserted)
-//         |> fun x -> if x = -1 then 0 else x
-
-//     let atIdex =
-//         list
-//         |> List.findIndex (fun x -> x =  at)
-//         |> fun x -> x
-
-//     let newList =
-//         list
-//         |> List.mapi (fun index item ->
-//             if index = insertedItemIdex
-//             then list.[atIdex]
-//             else if index = atIdex
-//             then list.[insertedItemIdex]
-//             else item
-//         )
-//     newList
-
-// let ccc =["A";"B"] |> List.insertAt "C" "A"
-
-type FormMetaData =
-    {
-        IsPrivate: bool
-        Status: Antidote.FormStudio.SpecStatus.Types.SpecStatus
-    }
-
-let saveFormSpec
-    (formSpec: Antidote.Core.FormProcessor.Spec.v2_0_1.FormSpec)
-    (metaData: FormMetaData)
-    (setSpecFun: Antidote.Core.FormProcessor.Spec.v2_0_1.FormSpec -> unit)
-    =
-    async {
-        let formSpecId =
-            if formSpec.Id = Guid.Empty then
-                Guid.NewGuid()
-            else
-                formSpec.Id
-
-        let formSpecWithCorrectGuid =
-            { formSpec with
-                Id = formSpecId
-            }
-        // hack so we can play with the designer for now.
-        // let request : Antidote.Core.V2.Domain.Form.Request.SaveFormSpec = {
-        //     Id = formSpecId
-        //     Enabled = true // NEED TO HAVE A WAY TO SET THIS
-        //     Code = formSpec.Code
-        //     Title = formSpec.Title // state.Form.Title
-        //     Abstract = formSpec.Abstract //state.Form.Abstract
-        //     DynamicFormSpecJson = Thoth.Json.Encode.Auto.toString(0, formSpecWithCorrectGuid)
-        //     SaveDate = DateTimeOffset.Now
-        //     DynamicFormSpecVersion = formSpec.Version
-        //     // Need to handle these in the UI
-        //     IsPrivate = metaData.IsPrivate
-        //     Status = metaData.Status
-        // }
-
-        // let! result =
-        //     Antidote.Client.User.UserSession.Instance.RemotingRequest Antidote.Client.API.EndPoints.form (fun services -> services.SaveFormSpec) request
-
-        // match result with
-        // | Antidote.Core.V2.Domain.Form.Response.SaveFormSpec.FormSpecTitleAlreadyTaken ->
-        //     toast( Html.div "There's already a form with that title." ) |> ignore
-        // | Antidote.Core.V2.Domain.Form.Response.SaveFormSpec.FormSpecIdAlreadyTaken ->
-        //     toast( Html.div "There's already a form with that id." ) |> ignore
-        // | Antidote.Core.V2.Domain.Form.Response.SaveFormSpec.NoMatchingForm ->
-        //     toast( Html.div "The form has been archived." ) |> ignore
-        // | Antidote.Core.V2.Domain.Form.Response.SaveFormSpec.Archived ->
-        //     toast( Html.div "The form has been archived." ) |> ignore
-        // | Antidote.Core.V2.Domain.Form.Response.SaveFormSpec.Saved serializedSavedSpec ->
-        //     toast( Html.div "Saved form!" ) |> ignore
-        //     serializedSavedSpec
-        //     |> Migrator.FormSpec.decodeFormSpec Migrator.FormSpec.FormSpecInput.Unknown
-        //     |> Migrator.FormSpec.migrateTo Migrator.FormSpec.FormSpecOutput.Latest
-        //     |> fun x ->
-        //         match x with
-        //         | Antidote.Core.FormProcessor.Migrator.FormSpec.FormSpecVersion.V2_0_1_FormSpec formSpec ->
-        //             formSpec
-        //         | _ -> failwith $"This build is incompatible with the form spec: {x}"
-        //     |> setSpecFun
-        // | Antidote.Core.V2.Domain.Form.Response.SaveFormSpec.Published serializedPublishedSpec ->
-        //     toast( Html.div "Published form!" ) |> ignore
-        //     serializedPublishedSpec
-        //     |> Migrator.FormSpec.decodeFormSpec Migrator.FormSpec.FormSpecInput.Unknown
-        //     |> Migrator.FormSpec.migrateTo Migrator.FormSpec.FormSpecOutput.Latest
-        //     |> fun x ->
-        //         match x with
-        //         | Migrator.FormSpec.FormSpecVersion.V2_0_1_FormSpec formSpec ->
-        //             formSpec
-        //         | _ -> failwith $"This build is incompatible with the form spec: {x}"
-        //     |> setSpecFun
-        // | Antidote.Core.V2.Domain.Form.Response.SaveFormSpec.InvalidRequest errs ->
-        //     toast( Html.div "The server encountered an issue while saving the form spec values. Please try again or contact an administrator." ) |> ignore
-        printfn "HANDLE SAVE!!!"
-
-    }
-    |> Async.StartImmediate
-
-let getDesignerFieldType fieldName (registeredFields: RegisteredFields) =
+let getDesignerFieldType fieldName (registeredFields: RegisteredFields<'UserField>) =
     registeredFields.GetByKey fieldName
 
 let severityColorToClasses severityColor =
@@ -162,7 +49,11 @@ let severityColorToClasses severityColor =
     | Warning -> "has-text-grey-dark has-background-warning"
     | Danger -> "has-text-white has-background-danger"
 
-let defaultField (designerFieldType: IDesignerField) (fieldOrder: int) =
+let defaultField
+    (designerFieldType: IDesignerField<'UserField>)
+    (fieldOrder: int)
+    : FormField<'UserField>
+    =
     {
         FieldType = designerFieldType.FieldType
         FieldKey = designerFieldType.Key // Guid.NewGuid().ToString()
@@ -177,182 +68,163 @@ let defaultField (designerFieldType: IDesignerField) (fieldOrder: int) =
         DependsOn = None
     }
 
-// let updateFieldInSpec field formSpec = {
-//         formSpec with
-//             Steps = formSpec.Steps
-//             |> List.map (fun s ->
-//                 if s.StepOrder = props.FormStep.StepOrder then
-//                     { s with
-//                         Fields = s.Fields
-//                         |> List.map (fun f ->
-//                             if f.FieldOrder = field.FieldOrder then
-//                                 field
-//                             else
-//                                 f
-//                         )
+// let getFieldOptions field =
+//     match field.FieldType with
+//     | Dropdown f -> f.Options
+//     | TagList f -> f.Options
+//     | Radio f -> f.Options
+//     | CheckboxList f -> f.Options
+//     | MultiChoice f -> f.Options
+//     | SingleChoice f -> f.Options
+//     | TextAutoComplete f -> f.Options
+
+//     | Image _ -> failwith "Not Implemented for image"
+//     | Message _ -> failwith "Not Implemented for message"
+//     | Signature _ -> failwith "Not Implemented signature"
+//     | Text _ -> failwith "Not Implemented text"
+//     | TextArea _ -> failwith "Not Implemented textarea"
+//     | Tel _ -> failwith "Not Implemented tel"
+//     | Date _ -> failwith "Not Implemented date"
+//     | Time _ -> failwith "Not Implemented time"
+//     | Number _ -> failwith "Not Implemented number"
+//     | StateSelectorUSA _ -> failwith "Not Implemented state selector"
+//     | YesNo _ -> failwith "Not Implemented yesno"
+//     | TrueFalse _ -> failwith "Not Implemented truefalse"
+//     | Checkbox _ -> failwith "Not Implemented checkbox"
+//     | Switch _ -> failwith "Not Implemented switch"
+//     | EPrescribe _ -> failwith "Not Implemented ePrescribe"
+//     | SpeechToText _ -> failwith "Not Implemented SpeechToText"
+//     | DrugFinder _ -> failwith "Not Implemented DrugFinder"
+//     | DrugFinderWithFrequency _ -> failwith "Not Implemented DrugFinderWithFrequency"
+//     // TODO: Unify these controls after extending the
+//     // FormSpec to include properties for determining the appropriate 'finder'
+//     | AllergyFinder _ -> failwith "Not Implemented AllergyFinder"
+//     | CPTFinder _ -> failwith "Not Implemented CPTFinder"
+//     | ICD10Finder _ -> failwith "Not Implemented ICD10Finder"
+
+// let deleteOptionInFormField field (option: Spec.v2_0_1.FieldOption) =
+//     match field.FieldType with
+//     | Dropdown f ->
+//         { field with
+//             FieldType =
+//                 Dropdown
+//                     { f with
+//                         Options =
+//                             f.Options |> List.filter (fun o -> o.OptionKey <> option.OptionKey)
 //                     }
-//                 else
-//                     s
-//             )
-//     }
+//         }
+//     | TagList f ->
+//         { field with
+//             FieldType =
+//                 TagList
+//                     { f with
+//                         Options =
+//                             f.Options |> List.filter (fun o -> o.OptionKey <> option.OptionKey)
+//                     }
+//         }
+//     | Radio f ->
+//         { field with
+//             FieldType =
+//                 Radio
+//                     { f with
+//                         Options =
+//                             f.Options |> List.filter (fun o -> o.OptionKey <> option.OptionKey)
+//                     }
+//         }
+//     | CheckboxList f ->
+//         { field with
+//             FieldType =
+//                 CheckboxList
+//                     { f with
+//                         Options =
+//                             f.Options |> List.filter (fun o -> o.OptionKey <> option.OptionKey)
+//                     }
+//         }
+//     | MultiChoice f ->
+//         { field with
+//             FieldType =
+//                 MultiChoice
+//                     { f with
+//                         Options =
+//                             f.Options |> List.filter (fun o -> o.OptionKey <> option.OptionKey)
+//                     }
+//         }
+//     | SingleChoice f ->
+//         { field with
+//             FieldType =
+//                 SingleChoice
+//                     { f with
+//                         Options =
+//                             f.Options |> List.filter (fun o -> o.OptionKey <> option.OptionKey)
+//                     }
+//         }
+//     | TextAutoComplete f ->
+//         { field with
+//             FieldType =
+//                 TextAutoComplete
+//                     { f with
+//                         Options =
+//                             f.Options |> List.filter (fun o -> o.OptionKey <> option.OptionKey)
+//                     }
+//         }
 
-let getFieldOptions field =
-    match field.FieldType with
-    | Dropdown f -> f.Options
-    | TagList f -> f.Options
-    | Radio f -> f.Options
-    | CheckboxList f -> f.Options
-    | MultiChoice f -> f.Options
-    | SingleChoice f -> f.Options
-    | TextAutoComplete f -> f.Options
+//     | Image _ -> failwith "Not Implemented for image"
+//     | Message _ -> failwith "Not Implemented for message"
+//     | Signature _ -> failwith "Not Implemented signature"
+//     | SpeechToText _ -> failwith "Not Implemented speech to text"
+//     | Text _ -> failwith "Not Implemented text"
+//     | TextArea _ -> failwith "Not Implemented textarea"
+//     | Tel _ -> failwith "Not Implemented tel"
+//     | Date _ -> failwith "Not Implemented date"
+//     | Time _ -> failwith "Not Implemented time"
+//     | Number _ -> failwith "Not Implemented number"
+//     | StateSelectorUSA _ -> failwith "Not Implemented state selector"
+//     | YesNo _ -> failwith "Not Implemented yesno"
+//     | TrueFalse _ -> failwith "Not Implemented truefalse"
+//     | Checkbox _ -> failwith "Not Implemented checkbox"
+//     | Switch _ -> failwith "Not Implemented switch"
+//     | EPrescribe _ -> failwith "Not Implemented ePrescribe"
+//     | DrugFinder _ -> failwith "Not Implemented drug finder"
+//     | DrugFinderWithFrequency _ -> failwith "Not Implemented drug finder with frequency"
+//     // TODO: Unify these controls after extending the
+//     // FormSpec to include properties for determining the appropriate 'finder'
+//     | AllergyFinder _ -> failwith "Not Implemented AllergyFinder"
+//     | CPTFinder _ -> failwith "Not Implemented CPTFinder"
+//     | ICD10Finder _ -> failwith "Not Implemented ICD10Finder"
 
-    | Image _ -> failwith "Not Implemented for image"
-    | Message _ -> failwith "Not Implemented for message"
-    | Signature _ -> failwith "Not Implemented signature"
-    | Text _ -> failwith "Not Implemented text"
-    | TextArea _ -> failwith "Not Implemented textarea"
-    | Tel _ -> failwith "Not Implemented tel"
-    | Date _ -> failwith "Not Implemented date"
-    | Time _ -> failwith "Not Implemented time"
-    | Number _ -> failwith "Not Implemented number"
-    | StateSelectorUSA _ -> failwith "Not Implemented state selector"
-    | YesNo _ -> failwith "Not Implemented yesno"
-    | TrueFalse _ -> failwith "Not Implemented truefalse"
-    | Checkbox _ -> failwith "Not Implemented checkbox"
-    | Switch _ -> failwith "Not Implemented switch"
-    | EPrescribe _ -> failwith "Not Implemented ePrescribe"
-    | SpeechToText _ -> failwith "Not Implemented SpeechToText"
-    | DrugFinder _ -> failwith "Not Implemented DrugFinder"
-    | DrugFinderWithFrequency _ -> failwith "Not Implemented DrugFinderWithFrequency"
-    // TODO: Unify these controls after extending the
-    // FormSpec to include properties for determining the appropriate 'finder'
-    | AllergyFinder _ -> failwith "Not Implemented AllergyFinder"
-    | CPTFinder _ -> failwith "Not Implemented CPTFinder"
-    | ICD10Finder _ -> failwith "Not Implemented ICD10Finder"
+// let getFieldOptionsCount field =
+//     match field.FieldType with
+//     | Dropdown f -> f.Options |> List.length |> (fun x -> x + 1 |> string)
+//     | TagList f -> f.Options |> List.length |> (fun x -> x + 1 |> string)
+//     | Radio f -> f.Options |> List.length |> (fun x -> x + 1 |> string)
+//     | CheckboxList f -> f.Options |> List.length |> (fun x -> x + 1 |> string)
+//     | MultiChoice f -> f.Options |> List.length |> (fun x -> x + 1 |> string)
+//     | SingleChoice f -> f.Options |> List.length |> (fun x -> x + 1 |> string)
+//     | TextAutoComplete f -> f.Options |> List.length |> (fun x -> x + 1 |> string)
 
-let deleteOptionInFormField field (option: Spec.v2_0_1.FieldOption) =
-    match field.FieldType with
-    | Dropdown f ->
-        { field with
-            FieldType =
-                Dropdown
-                    { f with
-                        Options =
-                            f.Options |> List.filter (fun o -> o.OptionKey <> option.OptionKey)
-                    }
-        }
-    | TagList f ->
-        { field with
-            FieldType =
-                TagList
-                    { f with
-                        Options =
-                            f.Options |> List.filter (fun o -> o.OptionKey <> option.OptionKey)
-                    }
-        }
-    | Radio f ->
-        { field with
-            FieldType =
-                Radio
-                    { f with
-                        Options =
-                            f.Options |> List.filter (fun o -> o.OptionKey <> option.OptionKey)
-                    }
-        }
-    | CheckboxList f ->
-        { field with
-            FieldType =
-                CheckboxList
-                    { f with
-                        Options =
-                            f.Options |> List.filter (fun o -> o.OptionKey <> option.OptionKey)
-                    }
-        }
-    | MultiChoice f ->
-        { field with
-            FieldType =
-                MultiChoice
-                    { f with
-                        Options =
-                            f.Options |> List.filter (fun o -> o.OptionKey <> option.OptionKey)
-                    }
-        }
-    | SingleChoice f ->
-        { field with
-            FieldType =
-                SingleChoice
-                    { f with
-                        Options =
-                            f.Options |> List.filter (fun o -> o.OptionKey <> option.OptionKey)
-                    }
-        }
-    | TextAutoComplete f ->
-        { field with
-            FieldType =
-                TextAutoComplete
-                    { f with
-                        Options =
-                            f.Options |> List.filter (fun o -> o.OptionKey <> option.OptionKey)
-                    }
-        }
-
-    | Image _ -> failwith "Not Implemented for image"
-    | Message _ -> failwith "Not Implemented for message"
-    | Signature _ -> failwith "Not Implemented signature"
-    | SpeechToText _ -> failwith "Not Implemented speech to text"
-    | Text _ -> failwith "Not Implemented text"
-    | TextArea _ -> failwith "Not Implemented textarea"
-    | Tel _ -> failwith "Not Implemented tel"
-    | Date _ -> failwith "Not Implemented date"
-    | Time _ -> failwith "Not Implemented time"
-    | Number _ -> failwith "Not Implemented number"
-    | StateSelectorUSA _ -> failwith "Not Implemented state selector"
-    | YesNo _ -> failwith "Not Implemented yesno"
-    | TrueFalse _ -> failwith "Not Implemented truefalse"
-    | Checkbox _ -> failwith "Not Implemented checkbox"
-    | Switch _ -> failwith "Not Implemented switch"
-    | EPrescribe _ -> failwith "Not Implemented ePrescribe"
-    | DrugFinder _ -> failwith "Not Implemented drug finder"
-    | DrugFinderWithFrequency _ -> failwith "Not Implemented drug finder with frequency"
-    // TODO: Unify these controls after extending the
-    // FormSpec to include properties for determining the appropriate 'finder'
-    | AllergyFinder _ -> failwith "Not Implemented AllergyFinder"
-    | CPTFinder _ -> failwith "Not Implemented CPTFinder"
-    | ICD10Finder _ -> failwith "Not Implemented ICD10Finder"
-
-let getFieldOptionsCount field =
-    match field.FieldType with
-    | Dropdown f -> f.Options |> List.length |> (fun x -> x + 1 |> string)
-    | TagList f -> f.Options |> List.length |> (fun x -> x + 1 |> string)
-    | Radio f -> f.Options |> List.length |> (fun x -> x + 1 |> string)
-    | CheckboxList f -> f.Options |> List.length |> (fun x -> x + 1 |> string)
-    | MultiChoice f -> f.Options |> List.length |> (fun x -> x + 1 |> string)
-    | SingleChoice f -> f.Options |> List.length |> (fun x -> x + 1 |> string)
-    | TextAutoComplete f -> f.Options |> List.length |> (fun x -> x + 1 |> string)
-
-    | Image(_) -> failwith "Not Implemented for image"
-    | Message(_) -> failwith "Not Implemented for message"
-    | Signature(_) -> failwith "Not Implemented signature"
-    | SpeechToText _ -> failwith "Not Implemented speech to text"
-    | Text(_) -> failwith "Not Implemented text"
-    | TextArea(_) -> failwith "Not Implemented textarea"
-    | Tel(_) -> failwith "Not Implemented tel"
-    | Date(_) -> failwith "Not Implemented date"
-    | Time(_) -> failwith "Not Implemented time"
-    | Number(_) -> failwith "Not Implemented number"
-    | StateSelectorUSA(_) -> failwith "Not Implemented state selector"
-    | YesNo(_) -> failwith "Not Implemented yesno"
-    | TrueFalse(_) -> failwith "Not Implemented truefalse"
-    | Checkbox(_) -> failwith "Not Implemented checkbox"
-    | Switch(_) -> failwith "Not Implemented switch"
-    | EPrescribe(_) -> failwith "Not Implemented ePrescribe"
-    | DrugFinder(_) -> failwith "Not Implemented drug finder"
-    | DrugFinderWithFrequency(_) -> failwith "Not Implemented drug finder with frequency"
-    // TODO: Unify these controls after extending the
-    // FormSpec to include properties for determining the appropriate 'finder'
-    | AllergyFinder _ -> failwith "Not Implemented AllergyFinder"
-    | CPTFinder _ -> failwith "Not Implemented CPTFinder"
-    | ICD10Finder _ -> failwith "Not Implemented ICD10Finder"
+//     | Image(_) -> failwith "Not Implemented for image"
+//     | Message(_) -> failwith "Not Implemented for message"
+//     | Signature(_) -> failwith "Not Implemented signature"
+//     | SpeechToText _ -> failwith "Not Implemented speech to text"
+//     | Text(_) -> failwith "Not Implemented text"
+//     | TextArea(_) -> failwith "Not Implemented textarea"
+//     | Tel(_) -> failwith "Not Implemented tel"
+//     | Date(_) -> failwith "Not Implemented date"
+//     | Time(_) -> failwith "Not Implemented time"
+//     | Number(_) -> failwith "Not Implemented number"
+//     | StateSelectorUSA(_) -> failwith "Not Implemented state selector"
+//     | YesNo(_) -> failwith "Not Implemented yesno"
+//     | TrueFalse(_) -> failwith "Not Implemented truefalse"
+//     | Checkbox(_) -> failwith "Not Implemented checkbox"
+//     | Switch(_) -> failwith "Not Implemented switch"
+//     | EPrescribe(_) -> failwith "Not Implemented ePrescribe"
+//     | DrugFinder(_) -> failwith "Not Implemented drug finder"
+//     | DrugFinderWithFrequency(_) -> failwith "Not Implemented drug finder with frequency"
+//     // TODO: Unify these controls after extending the
+//     // FormSpec to include properties for determining the appropriate 'finder'
+//     | AllergyFinder _ -> failwith "Not Implemented AllergyFinder"
+//     | CPTFinder _ -> failwith "Not Implemented CPTFinder"
+//     | ICD10Finder _ -> failwith "Not Implemented ICD10Finder"
 
 let createOption (description: string) (value: string) =
     {
@@ -365,226 +237,226 @@ let createOption (description: string) (value: string) =
         OptionKey = System.Guid.NewGuid().ToString()
     }
 
-let updateOptionInField (field: FormField) (option: FieldOption) =
-    match field.FieldType with
-    | Dropdown f ->
-        { field with
-            FieldType =
-                Dropdown
-                    { f with
-                        Options =
-                            f.Options
-                            |> List.map (fun o ->
-                                if o.OptionKey = option.OptionKey then
-                                    option
-                                else
-                                    o
-                            )
-                    }
-        }
-    | TagList f ->
-        { field with
-            FieldType =
-                TagList
-                    { f with
-                        Options =
-                            f.Options
-                            |> List.map (fun o ->
-                                if o.OptionKey = option.OptionKey then
-                                    option
-                                else
-                                    o
-                            )
-                    }
-        }
-    | Radio f ->
-        { field with
-            FieldType =
-                Radio
-                    { f with
-                        Options =
-                            f.Options
-                            |> List.map (fun o ->
-                                if o.OptionKey = option.OptionKey then
-                                    option
-                                else
-                                    o
-                            )
-                    }
-        }
-    | CheckboxList f ->
-        { field with
-            FieldType =
-                CheckboxList
-                    { f with
-                        Options =
-                            f.Options
-                            |> List.map (fun o ->
-                                if o.OptionKey = option.OptionKey then
-                                    option
-                                else
-                                    o
-                            )
-                    }
-        }
-    | MultiChoice f ->
-        { field with
-            FieldType =
-                MultiChoice
-                    { f with
-                        Options =
-                            f.Options
-                            |> List.map (fun o ->
-                                if o.OptionKey = option.OptionKey then
-                                    option
-                                else
-                                    o
-                            )
-                    }
-        }
-    | SingleChoice f ->
-        { field with
-            FieldType =
-                SingleChoice
-                    { f with
-                        Options =
-                            f.Options
-                            |> List.map (fun o ->
-                                if o.OptionKey = option.OptionKey then
-                                    option
-                                else
-                                    o
-                            )
-                    }
-        }
-    | TextAutoComplete f ->
-        { field with
-            FieldType =
-                TextAutoComplete
-                    { f with
-                        Options =
-                            f.Options
-                            |> List.map (fun o ->
-                                if o.OptionKey = option.OptionKey then
-                                    option
-                                else
-                                    o
-                            )
-                    }
-        }
+// let updateOptionInField (field: FormField) (option: FieldOption) =
+//     match field.FieldType with
+//     | Dropdown f ->
+//         { field with
+//             FieldType =
+//                 Dropdown
+//                     { f with
+//                         Options =
+//                             f.Options
+//                             |> List.map (fun o ->
+//                                 if o.OptionKey = option.OptionKey then
+//                                     option
+//                                 else
+//                                     o
+//                             )
+//                     }
+//         }
+//     | TagList f ->
+//         { field with
+//             FieldType =
+//                 TagList
+//                     { f with
+//                         Options =
+//                             f.Options
+//                             |> List.map (fun o ->
+//                                 if o.OptionKey = option.OptionKey then
+//                                     option
+//                                 else
+//                                     o
+//                             )
+//                     }
+//         }
+//     | Radio f ->
+//         { field with
+//             FieldType =
+//                 Radio
+//                     { f with
+//                         Options =
+//                             f.Options
+//                             |> List.map (fun o ->
+//                                 if o.OptionKey = option.OptionKey then
+//                                     option
+//                                 else
+//                                     o
+//                             )
+//                     }
+//         }
+//     | CheckboxList f ->
+//         { field with
+//             FieldType =
+//                 CheckboxList
+//                     { f with
+//                         Options =
+//                             f.Options
+//                             |> List.map (fun o ->
+//                                 if o.OptionKey = option.OptionKey then
+//                                     option
+//                                 else
+//                                     o
+//                             )
+//                     }
+//         }
+//     | MultiChoice f ->
+//         { field with
+//             FieldType =
+//                 MultiChoice
+//                     { f with
+//                         Options =
+//                             f.Options
+//                             |> List.map (fun o ->
+//                                 if o.OptionKey = option.OptionKey then
+//                                     option
+//                                 else
+//                                     o
+//                             )
+//                     }
+//         }
+//     | SingleChoice f ->
+//         { field with
+//             FieldType =
+//                 SingleChoice
+//                     { f with
+//                         Options =
+//                             f.Options
+//                             |> List.map (fun o ->
+//                                 if o.OptionKey = option.OptionKey then
+//                                     option
+//                                 else
+//                                     o
+//                             )
+//                     }
+//         }
+//     | TextAutoComplete f ->
+//         { field with
+//             FieldType =
+//                 TextAutoComplete
+//                     { f with
+//                         Options =
+//                             f.Options
+//                             |> List.map (fun o ->
+//                                 if o.OptionKey = option.OptionKey then
+//                                     option
+//                                 else
+//                                     o
+//                             )
+//                     }
+//         }
 
-    | Image(_) -> failwith "Not Implemented for image"
-    | Message(_) -> failwith "Not Implemented for message"
-    | Signature(_) -> failwith "Not Implemented signature"
-    | SpeechToText _ -> failwith "Not Implemented speech to text"
-    | Text(_) -> failwith "Not Implemented text"
-    | TextArea(_) -> failwith "Not Implemented textarea"
-    | Tel(_) -> failwith "Not Implemented tel"
-    | Date(_) -> failwith "Not Implemented date"
-    | Time(_) -> failwith "Not Implemented time"
-    | Number(_) -> failwith "Not Implemented number"
-    | StateSelectorUSA(_) -> failwith "Not Implemented state selector"
-    | YesNo(_) -> failwith "Not Implemented yesno"
-    | TrueFalse(_) -> failwith "Not Implemented truefalse"
-    | Checkbox(_) -> failwith "Not Implemented checkbox"
-    | Switch(_) -> failwith "Not Implemented switch"
-    | EPrescribe(_) -> failwith "Not Implemented ePrescribe"
-    | DrugFinder(_) -> failwith "Not Implemented drug finder"
-    | DrugFinderWithFrequency(_) -> failwith "Not Implemented drug finder with frequency"
-    // TODO: Unify these controls after extending the
-    // FormSpec to include properties for determining the appropriate 'finder'
-    | AllergyFinder _ -> failwith "Not Implemented AllergyFinder"
-    | CPTFinder _ -> failwith "Not Implemented CPTFinder"
-    | ICD10Finder _ -> failwith "Not Implemented ICD10Finder"
+//     | Image(_) -> failwith "Not Implemented for image"
+//     | Message(_) -> failwith "Not Implemented for message"
+//     | Signature(_) -> failwith "Not Implemented signature"
+//     | SpeechToText _ -> failwith "Not Implemented speech to text"
+//     | Text(_) -> failwith "Not Implemented text"
+//     | TextArea(_) -> failwith "Not Implemented textarea"
+//     | Tel(_) -> failwith "Not Implemented tel"
+//     | Date(_) -> failwith "Not Implemented date"
+//     | Time(_) -> failwith "Not Implemented time"
+//     | Number(_) -> failwith "Not Implemented number"
+//     | StateSelectorUSA(_) -> failwith "Not Implemented state selector"
+//     | YesNo(_) -> failwith "Not Implemented yesno"
+//     | TrueFalse(_) -> failwith "Not Implemented truefalse"
+//     | Checkbox(_) -> failwith "Not Implemented checkbox"
+//     | Switch(_) -> failwith "Not Implemented switch"
+//     | EPrescribe(_) -> failwith "Not Implemented ePrescribe"
+//     | DrugFinder(_) -> failwith "Not Implemented drug finder"
+//     | DrugFinderWithFrequency(_) -> failwith "Not Implemented drug finder with frequency"
+//     // TODO: Unify these controls after extending the
+//     // FormSpec to include properties for determining the appropriate 'finder'
+//     | AllergyFinder _ -> failwith "Not Implemented AllergyFinder"
+//     | CPTFinder _ -> failwith "Not Implemented CPTFinder"
+//     | ICD10Finder _ -> failwith "Not Implemented ICD10Finder"
 
-let createFormFieldWithOptions field options =
-    match field.FieldType with
-    | Dropdown f ->
-        { field with
-            FieldType =
-                Dropdown
-                    { f with
-                        Options = f.Options @ options
-                    }
-        }
-    | TagList f ->
-        { field with
-            FieldType =
-                TagList
-                    { f with
-                        Options = f.Options @ options
-                    }
-        }
-    | Radio f ->
-        { field with
-            FieldType =
-                Radio
-                    { f with
-                        Options = f.Options @ options
-                    }
-        }
-    | CheckboxList f ->
-        { field with
-            FieldType =
-                CheckboxList
-                    { f with
-                        Options = f.Options @ options
-                    }
-        }
-    | MultiChoice f ->
-        { field with
-            FieldType =
-                MultiChoice
-                    { f with
-                        Options = f.Options @ options
-                    }
-        }
-    | SingleChoice f ->
-        { field with
-            FieldType =
-                SingleChoice
-                    { f with
-                        Options = f.Options @ options
-                    }
-        }
-    | TextAutoComplete f ->
-        { field with
-            FieldType =
-                TextAutoComplete
-                    { f with
-                        Options = f.Options @ options
-                    }
-        }
+// let createFormFieldWithOptions field options =
+//     match field.FieldType with
+//     | Dropdown f ->
+//         { field with
+//             FieldType =
+//                 Dropdown
+//                     { f with
+//                         Options = f.Options @ options
+//                     }
+//         }
+//     | TagList f ->
+//         { field with
+//             FieldType =
+//                 TagList
+//                     { f with
+//                         Options = f.Options @ options
+//                     }
+//         }
+//     | Radio f ->
+//         { field with
+//             FieldType =
+//                 Radio
+//                     { f with
+//                         Options = f.Options @ options
+//                     }
+//         }
+//     | CheckboxList f ->
+//         { field with
+//             FieldType =
+//                 CheckboxList
+//                     { f with
+//                         Options = f.Options @ options
+//                     }
+//         }
+//     | MultiChoice f ->
+//         { field with
+//             FieldType =
+//                 MultiChoice
+//                     { f with
+//                         Options = f.Options @ options
+//                     }
+//         }
+//     | SingleChoice f ->
+//         { field with
+//             FieldType =
+//                 SingleChoice
+//                     { f with
+//                         Options = f.Options @ options
+//                     }
+//         }
+//     | TextAutoComplete f ->
+//         { field with
+//             FieldType =
+//                 TextAutoComplete
+//                     { f with
+//                         Options = f.Options @ options
+//                     }
+//         }
 
-    | Image(_) -> failwith "Not Implemented for image"
-    | Message(_) -> failwith "Not Implemented for message"
-    | Signature(_) -> failwith "Not Implemented signature"
-    | SpeechToText _ -> failwith "Not Implemented speech to text"
-    | Text(_) -> failwith "Not Implemented text"
-    | TextArea(_) -> failwith "Not Implemented textarea"
-    | Tel(_) -> failwith "Not Implemented tel"
-    | Date(_) -> failwith "Not Implemented date"
-    | Time(_) -> failwith "Not Implemented time"
-    | Number(_) -> failwith "Not Implemented number"
-    | StateSelectorUSA(_) -> failwith "Not Implemented state selector"
-    | YesNo(_) -> failwith "Not Implemented yesno"
-    | TrueFalse(_) -> failwith "Not Implemented truefalse"
-    | Checkbox(_) -> failwith "Not Implemented checkbox"
-    | Switch(_) -> failwith "Not Implemented switch"
-    | EPrescribe(_) -> failwith "Not Implemented ePrescribe"
-    | DrugFinder(_) -> failwith "Not Implemented drug finder"
-    | DrugFinderWithFrequency(_) -> failwith "Not Implemented drug finder with frequency"
-    // TODO: Unify these controls after extending the
-    // FormSpec to include properties for determining the appropriate 'finder'
-    | AllergyFinder _ -> failwith "Not Implemented AllergyFinder"
-    | CPTFinder _ -> failwith "Not Implemented CPTFinder"
-    | ICD10Finder _ -> failwith "Not Implemented ICD10Finder"
+//     | Image(_) -> failwith "Not Implemented for image"
+//     | Message(_) -> failwith "Not Implemented for message"
+//     | Signature(_) -> failwith "Not Implemented signature"
+//     | SpeechToText _ -> failwith "Not Implemented speech to text"
+//     | Text(_) -> failwith "Not Implemented text"
+//     | TextArea(_) -> failwith "Not Implemented textarea"
+//     | Tel(_) -> failwith "Not Implemented tel"
+//     | Date(_) -> failwith "Not Implemented date"
+//     | Time(_) -> failwith "Not Implemented time"
+//     | Number(_) -> failwith "Not Implemented number"
+//     | StateSelectorUSA(_) -> failwith "Not Implemented state selector"
+//     | YesNo(_) -> failwith "Not Implemented yesno"
+//     | TrueFalse(_) -> failwith "Not Implemented truefalse"
+//     | Checkbox(_) -> failwith "Not Implemented checkbox"
+//     | Switch(_) -> failwith "Not Implemented switch"
+//     | EPrescribe(_) -> failwith "Not Implemented ePrescribe"
+//     | DrugFinder(_) -> failwith "Not Implemented drug finder"
+//     | DrugFinderWithFrequency(_) -> failwith "Not Implemented drug finder with frequency"
+//     // TODO: Unify these controls after extending the
+//     // FormSpec to include properties for determining the appropriate 'finder'
+//     | AllergyFinder _ -> failwith "Not Implemented AllergyFinder"
+//     | CPTFinder _ -> failwith "Not Implemented CPTFinder"
+//     | ICD10Finder _ -> failwith "Not Implemented ICD10Finder"
 
 let updateFormFieldInFormSpecStep
-    (inField: FormField)
-    (formStep: FormStep)
-    (formSpec: FormSpec)
-    : FormSpec
+    (inField: FormField<'UserField>)
+    (formStep: FormStep<'UserField>)
+    (formSpec: FormSpec<'UserField>)
+    : FormSpec<'UserField>
     =
     let outStep =
         { formStep with
@@ -612,7 +484,12 @@ let updateFormFieldInFormSpecStep
 
     outFormSpec
 
-let addFormFieldToStep (formStep: FormStep) (formSpec: FormSpec) (formField: FormField) : FormSpec =
+let addFormFieldToStep
+    (formStep: FormStep<'UserField>)
+    (formSpec: FormSpec<'UserField>)
+    (formField: FormField<'UserField>)
+    : FormSpec<'UserField>
+    =
 
     let outStep =
         { formStep with
@@ -637,7 +514,7 @@ let addFormFieldToStep (formStep: FormStep) (formSpec: FormSpec) (formField: For
 
     newFormSpec
 
-let insertFormFieldToStepAt (formStep: FormStep) newPositionFieldOrder fieldKey =
+let insertFormFieldToStepAt (formStep: FormStep<'UserField>) newPositionFieldOrder fieldKey =
     formStep.Fields
     |> List.insertAt
         (newPositionFieldOrder - 1)
@@ -648,10 +525,18 @@ let insertFormFieldToStepAt (formStep: FormStep) newPositionFieldOrder fieldKey 
         }
     )
 
-let tryFindFormStepByStepNumber (stepNumber: int) (formSpec: FormSpec) : FormStep option =
+let tryFindFormStepByStepNumber
+    (stepNumber: int)
+    (formSpec: FormSpec<'UserField>)
+    : FormStep<'UserField> option
+    =
     formSpec.Steps |> List.tryFind (fun step -> step.StepOrder = stepNumber)
 
-let moveFormFieldUpInFormSpec (formStepOrder) (formField: FormField) (formSpec: FormSpec) =
+let moveFormFieldUpInFormSpec
+    (formStepOrder)
+    (formField: FormField<'UserField>)
+    (formSpec: FormSpec<'UserField>)
+    =
     { formSpec with
         Steps =
             formSpec.Steps
@@ -684,7 +569,11 @@ let moveFormFieldUpInFormSpec (formStepOrder) (formField: FormField) (formSpec: 
             )
     }
 
-let moveFormFieldDownInFormSpec (formStepOrder) (formField: FormField) (formSpec: FormSpec) =
+let moveFormFieldDownInFormSpec
+    (formStepOrder)
+    (formField: FormField<'UserField>)
+    (formSpec: FormSpec<'UserField>)
+    =
     { formSpec with
         Steps =
             formSpec.Steps
@@ -721,7 +610,7 @@ let moveFieldByKeyToPositionInFormStepSpec
     fieldKey
     newPositionFieldOrder
     (formStepOrder)
-    (formSpec: FormSpec)
+    (formSpec: FormSpec<'UserField>)
     =
     let formStep = tryFindFormStepByStepNumber formStepOrder formSpec
 
@@ -752,7 +641,11 @@ let moveFieldByKeyToPositionInFormStepSpec
                 )
         }
 
-let removeFormFieldFromFormSpec (formStepOrder: int) (formField: FormField) (formSpec: FormSpec) =
+let removeFormFieldFromFormSpec
+    (formStepOrder: int)
+    (formField: FormField<'UserField>)
+    (formSpec: FormSpec<'UserField>)
+    =
     { formSpec with
         Steps =
             formSpec.Steps
@@ -773,7 +666,7 @@ let removeFormFieldFromFormSpec (formStepOrder: int) (formField: FormField) (for
             )
     }
 
-let moveFormStepUpInFormSpec (formStepOrder: int) (formSpec: FormSpec) =
+let moveFormStepUpInFormSpec (formStepOrder: int) (formSpec: FormSpec<'UserField>) =
     { formSpec with
         Steps =
             formSpec.Steps
@@ -799,7 +692,7 @@ let moveFormStepUpInFormSpec (formStepOrder: int) (formSpec: FormSpec) =
             )
     }
 
-let moveFormStepDownInFormSpec (formStepOrder: int) (formSpec: FormSpec) =
+let moveFormStepDownInFormSpec (formStepOrder: int) (formSpec: FormSpec<'UserField>) =
     { formSpec with
         Steps =
             formSpec.Steps
@@ -825,7 +718,7 @@ let moveFormStepDownInFormSpec (formStepOrder: int) (formSpec: FormSpec) =
             )
     }
 
-let removeFormStepFromFormSpec (formStepOrder: int) (formSpec: FormSpec) =
+let removeFormStepFromFormSpec (formStepOrder: int) (formSpec: FormSpec<'UserField>) =
     { formSpec with
         Steps =
             formSpec.Steps
@@ -837,10 +730,10 @@ let removeFormStepFromFormSpec (formStepOrder: int) (formSpec: FormSpec) =
             )
     }
 
-let tryGetStepByNumber (stepNumber: int) (formSpec: FormSpec) =
+let tryGetStepByNumber (stepNumber: int) (formSpec: FormSpec<'UserField>) =
     formSpec.Steps |> List.tryFind (fun s -> s.StepOrder = stepNumber)
 
-let updateFormStepInFormSpec (formStep: FormStep) (formSpec: FormSpec) =
+let updateFormStepInFormSpec (formStep: FormStep<'UserField>) (formSpec: FormSpec<'UserField>) =
     { formSpec with
         Steps =
             formSpec.Steps
@@ -855,8 +748,8 @@ let updateFormStepInFormSpec (formStep: FormStep) (formSpec: FormSpec) =
 let tryFindFieldInSpec
     (fieldNumber: int)
     (stepNumber: int)
-    (formSpec: FormSpec)
-    : FormField option
+    (formSpec: FormSpec<'UserField>)
+    : FormField<'UserField> option
     =
     let stepOpt =
         formSpec.Steps |> List.tryFind (fun step -> step.StepOrder = stepNumber)
@@ -871,7 +764,7 @@ let tryFindFieldInSpec
         | None -> None
         | Some field -> Some field
 
-let getDefaultFormFieldByDesignerFieldType fieldOrder (fieldDesigner: IDesignerField) =
+let getDefaultFormFieldByDesignerFieldType fieldOrder (fieldDesigner: IDesignerField<'UserField>) =
     defaultField fieldDesigner fieldOrder
 // match fieldType with
 // | DesignerFieldType.EPrescribe -> defaultField fieldType fieldOrder (FieldType.EPrescribe { Value = None })
@@ -969,9 +862,9 @@ let insertDesignerFieldTypeToStepAt
     (source: string)
     (stepNumber: int)
     (at: int)
-    (formSpec: FormSpec)
-    (registeredFields: RegisteredFields)
-    : FormSpec
+    (formSpec: FormSpec<'UserField>)
+    (registeredFields: RegisteredFields<'UserField>)
+    : FormSpec<'UserField>
     =
     let step = formSpec.Steps |> List.find (fun step -> step.StepOrder = stepNumber)
 
@@ -997,9 +890,9 @@ let insertDesignerFieldTypeToStepAt
 let addDesignerFieldTypeToStep
     (source: string)
     (stepNumber: int)
-    (formSpec: FormSpec)
-    (registeredFields: RegisteredFields)
-    : FormSpec
+    (formSpec: FormSpec<'UserField>)
+    (registeredFields: RegisteredFields<'UserField>)
+    : FormSpec<'UserField>
     =
 
     let formStep = formSpec.Steps |> List.find (fun step -> step.StepOrder = stepNumber)
@@ -1031,8 +924,8 @@ let tryGetDragSourceFromData (data: string) =
         | _ -> failwith "Unsuported drag/drop source"
         |> fun x -> Some(x dataParts[1])
 
-let flattenSpecSteps formSpec : FormSpec =
-    let rec flatten (steps: FormStep list) (acc: FormField list) =
+let flattenSpecSteps formSpec : FormSpec<'UserField> =
+    let rec flatten (steps: FormStep<'UserField> list) (acc: FormField<'UserField> list) =
         match steps with
         | [] -> acc
         | step :: rest ->
@@ -1056,7 +949,7 @@ let flattenSpecSteps formSpec : FormSpec =
                 }
             ]
     }
-    : FormSpec
+    : FormSpec<'UserField>
 
 let flattenFormSteps
     (dynamicForm: DynamicForm<Form.View.Model<DynamicStepValues>>)

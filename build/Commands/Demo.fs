@@ -4,6 +4,7 @@ open Spectre.Console.Cli
 open SimpleExec
 open EasyBuild.Workspace
 open BlackFox.CommandLine
+open System.IO
 
 type DemoSettings() =
     inherit CommandSettings()
@@ -18,6 +19,12 @@ type DemoCommand() =
     override __.Execute(context, settings) =
 
         Command.Run("pnpm", "install", workingDirectory = Workspace.``.``)
+
+        let cssModulesFileInfo = FileInfo(VirtualWorkspace.src.``CssModules.fs``)
+
+        cssModulesFileInfo.Delete()
+
+        Command.Run("npx", "fcm", workingDirectory = Workspace.src.``.``)
 
         if settings.IsWatch then
             Async.Parallel [
@@ -34,6 +41,13 @@ type DemoCommand() =
                 |> Async.AwaitTask
 
                 Command.RunAsync("npx", "vite", workingDirectory = Workspace.demo.``.``)
+                |> Async.AwaitTask
+
+                Command.RunAsync(
+                    "npx",
+                    "nodemon -e module.scss --exec \"fcm\"",
+                    workingDirectory = Workspace.src.``.``
+                )
                 |> Async.AwaitTask
             ]
             |> Async.RunSynchronously

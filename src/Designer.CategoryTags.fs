@@ -2,21 +2,33 @@ module Antidote.React.FormDesigner.Designer.CategoryTags
 
 open Feliz
 open Feliz.Bulma
-open Fable.Core.JsInterop
-open Antidote.Core.FormProcessor.Spec.v2_0_1
-open Antidote.Core.FormProcessor.Spec.Types
+open Antidote.FormStudio.Types
 
-let private classes: CssModules.DynamicFormDesigner =
-    import "default" "./DynamicFormDesigner.module.scss"
-
-type CategoryTagsProps =
+type CategoryTagsProps<'UserField> =
     {|
-        FormSpec: FormSpec
-        OnChange: FormSpec -> unit
+        FormSpec: FormSpec<'UserField>
+        OnChange: FormSpec<'UserField> -> unit
     |}
 
+let private availableCategoryTags =
+    [
+        MentalHealth
+        IllicitDrugs
+        Alcohol
+        RiskScore
+        COPD
+        HRA
+        HeartDisease
+        GeneralWellness
+        KidneyDisease
+        Diabetes
+        Hospital
+        MedAdherance
+    ]
+    |> List.sort
+
 [<ReactComponent>]
-let CategoryTags (props: CategoryTagsProps) =
+let CategoryTags (props: CategoryTagsProps<'UserField>) =
     Bulma.field.div [
         field.isHorizontal
         prop.children [

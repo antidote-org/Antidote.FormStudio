@@ -13,6 +13,7 @@ type VirtualWorkspace =
         """
 src
     bin/
+    CssModules.fs
 demo
     dist/
 """

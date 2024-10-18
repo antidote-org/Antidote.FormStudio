@@ -3,23 +3,20 @@ module Antidote.React.FormDesigner.Designer.AssociatedCodes
 open Feliz
 open Feliz.Bulma
 open Fable.Core.JsInterop
-open Antidote.Core.FormProcessor.Spec.v2_0_1
-open Antidote.Core.FormProcessor.Spec.Types
+open Antidote.FormStudio.Types
 
 let private classes: CssModules.DynamicFormDesigner =
     import "default" "./DynamicFormDesigner.module.scss"
 
-type AssociatedCodesProps =
+type AssociatedCodesProps<'UserField> =
     {|
-        FormSpec: FormSpec
-        OnChange: FormSpec -> unit
+        FormSpec: FormSpec<'UserField>
+        OnChange: FormSpec<'UserField> -> unit
     |}
 
 [<ReactComponent>]
-let AssociatedCodes (props: AssociatedCodesProps) =
+let AssociatedCodes (props: AssociatedCodesProps<'UserField>) =
     let newAssociatedCode, setNewAssociatedCode = React.useState ""
-
-    // let exists code = props.FormSpec.AssociatedCodes |> List.contains code
 
     React.fragment [
         Bulma.field.div [
