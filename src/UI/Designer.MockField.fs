@@ -1,23 +1,8 @@
 module Antidote.FormStudio.UI.Designer.MockField
 
-open Fable.Form.Antidote
 open Feliz
 open Feliz.Bulma
 open Antidote.FormStudio.Types
-
-let renderMockField mockModel mockField =
-    let mockForm = Form.succeed (fun b -> ()) |> Form.append mockField
-
-    let view =
-        Form.View.asHtml
-            {
-                Dispatch = (fun _ -> ())
-                OnChange = (fun _ -> ())
-                Action = Form.View.Action.Custom(fun _ _ -> Html.none)
-                Validation = Form.View.ValidateOnSubmit
-            }
-
-    view mockForm mockModel
 
 type MockFieldProps<'UserField> =
     {|
@@ -38,7 +23,7 @@ let MockField (props: MockFieldProps<'UserField>) =
     React.fragment [
         match designerFieldOpt with
         | Some designerField ->
-            designerField.RenderPreview
+            designerField.RenderDesignerPreview
                 {
                     FormSpec = props.FormSpec
                     FormStep = props.FormStep
