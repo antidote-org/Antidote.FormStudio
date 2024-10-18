@@ -242,7 +242,7 @@ type IDesignerField<'UserField> =
     abstract Icon: string
     abstract Key: string
     abstract FieldType: 'UserField //FormField<'UserField>
-    abstract RenderPreview: RenderPreviewProps<'UserField> -> ReactElement
+    abstract RenderDesignerPreview: RenderPreviewProps<'UserField> -> ReactElement
 
 type RegisteredFields<'UserField>(fields: IDesignerField<'UserField> list) =
     let cachedMap = fields |> List.map (fun field -> field.Key, field) |> Map.ofList

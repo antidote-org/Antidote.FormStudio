@@ -37,7 +37,7 @@ let private defaultDesignerFields =
                         Value = None
                     }
 
-            member _.RenderPreview props =
+            member _.RenderDesignerPreview props =
                 Bulma.input.text [
                     prop.readOnly true
                 ]
@@ -54,7 +54,7 @@ let private defaultDesignerFields =
                         Selection = None
                     }
 
-            member _.RenderPreview props =
+            member _.RenderDesignerPreview props =
                 Bulma.control.div [
                     Bulma.input.labels.checkbox [
 
