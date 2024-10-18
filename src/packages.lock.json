@@ -14,16 +14,6 @@
           "Feliz": "2.7.0"
         }
       },
-      "Antidote.FormStudioSpec": {
-        "type": "Direct",
-        "requested": "[2.0.6, )",
-        "resolved": "2.0.6",
-        "contentHash": "zFpnjPpn4i4v2MB5MEbkD0uhVRvPNBJycW6GwsHtu0qO0wacLigHK1BwMTBglBQ65cJObEy84KAKEwQY9GRbSA==",
-        "dependencies": {
-          "Thoth.Json": "10.2.0",
-          "Thoth.Json.Net": "11.0.0"
-        }
-      },
       "EasyBuild.PackageReleaseNotes.Tasks": {
         "type": "Direct",
         "requested": "[1.2.0, )",
@@ -300,16 +290,6 @@
         "type": "Transitive",
         "resolved": "13.0.1",
         "contentHash": "ppPFpBcvxdsfUonNcvITKqLl3bqxWbDCZIzDWHzjpdAHRFfZe0Dw9HmA0+za13IdyrgJwpkDTDA9fHaxOrt20A=="
-      },
-      "Thoth.Json.Net": {
-        "type": "Transitive",
-        "resolved": "11.0.0",
-        "contentHash": "ugheFKMHRO3ReobCENha5J6uexPrp+Bn2d+WEcFbXaA77sNBWtTlx2StB+7lX8prMqdvO5uqlPeHlg+9dSpkNg==",
-        "dependencies": {
-          "FSharp.Core": "4.7.2",
-          "Fable.Core": "3.1.6",
-          "Newtonsoft.Json": "11.0.2"
-        }
       },
       "Feliz": {
         "type": "CentralTransitive",

@@ -1,9 +1,7 @@
 module Demo.Main
 
 open Fable.Core.JsInterop
-open Antidote.FormStudio.UI.Components.ChoiceField
 open Antidote.FormStudio.Types
-open Antidote.Core.FormProcessor.Spec.v2_0_1
 open Antidote.FormStudio.DynamicFormDesigner
 open Feliz
 open Feliz.Bulma
@@ -11,9 +9,25 @@ open Browser
 
 importSideEffects "../node_modules/bulma/css/bulma.min.css"
 
+type TextInfo =
+    {
+        Value: string option
+    }
+
+type CheckboxInfo =
+    {
+        DefaultValue: bool option
+        Selection: bool option
+    }
+
+[<RequireQualifiedAccess>]
+type FieldType =
+    | Text of TextInfo
+    | Checkbox of CheckboxInfo
+
 let private defaultDesignerFields =
     [
-        { new IDesignerField with
+        { new IDesignerField<FieldType> with
             member _.Icon = "fas fa-font"
             member _.Key = "Text"
 
@@ -29,7 +43,7 @@ let private defaultDesignerFields =
                 ]
         }
 
-        { new IDesignerField with
+        { new IDesignerField<FieldType> with
             member _.Icon = "fas fa-check-square"
             member _.Key = "Checkbox"
 
@@ -52,51 +66,55 @@ let private defaultDesignerFields =
                     ]
                 ]
         }
-
-        { new IDesignerField with
-            member _.Icon = "fas fa-dot-circle"
-            member _.Key = "Single Choice"
-
-            member _.FieldType =
-                (FieldType.SingleChoice
-                    {
-                        Options =
-                            [
-                                {
-                                    Description = "Option 1"
-                                    Value = "1"
-                                    OptionKey = System.Guid.NewGuid().ToString()
-                                }
-                                {
-                                    Description = "Option 2"
-                                    Value = "2"
-                                    OptionKey = System.Guid.NewGuid().ToString()
-                                }
-                            ]
-                    })
-
-            member _.RenderPreview props =
-                ChoiceFieldComponent
-                    {|
-                        FormSpec = props.FormSpec
-                        FormStep = props.FormStep
-                        FormField = props.FormField
-                        ActiveField = props.ActiveField
-                        SetActiveField = props.SetActiveField
-                        OnChange = props.OnChange
-                    |}
-        }
     ]
 
 let private root = ReactDOM.createRoot (document.getElementById "root")
 
+// TODO: More work is needed to remove tied integration with Antidote specific types
+module Helpers =
+
+    let updateSingleFunc
+        formatter
+        (specField: FormField<FieldType>)
+        (newValue: string)
+        (values: DynamicStepValues)
+        : DynamicStepValues
+        =
+        let newFieldDetails: FieldDetails =
+            {
+                FieldOrder = specField.FieldOrder
+                Key = FieldKey specField.FieldKey
+                // Value = Single (formatter newValue)
+                FieldValue =
+                    Single
+                        {
+                            // FieldType = specField.FieldType
+                            FieldKey = specField.FieldKey
+                            Value = formatter newValue
+                            Description = newValue
+                        }
+                Label = specField.Label
+                Options = []
+            }
+
+        match values.Keys |> Seq.tryFind (fun k -> k = newFieldDetails.Key) with
+        | None -> values.Add(newFieldDetails.Key, newFieldDetails)
+        | Some key -> values.Remove key |> (fun f -> values.Add(key, newFieldDetails))
+
+    let readValue (field: FormField<FieldType>) (values: DynamicStepValues) : string =
+        //read the value from the values map
+        match values.Keys |> Seq.tryFind (fun k -> k = (FieldKey field.FieldKey)) with
+        | None -> ""
+        | Some key ->
+            let fv = values.Item key
+
+            match fv.FieldValue with
+            | Single v -> v.Value
+            | _ -> "" //Should never happen
+
 module FormSpecRender =
 
-    open Fable.Form
     open Fable.Form.Antidote
-    open Antidote.Core.FormProcessor.Values.v2_0_1
-    open Antidote.Core.FormProcessor.Helpers.v2_0_1.Spec
-    open Antidote.FormStudio.i18n.Util
 
     let renderFieldTypeFromAntidote
         (readOnly: bool)
@@ -104,7 +122,7 @@ module FormSpecRender =
             DependsOn option
                 -> Form.Form<DynamicStepValues, string, IReactProperty>
                 -> Form.Form<'a, string, 'b>)
-        (specField: FormField)
+        (specField: FormField<FieldType>)
         =
 
         let optionalMatch isOptional (field: Form.Form<DynamicStepValues, string, IReactProperty>) =
@@ -122,26 +140,19 @@ module FormSpecRender =
         let emptyField = Form.succeed ""
 
         match specField.FieldType with
-        | Text info ->
+        | FieldType.Text info ->
             if specField.IsDeprecated && not readOnly then
                 emptyField
             else
                 Form.textField
                     {
                         Parser = Ok
-                        Value =
-                            fun values ->
-                                Antidote.Core.FormProcessor.Helpers.v2_0_1.Spec.readValue
-                                    specField
-                                    values
-                        Update =
-                            Antidote.Core.FormProcessor.Helpers.v2_0_1.Spec.updateSingleFunc
-                                id
-                                specField
+                        Value = fun values -> Helpers.readValue specField values
+                        Update = Helpers.updateSingleFunc id specField
                         Error = fun _ -> None
                         Attributes =
                             {
-                                Label = (t specField.Label)
+                                Label = specField.Label
                                 Placeholder = ""
                                 HtmlAttributes = []
                             }
@@ -150,18 +161,18 @@ module FormSpecRender =
                 |> optionalMatch specField.IsOptional
                 |> dependencyMatch specField.DependsOn
 
-        | Checkbox info ->
+        | FieldType.Checkbox info ->
             if specField.IsDeprecated && not readOnly then
                 emptyField
             else
                 Form.checkboxField
                     {
-                        Parser = (fun a -> Ok(string a))
-                        Value = (fun value -> snd (bool.TryParse(readValue specField value)))
+                        Parser = string >> Ok
+                        Value = fun value -> snd (bool.TryParse(Helpers.readValue specField value))
                         Update =
-                            (fun value values ->
-                                updateSingleFunc id specField (string value) values
-                            )
+                            fun value values ->
+                                Helpers.updateSingleFunc id specField (string value) values
+
                         Error = fun _ -> None
                         Attributes =
                             {

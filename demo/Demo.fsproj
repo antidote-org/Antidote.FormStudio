@@ -11,6 +11,7 @@
     <ProjectReference Include="..\src\Antidote.FormStudio.fsproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Antidote.FormStudioSpec" />
     <PackageReference Include="Fable.Core" />
     <PackageReference Include="Feliz" />
   </ItemGroup>

@@ -2,6 +2,16 @@
   "version": 2,
   "dependencies": {
     ".NETStandard,Version=v2.1": {
+      "Antidote.FormStudioSpec": {
+        "type": "Direct",
+        "requested": "[2.0.6, )",
+        "resolved": "2.0.6",
+        "contentHash": "zFpnjPpn4i4v2MB5MEbkD0uhVRvPNBJycW6GwsHtu0qO0wacLigHK1BwMTBglBQ65cJObEy84KAKEwQY9GRbSA==",
+        "dependencies": {
+          "Thoth.Json": "10.2.0",
+          "Thoth.Json.Net": "11.0.0"
+        }
+      },
       "Fable.Core": {
         "type": "Direct",
         "requested": "[4.3.0, )",
@@ -204,7 +214,6 @@
         "type": "Project",
         "dependencies": {
           "Antidote.Bindings": "[2.0.6, )",
-          "Antidote.FormStudioSpec": "[2.0.6, )",
           "Fable.Core": "[4.3.0, )",
           "Fable.Form.Antidote": "[2.0.6, )",
           "Fable.Form.Antidote.View": "[2.0.6, )",
@@ -226,16 +235,6 @@
           "Fable.Elmish": "4.1.0",
           "Fable.React": "9.3.0",
           "Feliz": "2.7.0"
-        }
-      },
-      "Antidote.FormStudioSpec": {
-        "type": "CentralTransitive",
-        "requested": "[2.0.6, )",
-        "resolved": "2.0.6",
-        "contentHash": "zFpnjPpn4i4v2MB5MEbkD0uhVRvPNBJycW6GwsHtu0qO0wacLigHK1BwMTBglBQ65cJObEy84KAKEwQY9GRbSA==",
-        "dependencies": {
-          "Thoth.Json": "10.2.0",
-          "Thoth.Json.Net": "11.0.0"
         }
       },
       "Fable.Form.Antidote": {

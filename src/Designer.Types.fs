@@ -76,6 +76,7 @@ type FormField<'UserField> =
         IsOptional: bool
         IsDeprecated: bool
         FieldType: 'UserField
+        DesignerFieldKey: string
     }
 
 type FormStep<'UserField> =

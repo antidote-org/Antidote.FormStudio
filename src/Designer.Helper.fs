@@ -56,16 +56,13 @@ let defaultField
     =
     {
         FieldType = designerFieldType.FieldType
-        FieldKey = designerFieldType.Key // Guid.NewGuid().ToString()
-        // TODO: Is the FieldKey used for conditional logic?
-        // If yes, can it be renamed to FieldId?
-        // In reality, we probably want people to implements an interface
-        // to expose the FieldKey so we can resolve the preview render
+        FieldKey = Guid.NewGuid().ToString()
         FieldOrder = fieldOrder
         Label = "Untitled " + designerFieldType.Key
         IsOptional = false
         IsDeprecated = false
         DependsOn = None
+        DesignerFieldKey = designerFieldType.Key
     }
 
 // let getFieldOptions field =

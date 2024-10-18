@@ -21,7 +21,6 @@
         <Compile Include="Designer.Helper.fs" />
 
         <Compile Include="Compose/Types.fs" />
-        <Compile Include="ComponentFields/FormMessage.fs" />
         <Compile Include="ComponentFields/SignatureCanvas.fs" />
         <Compile Include="ComponentFields/SpeechToText.fs" />
         <Compile Include="Compose/FormActions.fs" />
@@ -39,7 +38,6 @@
         <Compile Include="UI/Components/LabelEditor.fs" />
         <Compile Include="UI/Components/DropFieldsContainer.fs" />
         <Compile Include="UI/Components/ButtonMinimal.fs" />
-        <Compile Include="UI/Components/ChoiceField.fs" />
         <Compile Include="UI/FieldPicker.fs" />
         <Compile Include="UI/FieldToolBar.fs" />
         <Compile Include="UI/StepBreak.fs" />
@@ -60,7 +58,6 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Antidote.Bindings" />
-        <PackageReference Include="Antidote.FormStudioSpec" />
         <PackageReference Include="EasyBuild.PackageReleaseNotes.Tasks">
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
           <PrivateAssets>all</PrivateAssets>

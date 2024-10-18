@@ -32,7 +32,8 @@ type MockFieldProps<'UserField> =
 
 [<ReactComponent>]
 let MockField (props: MockFieldProps<'UserField>) =
-    let designerFieldOpt = props.RegisteredFields.TryGetByKey props.FormField.FieldKey
+    let designerFieldOpt =
+        props.RegisteredFields.TryGetByKey props.FormField.DesignerFieldKey
 
     React.fragment [
         match designerFieldOpt with

@@ -120,8 +120,8 @@ let FormSpecLayout (props: FormSpecLayoutProps<'UserField>) =
                         {|
                             FormSpec = props.FormSpec
                             ActiveField = props.ActiveField
-                            OnChange =
-                                (fun formSpec ->
+                            AddStep =
+                                (fun () ->
                                     let newStep =
                                         {
                                             StepOrder = (props.FormSpec.Steps |> List.length) + 1

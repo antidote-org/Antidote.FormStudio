@@ -5,7 +5,6 @@ open Feliz.Bulma
 open Fable.Form.Antidote
 open Elmish
 open Antidote.FormStudio.Compose.Types
-open Antidote.Core.FormProcessor.Spec.v2_0_1
 open Antidote.FormStudio.i18n.Util
 
 let previousAction (previousLabel: string) (formState: Form.View.State) (dispatch: Dispatch<Msg>) =

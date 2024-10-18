@@ -1,7 +1,6 @@
 namespace Antidote.FormStudio.Compose
 
 open Feliz
-open Antidote.Core.FormProcessor.Values.v2_0_1
 open Fable.Form.Antidote
 open Antidote.FormStudio.Types
 

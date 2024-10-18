@@ -2,8 +2,6 @@ module Antidote.FormStudio.UI.Components.ButtonMinimal
 
 open Feliz
 open Fable.Core.JsInterop
-open Antidote.Core.FormProcessor.Spec.v2_0_1
-open Antidote.FormStudio.Types
 
 let private classes: CssModules.UI.Components.ButtonMinimal =
     import "default" "./ButtonMinimal.module.scss"
