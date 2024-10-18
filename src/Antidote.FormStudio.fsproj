@@ -21,8 +21,6 @@
         <Compile Include="Designer.Helper.fs" />
 
         <Compile Include="Compose/Types.fs" />
-        <Compile Include="ComponentFields/SignatureCanvas.fs" />
-        <Compile Include="ComponentFields/SpeechToText.fs" />
         <Compile Include="Compose/FormActions.fs" />
         <Compile Include="Compose/Composer.fs" />
         <Compile Include="Compose/FormCompose.fs" />

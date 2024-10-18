@@ -195,17 +195,19 @@ let simplyNextAction (nextLabel: string) (formState: Form.View.State) (dispatch:
                 prop.style [
                     style.custom ("minWidth", "100%")
                 ]
-                prop.children[Bulma.button.button [
-                                  // prop.type'.submit
-                                  color.isPrimary
-                                  prop.style [
-                                      style.custom ("minWidth", "100%")
-                                  ]
-                                  prop.text nextLabel
-                                  // If the form is loading animate the button with the loading animation
-                                  if formState = Form.View.Loading then
-                                      button.isLoading
-                              ]]
+                prop.children [
+                    Bulma.button.button [
+                        // prop.type'.submit
+                        color.isPrimary
+                        prop.style [
+                            style.custom ("minWidth", "100%")
+                        ]
+                        prop.text nextLabel
+                        // If the form is loading animate the button with the loading animation
+                        if formState = Form.View.Loading then
+                            button.isLoading
+                    ]
+                ]
             ]
         ]
     ]
