@@ -4,7 +4,8 @@ open Feliz
 open Feliz.UseElmish
 open Feliz.Bulma
 open Elmish
-open Fable.Form.Antidote
+open Fable.Form.Simple
+open Fable.Form.Simple.Bulma
 open Fable.Core.JsInterop
 open Antidote.FormStudio.Compose.Types
 open Antidote.FormStudio.Types
@@ -15,9 +16,7 @@ open Antidote.FormStudio.i18n.Util
 // let private classes : CssModules.Compose.FormCompose = import "default" "./FormCompose.module.scss"
 
 type ComposerFunc =
-    DependsOn option
-        -> Form.Form<DynamicStepValues, string, IReactProperty>
-        -> Form.Form<DynamicStepValues, string, IReactProperty>
+    DependsOn option -> Form<DynamicStepValues, string> -> Form<DynamicStepValues, string>
 
 type FormComposeProps<'UserField> =
     {|
@@ -31,10 +30,7 @@ type FormComposeProps<'UserField> =
         SaveFormValuesCallback: DynamicForm<Form.View.Model<DynamicStepValues>> -> unit
         SubmissionSuccess: bool
         RenderUserField:
-            bool
-                -> ComposerFunc
-                -> FormField<'UserField>
-                -> Form.Form<DynamicStepValues, string, IReactProperty>
+            bool -> ComposerFunc -> FormField<'UserField> -> Form<DynamicStepValues, string>
     |}
 
 let dynamicFormInit
@@ -273,7 +269,10 @@ let FormCompose (props: FormComposeProps<'UserField>) =
                         |> Composer.render
                             state.DynamicForm.Steps[StepOrder state.CurrentStep]
                             dispatch
-                            (formAction progress (state.FormSaved && props.SubmissionSuccess))
+                            (formAction
+                                progress
+                                (state.FormSaved && props.SubmissionSuccess)
+                                dispatch)
                     ]
                 ]
             ]

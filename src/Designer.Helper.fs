@@ -2,7 +2,8 @@ module Antidote.FormStudio.Helper
 
 open System
 open Antidote.FormStudio.Types
-open Fable.Form.Antidote
+open Fable.Form.Simple
+open Fable.Form.Simple.Bulma
 
 let defaultFormSpec<'UserField> : FormSpec<'UserField> =
     {

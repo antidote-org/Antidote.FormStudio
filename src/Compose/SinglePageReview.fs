@@ -2,7 +2,8 @@ module Antidote.React.Components.FormWizard.SinglePageReview
 
 open Feliz
 open Feliz.Bulma
-open Fable.Form.Antidote
+open Fable.Form.Simple
+open Fable.Form.Simple.Bulma
 open Antidote.FormStudio.Compose.Types
 open Antidote.FormStudio.i18n.Util
 open Antidote.FormStudio.Types
@@ -15,7 +16,7 @@ type SinglePageReviewProps<'UserField> =
             bool
                 -> FormCompose.ComposerFunc
                 -> FormField<'UserField>
-                -> Form.Form<DynamicStepValues, string, IReactProperty>
+                -> Form<DynamicStepValues, string>
     |}
 
 [<ReactComponent>]
@@ -81,7 +82,7 @@ let SinglePageReview (props: SinglePageReviewProps<'UserField>) =
                             |> Composer.render
                                 flatDynamicForm.Steps[StepOrder 1]
                                 (fun _ -> ())
-                                (FormActions.formAction ReadOnly true)
+                                (FormActions.formAction ReadOnly true (fun _ -> ()))
                         ]
                     ]
                 ]

@@ -1,6 +1,7 @@
 module Antidote.FormStudio.Types
 
 open Feliz
+open Fable.Form
 // open Antidote.Core.FormProcessor.Spec.v2_0_1
 
 type FieldState =
@@ -236,6 +237,12 @@ type DynamicFormResultData =
     {
         ResultFormSpecDetails: DynamicFormSpecDetails
         ResultSteps: Map<StepOrder, DynamicStepValues>
+    }
+
+type RenderPropertyEditorProps<'UserField> =
+    {
+        Field: 'UserField
+        OnChange: 'UserField -> unit
     }
 
 type IDesignerField<'UserField> =

@@ -2,12 +2,12 @@ module Antidote.React.Components.FormWizard.FormActions
 
 open Feliz
 open Feliz.Bulma
-open Fable.Form.Antidote
+open Fable.Form.Simple
 open Elmish
 open Antidote.FormStudio.Compose.Types
 open Antidote.FormStudio.i18n.Util
 
-let previousAction (previousLabel: string) (formState: Form.View.State) (dispatch: Dispatch<Msg>) =
+let previousAction (previousLabel: string) (dispatch: Dispatch<Msg>) (formState: Form.View.State) =
     Bulma.field.div [
         field.isGrouped
         field.isGroupedRight
@@ -44,8 +44,8 @@ let previousAction (previousLabel: string) (formState: Form.View.State) (dispatc
 let previousAndNextAction
     (previousLabel: string)
     (nextLabel: string)
-    (formState: Form.View.State)
     (dispatch: Dispatch<Msg>)
+    (formState: Form.View.State)
     =
 
     Bulma.field.div [
@@ -110,8 +110,8 @@ let previousAndNextAction
 let previousAndSubmitAction
     (previousLabel: string)
     (submitLabel: string)
-    (formState: Form.View.State)
     (dispatch: Dispatch<Msg>)
+    (formState: Form.View.State)
     =
     Bulma.field.div [
         field.isGrouped
@@ -171,7 +171,7 @@ let previousAndSubmitAction
         ]
     ]
 
-let simplyNextAction (nextLabel: string) (formState: Form.View.State) (dispatch: Dispatch<Msg>) =
+let simplyNextAction (nextLabel: string) (dispatch: Dispatch<Msg>) (formState: Form.View.State) =
 
     Bulma.field.div [
         field.isGrouped
@@ -251,16 +251,18 @@ let simplyNextAction (nextLabel: string) (formState: Form.View.State) (dispatch:
 //             ]
 //         ]
 
-let formAction stepProgress isSubmitted =
+let formAction stepProgress isSubmitted dispatch =
     match stepProgress with
-    | ReadOnly -> Form.View.Action.Custom(fun _ _ -> Html.div [])
-    | First -> Form.View.Action.Custom(simplyNextAction (t Intl.Next.Key))
+    | ReadOnly -> Form.View.Action.Custom(fun _ -> Html.div [])
+    | First -> Form.View.Action.Custom(simplyNextAction (t Intl.Next.Key) dispatch)
     | Middle ->
-        Form.View.Action.Custom(previousAndNextAction (t Intl.Previous.Key) (t Intl.Next.Key))
+        Form.View.Action.Custom(
+            previousAndNextAction (t Intl.Previous.Key) (t Intl.Next.Key) dispatch
+        )
     | Last ->
         if isSubmitted then
-            Form.View.Action.Custom(previousAction (t Intl.Previous.Key))
+            Form.View.Action.Custom(previousAction (t Intl.Previous.Key) dispatch)
         else
             Form.View.Action.Custom(
-                previousAndSubmitAction (t Intl.Previous.Key) (t Intl.Submit.Key)
+                previousAndSubmitAction (t Intl.Previous.Key) (t Intl.Submit.Key) dispatch
             )

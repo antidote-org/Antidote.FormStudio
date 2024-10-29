@@ -5,7 +5,7 @@ open Feliz.Bulma
 open Antidote.React.Components.FormWizard
 open Antidote.FormStudio.Compose.Types
 open Antidote.React.Components.FormWizard.SinglePageReview
-open Fable.Form.Antidote
+open Fable.Form.Simple.Bulma
 open Antidote.FormStudio.Types
 
 type DynamicFormPreviewProps<'UserField> =
@@ -16,7 +16,7 @@ type DynamicFormPreviewProps<'UserField> =
             bool
                 -> FormCompose.ComposerFunc
                 -> FormField<'UserField>
-                -> Form.Form<DynamicStepValues, string, IReactProperty>
+                -> Form<DynamicStepValues, string>
     |}
 
 [<ReactComponent>]

@@ -10,8 +10,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageVersion>
     <PackageVersion Include="Fable.Core" Version="4.3.0" />
-    <PackageVersion Include="Fable.Form.Antidote" Version="2.0.6" />
-    <PackageVersion Include="Fable.Form.Antidote.View" Version="2.0.6" />
+    <PackageVersion Include="Fable.Form.Simple.Bulma" Version="5.0.1" />
     <PackageVersion Include="Fable.I18Next" Version="0.15.2" />
     <PackageVersion Include="Fable.Package.SDK" Version="1.1.0" />
     <PackageVersion Include="Feliz" Version="2.8.0" />
