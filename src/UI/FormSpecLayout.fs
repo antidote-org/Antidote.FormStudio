@@ -37,6 +37,7 @@ let FormSpecLayout (props: FormSpecLayoutProps<'UserField>) =
                 FormSpec = props.FormSpec
                 OnChange = props.OnChange
                 ActiveField = props.ActiveField
+                SetIsPreview = Some props.SetIsPreview
             |}
 
         props.FormSpec.Steps

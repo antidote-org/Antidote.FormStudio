@@ -197,29 +197,6 @@ let App () =
                 defaultDesignerFields
                 FormSpecRender.renderFieldTypeFromAntidote
 
-            Bulma.field.p [
-                field.isGrouped
-                field.isGroupedRight
-                prop.children [
-                    Bulma.control.div [
-                        Bulma.button.button [
-                            prop.text "Reset"
-                            prop.onClick (fun _ ->
-                                setFormSpec Antidote.FormStudio.Helper.defaultFormSpec
-                            )
-                        ]
-                    ]
-                    Bulma.control.div [
-                        Bulma.button.button [
-                            prop.text "Preview"
-                            prop.onClick (fun _ ->
-                                window.alert "TODO: See console for log"
-                                console.log formSpec
-                            )
-                        ]
-                    ]
-                ]
-            ]
         ]
     ]
 

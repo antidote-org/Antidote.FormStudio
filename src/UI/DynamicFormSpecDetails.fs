@@ -11,6 +11,7 @@ type DynamicFormSpecDetailsProps<'UserField> =
         FormSpec: FormSpec<'UserField>
         OnChange: FormSpec<'UserField> -> unit
         ActiveField: ActiveField
+        SetIsPreview: (bool -> unit) option
     |}
 
 [<ReactComponent>]
@@ -21,6 +22,36 @@ let DynamicFormSpecDetails (props: DynamicFormSpecDetailsProps<'UserField>) =
 
     React.fragment [
         Html.hr []
+
+        // Preview button toolbar
+        match props.SetIsPreview with
+        | Some setIsPreview ->
+            Bulma.field.div [
+                field.isGrouped
+                field.isGroupedRight
+                prop.style [
+                    style.marginBottom 20
+                ]
+                prop.children [
+                    Bulma.control.div [
+                        Bulma.button.button [
+                            color.isPrimary
+                            prop.children [
+                                Html.i [
+                                    prop.className "fas fa-eye"
+                                    prop.style [
+                                        style.marginRight 5
+                                    ]
+                                ]
+                                Html.text "Preview Form"
+                            ]
+                            prop.onClick (fun _ -> setIsPreview true)
+                        ]
+                    ]
+                ]
+            ]
+        | None -> Html.none
+
         Bulma.columns [
             Bulma.column [
 
