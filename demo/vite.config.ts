@@ -6,14 +6,18 @@ import { execSync } from 'node:child_process';
 // If this doesn't work for you, don't hesite to remove this function and hardcode the base URL
 // in the `defineConfig` function below
 function findBaseUrlFromRemoteUrl() {
-    const remoteUrl = execSync("git remote get-url origin").toString();
+    const remoteUrl = execSync("git remote get-url origin").toString().trim();
 
-    const findRemoteBaseUrl = /git@github\.com:.*\/(.*).git/gm;
+    // Try SSH format first: git@github.com:owner/repo.git
+    const sshMatch = /git@github\.com:.*\/(.*)\.git/.exec(remoteUrl);
+    if (sshMatch) {
+        return `/${sshMatch[1]}/`;
+    }
 
-    const match = findRemoteBaseUrl.exec(remoteUrl);
-
-    if (match) {
-        return match[1];
+    // Try HTTPS format: https://github.com/owner/repo.git
+    const httpsMatch = /https:\/\/github\.com\/.*\/(.*)\.git/.exec(remoteUrl);
+    if (httpsMatch) {
+        return `/${httpsMatch[1]}/`;
     }
 
     throw new Error(`Could not determine base URL from remote URL, please make sure you are in a git repository and have remote origin set`);
