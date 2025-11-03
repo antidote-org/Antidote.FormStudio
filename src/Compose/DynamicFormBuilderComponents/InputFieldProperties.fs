@@ -4,8 +4,6 @@ open Fable.Form.Antidote
 
 open Feliz
 open Feliz.Bulma
-open Elmish
-open Feliz.UseElmish
 // open Antidote.Core.V2.Types
 open Antidote.FormStudio.i18n.Util
 open System

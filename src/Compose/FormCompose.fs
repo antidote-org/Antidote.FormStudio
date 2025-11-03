@@ -1,10 +1,9 @@
 module Antidote.React.Components.FormWizard.FormCompose
 
 open Feliz
-open Feliz.UseElmish
 open Feliz.Bulma
-open Elmish
 open Fable.Form
+open Fable.Form.Simple
 // open Fable.Form.Antidote
 open Fable.Core.JsInterop
 open Antidote.FormStudio.Compose.Types
@@ -17,8 +16,8 @@ open Antidote.FormStudio.i18n.Util
 
 type ComposerFunc =
     DependsOn option
-        -> Fable.Form.Simple.Form.Form<DynamicStepValues, string, IReactProperty>
-        -> Fable.Form.Simple.Form.Form<DynamicStepValues, string, IReactProperty>
+        -> Fable.Form.Simple.Bulma.Form<DynamicStepValues, string>
+        -> Fable.Form.Simple.Bulma.Form<DynamicStepValues, string>
 
 type FormComposeProps<'UserField> =
     {|
@@ -36,7 +35,7 @@ type FormComposeProps<'UserField> =
             bool
                 -> ComposerFunc
                 -> FormField<'UserField>
-                -> Fable.Form.Simple.Form.Form<DynamicStepValues, string, IReactProperty>
+                -> Fable.Form.Simple.Bulma.Form<DynamicStepValues, string>
     |}
 
 let dynamicFormInit
@@ -72,20 +71,6 @@ let dynamicFormInit
 
     output
 
-let private init (props: FormComposeProps<'UserField>) =
-    {
-        ResultViewMode = props.Mode
-        FormSpec = props.FormSpec
-        DynamicForm =
-            match props.DynamicForm with
-            | Some formValues -> formValues
-            | None -> props.FormSpec |> (dynamicFormInit None)
-
-        CurrentStep = 1
-        FormSaved = false
-    },
-    Cmd.none
-
 let scrollElementByIdIntoView (elementId: string) =
     let elem = Browser.Dom.document.getElementById (elementId)
 
@@ -93,87 +78,6 @@ let scrollElementByIdIntoView (elementId: string) =
         ()
     else
         elem.scrollIntoView ()
-
-let private update
-    (props: FormComposeProps<'UserField>)
-    (msg: Msg)
-    (model: FormComposeState<'UserField>)
-    =
-    match msg with
-
-    | NavigateToStep newStep ->
-        { model with
-            CurrentStep = newStep
-        },
-        Cmd.ofEffect (fun i -> props.NavigateToStep newStep)
-
-    | NextStep ->
-        let nextStep = model.CurrentStep + 1
-        scrollElementByIdIntoView "form-top"
-        let nextStepOrder = StepOrder nextStep
-        let nextFormValues = model.DynamicForm.Steps.[nextStepOrder]
-
-        { model with
-            CurrentStep = nextStep
-            DynamicForm =
-                { model.DynamicForm with
-                    Steps =
-                        model.DynamicForm.Steps.Change(
-                            nextStepOrder,
-                            (fun _ -> nextFormValues |> Some)
-                        )
-
-                }
-        },
-        Cmd.ofMsg (NavigateToStep nextStep)
-
-    | PreviousStep ->
-        let prevStep = model.CurrentStep - 1
-        scrollElementByIdIntoView "form-top"
-        let prevStepOrder = StepOrder prevStep
-        let previousFormValues = model.DynamicForm.Steps.[prevStepOrder]
-
-        { model with
-            CurrentStep = prevStep
-            DynamicForm =
-                { model.DynamicForm with
-                    Steps =
-                        model.DynamicForm.Steps.Change(
-                            prevStepOrder,
-                            (fun _ -> previousFormValues |> Some)
-                        )
-                }
-        },
-        Cmd.ofMsg (NavigateToStep prevStep)
-
-    | StepCompleted result ->
-        scrollElementByIdIntoView "form-top"
-
-        if (model.CurrentStep < model.DynamicForm.Steps.Count) then
-            model, Cmd.ofMsg (NavigateToStep(model.CurrentStep + 1))
-        else
-            model, Cmd.ofMsg Submit
-
-    | FormChanged newModel ->
-        let newKey = StepOrder model.CurrentStep
-
-        let newForms =
-            { model.DynamicForm with
-                Steps = model.DynamicForm.Steps.Change(newKey, (fun _ -> newModel |> Some))
-            }
-
-        { model with
-            DynamicForm = newForms
-        },
-        Cmd.ofEffect (fun v -> props.FormChanged newForms)
-
-    | Submit ->
-        let newModel =
-            { model with
-                FormSaved = true
-            }
-
-        newModel, Cmd.ofEffect (fun v -> props.SaveFormValuesCallback model.DynamicForm)
 
 let private wizardProgress (step: int) (totalSteps: int) =
     match totalSteps with
@@ -194,7 +98,106 @@ let private wizardProgress (step: int) (totalSteps: int) =
 
 [<ReactComponent>]
 let FormCompose (props: FormComposeProps<'UserField>) =
-    let state, dispatch = React.useElmish (init (props), update props, [||])
+    let initialState =
+        {
+            ResultViewMode = props.Mode
+            FormSpec = props.FormSpec
+            DynamicForm =
+                match props.DynamicForm with
+                | Some formValues -> formValues
+                | None -> props.FormSpec |> (dynamicFormInit None)
+            CurrentStep = 1
+            FormSaved = false
+        }
+
+    let state, setState = React.useState initialState
+
+    let handleFormChanged (newModel: Fable.Form.Simple.Form.View.Model<DynamicStepValues>) =
+        let newKey = StepOrder state.CurrentStep
+
+        let newForms =
+            { state.DynamicForm with
+                Steps = state.DynamicForm.Steps.Change(newKey, (fun _ -> newModel |> Some))
+            }
+
+        setState
+            { state with
+                DynamicForm = newForms
+            }
+
+        props.FormChanged newForms
+
+    let handleFormSubmit (result: (string * string) list) =
+        scrollElementByIdIntoView "form-top"
+
+        if state.CurrentStep < state.DynamicForm.Steps.Count then
+            let nextStep = state.CurrentStep + 1
+            let nextStepOrder = StepOrder nextStep
+            let nextFormValues = state.DynamicForm.Steps.[nextStepOrder]
+
+            setState
+                { state with
+                    CurrentStep = nextStep
+                    DynamicForm =
+                        { state.DynamicForm with
+                            Steps =
+                                state.DynamicForm.Steps.Change(
+                                    nextStepOrder,
+                                    (fun _ -> nextFormValues |> Some)
+                                )
+                        }
+                }
+
+            props.NavigateToStep nextStep
+        else
+            setState
+                { state with
+                    FormSaved = true
+                }
+
+            props.SaveFormValuesCallback state.DynamicForm
+
+    let handleNextStep () =
+        let nextStep = state.CurrentStep + 1
+        scrollElementByIdIntoView "form-top"
+        let nextStepOrder = StepOrder nextStep
+        let nextFormValues = state.DynamicForm.Steps.[nextStepOrder]
+
+        setState
+            { state with
+                CurrentStep = nextStep
+                DynamicForm =
+                    { state.DynamicForm with
+                        Steps =
+                            state.DynamicForm.Steps.Change(
+                                nextStepOrder,
+                                (fun _ -> nextFormValues |> Some)
+                            )
+                    }
+            }
+
+        props.NavigateToStep nextStep
+
+    let handlePreviousStep () =
+        let prevStep = state.CurrentStep - 1
+        scrollElementByIdIntoView "form-top"
+        let prevStepOrder = StepOrder prevStep
+        let previousFormValues = state.DynamicForm.Steps.[prevStepOrder]
+
+        setState
+            { state with
+                CurrentStep = prevStep
+                DynamicForm =
+                    { state.DynamicForm with
+                        Steps =
+                            state.DynamicForm.Steps.Change(
+                                prevStepOrder,
+                                (fun _ -> previousFormValues |> Some)
+                            )
+                    }
+            }
+
+        props.NavigateToStep prevStep
 
     let progress =
         if state.ResultViewMode = FormComposeMode.ReadOnly then
@@ -244,28 +247,22 @@ let FormCompose (props: FormComposeProps<'UserField>) =
                     prop.children [
                         state.FormSpec.AssociatedCodes
                         |> List.map (fun code ->
-                            // Html.div [
-                            //     prop.children [
                             Bulma.tag [
                                 tag.isRounded
                                 prop.style [
                                     style.cursor.pointer
                                 ]
                                 prop.key code
-                                // color.hasBackgroundInfo
-                                // color.hasTextWhite
                                 prop.children [
                                     Html.text code
                                 ]
                             ]
                         )
                         |> Html.div
-
                     ]
                 ]
 
                 Html.div [
-                    // prop.className classes.formContainer
                     prop.children [
                         let compoasedForm =
                             step
@@ -276,16 +273,12 @@ let FormCompose (props: FormComposeProps<'UserField>) =
                                      false)
                                 props.RenderUserField
 
-                        let b =
-
-                            Composer.render
-                                state.DynamicForm.Steps[StepOrder state.CurrentStep]
-                                dispatch
-                                // (formAction progress (state.FormSaved && props.SubmissionSuccess))
-                                ""
-                                compoasedForm
-
-                        b
+                        Composer.render
+                            state.DynamicForm.Steps[StepOrder state.CurrentStep]
+                            handleFormChanged
+                            handleFormSubmit
+                            (t Intl.Next.Key)
+                            compoasedForm
                     ]
                 ]
             ]

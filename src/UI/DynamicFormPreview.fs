@@ -16,7 +16,7 @@ type DynamicFormPreviewProps<'UserField> =
             bool
                 -> FormCompose.ComposerFunc
                 -> FormField<'UserField>
-                -> Fable.Form.Simple.Form.Form<DynamicStepValues, string, IReactProperty>
+                -> Fable.Form.Simple.Bulma.Form<DynamicStepValues, string>
     |}
 
 [<ReactComponent>]

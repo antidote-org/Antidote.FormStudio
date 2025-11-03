@@ -101,14 +101,20 @@
       },
       "Fable.Form.Simple": {
         "type": "Transitive",
-        "resolved": "2.0.0",
-        "contentHash": "UTHzCszeU9yISoLJIy6U9ledFci/4FNkWsns0qvBBeX9VjQZE7Q4rrkpujuUQcfUmNivsz53XGtf7OTOEnT2ig==",
+        "resolved": "5.0.1",
+        "contentHash": "LInv/Qtoo6YXySGO0eK5nQKltVglmpEyTIy5jN+38GtOXNO8bjFbctr3Rhyo9fBAUi2PMQZdzwqD7AuOu7blrA==",
         "dependencies": {
-          "FSharp.Core": "4.7.2",
-          "Fable.Core": "3.2.5",
-          "Fable.Elmish": "3.1.0",
-          "Fable.Form": "1.1.0",
-          "Feliz": "1.40.0"
+          "FSharp.Core": "5.0.2",
+          "Fable.Form": "3.0.0"
+        }
+      },
+      "Fable.Form.Simple.Fields.Html": {
+        "type": "Transitive",
+        "resolved": "1.0.1",
+        "contentHash": "4grJvPVfEYo8izq3/WZl9iwQ/ebzINuF7/On9eHzwaVrQYy35wdPJr8EfuzVNs05548S9gKV+CpE1iIe4mMgBg==",
+        "dependencies": {
+          "FSharp.Core": "5.0.2",
+          "Fable.Form": "3.0.0"
         }
       },
       "Fable.Promise": {
@@ -179,7 +185,7 @@
           "Antidote.Bindings": "[2.0.6, )",
           "Fable.Core": "[4.3.0, )",
           "Fable.Form": "[3.0.0, )",
-          "Fable.Form.Simple.Bulma": "[2.0.0, )",
+          "Fable.Form.Simple.Bulma": "[5.0.1, )",
           "Fable.I18Next": "[0.15.2, )",
           "Feliz.Bulma": "[3.0.0, )",
           "Feliz.Markdown": "[2.4.0, )",
@@ -211,16 +217,16 @@
       },
       "Fable.Form.Simple.Bulma": {
         "type": "CentralTransitive",
-        "requested": "[2.0.0, )",
-        "resolved": "2.0.0",
-        "contentHash": "fly2OV/ukuuWcthfyd3Z0CDLoBkd5fP3HGS8w0mzycVSEq5Pji3iCtu+/toehRzvqRCA+XhADXJrGra5XlQ2Ow==",
+        "requested": "[5.0.1, )",
+        "resolved": "5.0.1",
+        "contentHash": "a8qoNaJg5Y7A8tf7ZmosocCFrt48kejpYxp4UdZLQJu6LPsu7lQl9SpCzgDHb2WiX6XGwi5VmS6D0A1ea0TCLA==",
         "dependencies": {
-          "FSharp.Core": "4.7.2",
-          "Fable.Core": "3.2.5",
-          "Fable.Form": "1.1.0",
-          "Fable.Form.Simple": "2.0.0",
-          "Feliz": "1.40.0",
-          "Feliz.Bulma": "2.11.0"
+          "FSharp.Core": "5.0.2",
+          "Fable.Form": "3.0.0",
+          "Fable.Form.Simple": "5.0.1",
+          "Fable.Form.Simple.Fields.Html": "1.0.1",
+          "Feliz": "2.8.0",
+          "Feliz.Bulma": "3.0.0"
         }
       },
       "Fable.I18Next": {

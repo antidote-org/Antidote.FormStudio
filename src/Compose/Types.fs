@@ -1,7 +1,7 @@
 namespace Antidote.FormStudio.Compose
 
 open Feliz
-// open Fable.Form.Antidote
+open Fable.Form.Simple
 open Antidote.FormStudio.Types
 
 module Types =
@@ -40,18 +40,8 @@ module Types =
             Calculator: FormComposeState<'UserField> -> int * bool
         }
 
-    type Msg =
-        | FormChanged of Fable.Form.Simple.Form.View.Model<DynamicStepValues>
-        | StepCompleted of (string * string) list
-        | Submit // of Form.View.Model<FormValues>
-        | NextStep
-        | PreviousStep
-        | NavigateToStep of int
-    // | GetFormSpec of string
-    // | GotFormSpec of Form.Response.ReadFormSpec
-    // | SavedForm of Form.Response.SaveFormValues
-    // | ReadValue of Form.Response.ReadFormValues
-    // | ErroredRequest of exn
+    // Msg type is no longer needed for React-only pattern
+    // Form actions are handled via direct callbacks
 
     module Name =
         type T = private Name of string

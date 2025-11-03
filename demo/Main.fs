@@ -120,31 +120,31 @@ module FormSpecRender =
         (readOnly: bool)
         (dependencyMatch:
             DependsOn option
-                -> Fable.Form.Simple.Form.Form<DynamicStepValues, string, IReactProperty>
-                -> Fable.Form.Simple.Form.Form<DynamicStepValues, string, IReactProperty>)
+                -> Fable.Form.Simple.Bulma.Form<DynamicStepValues, string>
+                -> Fable.Form.Simple.Bulma.Form<DynamicStepValues, string>)
         (specField: FormField<FieldType>)
         =
 
-        let optionalMatch isOptional (field: Fable.Form.Simple.Form.Form<DynamicStepValues, string, IReactProperty>) =
+        let optionalMatch isOptional (field: Fable.Form.Simple.Bulma.Form<DynamicStepValues, string>) =
             if isOptional then
                 field
                 |> Fable.Form.Base.optional
                 |> Fable.Form.Base.andThen (
                     function
-                    | Some v -> Fable.Form.Base.succeed v
-                    | None -> Fable.Form.Base.succeed ""
+                    | Some v -> Fable.Form.Simple.Bulma.Form.succeed v
+                    | None -> Fable.Form.Simple.Bulma.Form.succeed ""
                 )
             else
                 field
 
-        let emptyField = Fable.Form.Base.succeed ""
+        let emptyField = Fable.Form.Simple.Bulma.Form.succeed ""
 
         match specField.FieldType with
         | FieldType.Text info ->
             if specField.IsDeprecated && not readOnly then
                 emptyField
             else
-                Fable.Form.Simple.Form.textField
+                Fable.Form.Simple.Bulma.Form.textField
                     {
                         Parser = Ok
                         Value = fun values -> Helpers.readValue specField values
@@ -152,9 +152,12 @@ module FormSpecRender =
                         Error = fun _ -> None
                         Attributes =
                             {
+                                FieldId = specField.FieldKey
                                 Label = specField.Label
-                                Placeholder = ""
-                                HtmlAttributes = []
+                                Placeholder = None
+                                AutoComplete = None
+                                SpellCheck = Fable.Form.Simple.Fields.Html.TextField.SpellCheck.Default
+                                AutoFocus = false
                             }
                     }
                 // |> Fable.Form.Base.disable .disableIf readOnly
@@ -165,7 +168,7 @@ module FormSpecRender =
             if specField.IsDeprecated && not readOnly then
                 emptyField
             else
-                Fable.Form.Simple.Form.checkboxField
+                Fable.Form.Simple.Bulma.Form.checkboxField
                     {
                         Parser = string >> Ok
                         Value = fun value -> snd (bool.TryParse(Helpers.readValue specField value))
@@ -176,6 +179,7 @@ module FormSpecRender =
                         Error = fun _ -> None
                         Attributes =
                             {
+                                FieldId = specField.FieldKey
                                 Text = specField.Label
                             }
                     }

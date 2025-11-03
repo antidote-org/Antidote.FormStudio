@@ -3,14 +3,13 @@ module Antidote.React.Components.FormWizard.FormActions
 open Feliz
 open Feliz.Bulma
 // open Fable.Form.Antidote
-open Elmish
 open Antidote.FormStudio.Compose.Types
 open Antidote.FormStudio.i18n.Util
 
 let previousAction
     (previousLabel: string)
     (formState: Fable.Form.Simple.Form.View.State)
-    (dispatch: Dispatch<Msg>)
+    (onPrevious: unit -> unit)
     =
     Bulma.field.div [
         field.isGrouped
@@ -33,7 +32,7 @@ let previousAction
                         prop.style [
                             style.custom ("minWidth", "100%")
                         ]
-                        prop.onClick (fun _ -> dispatch PreviousStep)
+                        prop.onClick (fun _ -> onPrevious ())
                         prop.text previousLabel
                         // If the form is loading animate the button with the loading animation
                         if formState = Fable.Form.Simple.Form.View.Loading then
@@ -49,7 +48,8 @@ let previousAndNextAction
     (previousLabel: string)
     (nextLabel: string)
     (formState: Fable.Form.Simple.Form.View.State)
-    (dispatch: Dispatch<Msg>)
+    (onPrevious: unit -> unit)
+    (onNext: unit -> unit)
     =
 
     Bulma.field.div [
@@ -78,7 +78,7 @@ let previousAndNextAction
                             style.custom ("minWidth", "100%")
                         ]
 
-                        prop.onClick (fun _ -> dispatch PreviousStep)
+                        prop.onClick (fun _ -> onPrevious ())
                         prop.text previousLabel
                         // If the form is loading animate the button with the loading animation
                         if formState = Fable.Form.Simple.Form.View.Loading then
@@ -98,9 +98,7 @@ let previousAndNextAction
                         prop.style [
                             style.custom ("minWidth", "100%")
                         ]
-                        // prop.onClick (fun _ ->
-                        //     dispatch NextStep
-                        // )
+                        prop.onClick (fun _ -> onNext ())
                         prop.text nextLabel
                         // If the form is loading animate the button with the loading animation
                         if formState = Fable.Form.Simple.Form.View.Loading then
@@ -115,7 +113,7 @@ let previousAndSubmitAction
     (previousLabel: string)
     (submitLabel: string)
     (formState: Fable.Form.Simple.Form.View.State)
-    (dispatch: Dispatch<Msg>)
+    (onPrevious: unit -> unit)
     =
     Bulma.field.div [
         field.isGrouped
@@ -142,7 +140,7 @@ let previousAndSubmitAction
                             style.custom ("minWidth", "100%")
                         ]
 
-                        prop.onClick (fun _ -> dispatch PreviousStep)
+                        prop.onClick (fun _ -> onPrevious ())
                         prop.text previousLabel
                         // If the form is loading animate the button with the loading animation
                         if formState = Fable.Form.Simple.Form.View.Loading then
@@ -175,11 +173,7 @@ let previousAndSubmitAction
         ]
     ]
 
-let simplyNextAction
-    (nextLabel: string)
-    (formState: Fable.Form.Simple.Form.View.State)
-    (dispatch: Dispatch<Msg>)
-    =
+let simplyNextAction (nextLabel: string) (formState: Fable.Form.Simple.Form.View.State) =
 
     Bulma.field.div [
         field.isGrouped
@@ -260,18 +254,34 @@ let simplyNextAction
 //         ]
 
 [<RequireQualifiedAccess; NoComparison; NoEquality>]
-type Action<'Msg> =
+type Action =
     | SubmitOnly of string
-    | Custom of (Fable.Form.Simple.Form.View.State -> Dispatch<Msg> -> ReactElement)
+    | Custom of (Fable.Form.Simple.Form.View.State -> ReactElement)
 
-let formAction stepProgress isSubmitted =
+let formAction stepProgress isSubmitted onPrevious onNext =
 
     match stepProgress with
-    | ReadOnly -> Action.Custom(fun _ _ -> Html.div [])
-    | First -> Action.Custom(simplyNextAction (t Intl.Next.Key))
-    | Middle -> Action.Custom(previousAndNextAction (t Intl.Previous.Key) (t Intl.Next.Key))
+    | ReadOnly -> Action.Custom(fun _ -> Html.div [])
+    | First -> Action.Custom(fun formState -> simplyNextAction (t Intl.Next.Key) formState)
+    | Middle ->
+        Action.Custom(fun formState ->
+            previousAndNextAction
+                (t Intl.Previous.Key)
+                (t Intl.Next.Key)
+                formState
+                onPrevious
+                onNext
+        )
     | Last ->
         if isSubmitted then
-            Action.Custom(previousAction (t Intl.Previous.Key))
+            Action.Custom(fun formState ->
+                previousAction (t Intl.Previous.Key) formState onPrevious
+            )
         else
-            Action.Custom(previousAndSubmitAction (t Intl.Previous.Key) (t Intl.Submit.Key))
+            Action.Custom(fun formState ->
+                previousAndSubmitAction
+                    (t Intl.Previous.Key)
+                    (t Intl.Submit.Key)
+                    formState
+                    onPrevious
+            )

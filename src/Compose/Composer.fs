@@ -1,57 +1,80 @@
 module Antidote.React.Components.FormWizard.Composer
 
-// open Fable.Form.Antidote
+open Feliz
+open Fable.Form.Simple
+open Fable.Form.Simple.Bulma
 open Antidote.FormStudio.Compose.Types
 open Antidote.FormStudio.Types
-open Feliz
 
-let merge fields : Fable.Form.Simple.Form.Form<DynamicStepValues, _, IReactProperty> =
+let merge fields : Fable.Form.Simple.Bulma.Form<DynamicStepValues, (string * string) list> =
     // Produce a single merged form
     fields
     |> List.map (fun (name, form) ->
         // First, turn each individual form into one returning key-value pair
-        Fable.Form.Simple.Form.succeed (fun result ->
+        Fable.Form.Simple.Bulma.Form.succeed (fun result ->
             [
                 name, result
             ]
         )
-        |> Fable.Form.Simple.Form.append (form)
+        |> Fable.Form.Simple.Bulma.Form.append (form)
     )
     |> List.reduce (fun form1 form2 ->
         // Merge forms by taking two, appending them and concatenating the
         // two lists of key-value pairs they produce (to get result of the same type)
-        Fable.Form.Base.succeed (fun r1 r2 -> r1 @ r2)
-        |> Fable.Form.Base.append form1
-        |> Fable.Form.Base.append form2
+        Fable.Form.Simple.Bulma.Form.succeed (fun r1 r2 -> r1 @ r2)
+        |> Fable.Form.Simple.Bulma.Form.append form1
+        |> Fable.Form.Simple.Bulma.Form.append form2
     )
 
 let render
     (model: Fable.Form.Simple.Form.View.Model<DynamicStepValues>)
-    (dispatch: Msg -> unit)
+    (onChange: Fable.Form.Simple.Form.View.Model<DynamicStepValues> -> unit)
+    (onSubmit: (string * string) list -> unit)
     (formAction: string)
-    (fields: Fable.Form.Simple.Form.Form<DynamicStepValues, Msg, IReactProperty>)
+    (fields: Fable.Form.Simple.Bulma.Form<DynamicStepValues, (string * string) list>)
     =
 
-    let config =
-        Fable.Form.Simple.Bulma.Form.View.asHtml
-            {
-                Dispatch = dispatch
-                OnChange = FormChanged
-                Action = formAction
-                Validation = Fable.Form.Simple.Form.View.ValidateOnSubmit
-            }
+    // Handle form state changes - extract result when form succeeds
+    let handleChange (newModel: Fable.Form.Simple.Form.View.Model<DynamicStepValues>) =
+        onChange newModel
+        // When form succeeds, extract the result from the form values
+        match newModel.State with
+        | Fable.Form.Simple.Form.View.Success _ ->
+            // Extract result from the form's values - convert DynamicStepValues to (string * string) list
+            let result =
+                newModel.Values
+                |> Map.toList
+                |> List.map (fun (FieldKey key, details) ->
+                    match details.FieldValue with
+                    | Single v -> (key, v.Value)
+                    | Multiple vs ->
+                        // For multiple values, join them or take first
+                        match vs |> Set.toList with
+                        | [] -> (key, "")
+                        | v :: _ -> (key, v.Value)
+                )
 
-    let outForm = config fields model
-    outForm
+            onSubmit result
+        | _ -> ()
+
+    Fable.Form.Simple.Bulma.Form.View.asHtml
+        {
+            OnChange = handleChange
+            OnSubmit = onSubmit
+            Action = Fable.Form.Simple.Form.View.Action.SubmitOnly formAction
+            Validation = Fable.Form.Simple.Form.View.ValidateOnSubmit
+        }
+        fields
+        model
 
 let compose (readOnly: bool) renderUserField (step: FormStep<'UserField>) =
 
     let dependencyMatch (dependsOnOpt: DependsOn option) field =
-        let emptyForm = Fable.Form.Base.succeed ""
+        let emptyForm = Fable.Form.Simple.Bulma.Form.succeed ""
 
         match dependsOnOpt with
         | Some dep ->
-            Fable.Form.Base.meta (fun (stepValues: DynamicStepValues) ->
+            Fable.Form.Simple.Bulma.Form.meta (fun (stepValues: DynamicStepValues) ->
                 let dependsFieldValue = stepValues |> Map.tryFind (FieldKey dep.FieldKey)
 
                 match dependsFieldValue with
@@ -177,5 +200,5 @@ let compose (readOnly: bool) renderUserField (step: FormStep<'UserField>) =
         |> List.mapi (fun i a -> string i, a)
         |> merge
 
-    Fable.Form.Base.succeed (fun result -> StepCompleted result)
-    |> Fable.Form.Base.append mergedFields
+    Fable.Form.Simple.Bulma.Form.succeed (fun result -> result)
+    |> Fable.Form.Simple.Bulma.Form.append mergedFields
