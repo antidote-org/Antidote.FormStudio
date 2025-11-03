@@ -1,7 +1,7 @@
 namespace Antidote.FormStudio.Compose
 
 open Feliz
-open Fable.Form.Antidote
+// open Fable.Form.Antidote
 open Antidote.FormStudio.Types
 
 module Types =
@@ -28,7 +28,7 @@ module Types =
         {
             ResultViewMode: FormComposeMode
             FormSpec: FormSpec<'UserField>
-            DynamicForm: DynamicForm<Form.View.Model<DynamicStepValues>>
+            DynamicForm: DynamicForm<Fable.Form.Simple.Form.View.Model<DynamicStepValues>>
             CurrentStep: int
             FormSaved: bool
 
@@ -41,7 +41,7 @@ module Types =
         }
 
     type Msg =
-        | FormChanged of Fable.Form.Antidote.Form.View.Model<DynamicStepValues>
+        | FormChanged of Fable.Form.Simple.Form.View.Model<DynamicStepValues>
         | StepCompleted of (string * string) list
         | Submit // of Form.View.Model<FormValues>
         | NextStep

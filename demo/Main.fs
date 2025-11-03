@@ -114,37 +114,37 @@ module Helpers =
 
 module FormSpecRender =
 
-    open Fable.Form.Antidote
+    // open Fable.Form.Antidote
 
     let renderFieldTypeFromAntidote
         (readOnly: bool)
         (dependencyMatch:
             DependsOn option
-                -> Form.Form<DynamicStepValues, string, IReactProperty>
-                -> Form.Form<'a, string, 'b>)
+                -> Fable.Form.Simple.Form.Form<DynamicStepValues, string, IReactProperty>
+                -> Fable.Form.Simple.Form.Form<DynamicStepValues, string, IReactProperty>)
         (specField: FormField<FieldType>)
         =
 
-        let optionalMatch isOptional (field: Form.Form<DynamicStepValues, string, IReactProperty>) =
+        let optionalMatch isOptional (field: Fable.Form.Simple.Form.Form<DynamicStepValues, string, IReactProperty>) =
             if isOptional then
                 field
-                |> Form.optional
-                |> Form.andThen (
+                |> Fable.Form.Base.optional
+                |> Fable.Form.Base.andThen (
                     function
-                    | Some v -> Form.succeed v
-                    | None -> Form.succeed ""
+                    | Some v -> Fable.Form.Base.succeed v
+                    | None -> Fable.Form.Base.succeed ""
                 )
             else
                 field
 
-        let emptyField = Form.succeed ""
+        let emptyField = Fable.Form.Base.succeed ""
 
         match specField.FieldType with
         | FieldType.Text info ->
             if specField.IsDeprecated && not readOnly then
                 emptyField
             else
-                Form.textField
+                Fable.Form.Simple.Form.textField
                     {
                         Parser = Ok
                         Value = fun values -> Helpers.readValue specField values
@@ -157,7 +157,7 @@ module FormSpecRender =
                                 HtmlAttributes = []
                             }
                     }
-                |> Form.disableIf readOnly
+                // |> Fable.Form.Base.disable .disableIf readOnly
                 |> optionalMatch specField.IsOptional
                 |> dependencyMatch specField.DependsOn
 
@@ -165,7 +165,7 @@ module FormSpecRender =
             if specField.IsDeprecated && not readOnly then
                 emptyField
             else
-                Form.checkboxField
+                Fable.Form.Simple.Form.checkboxField
                     {
                         Parser = string >> Ok
                         Value = fun value -> snd (bool.TryParse(Helpers.readValue specField value))
@@ -179,7 +179,7 @@ module FormSpecRender =
                                 Text = specField.Label
                             }
                     }
-                |> Form.disableIf readOnly
+                // |> Fable.Form.Base.disableIf readOnly
 
                 |> optionalMatch specField.IsOptional
                 |> dependencyMatch specField.DependsOn

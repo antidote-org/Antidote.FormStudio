@@ -2,12 +2,16 @@ module Antidote.React.Components.FormWizard.FormActions
 
 open Feliz
 open Feliz.Bulma
-open Fable.Form.Antidote
+// open Fable.Form.Antidote
 open Elmish
 open Antidote.FormStudio.Compose.Types
 open Antidote.FormStudio.i18n.Util
 
-let previousAction (previousLabel: string) (formState: Form.View.State) (dispatch: Dispatch<Msg>) =
+let previousAction
+    (previousLabel: string)
+    (formState: Fable.Form.Simple.Form.View.State)
+    (dispatch: Dispatch<Msg>)
+    =
     Bulma.field.div [
         field.isGrouped
         field.isGroupedRight
@@ -32,7 +36,7 @@ let previousAction (previousLabel: string) (formState: Form.View.State) (dispatc
                         prop.onClick (fun _ -> dispatch PreviousStep)
                         prop.text previousLabel
                         // If the form is loading animate the button with the loading animation
-                        if formState = Form.View.Loading then
+                        if formState = Fable.Form.Simple.Form.View.Loading then
                             prop.disabled true
                     ]
 
@@ -44,7 +48,7 @@ let previousAction (previousLabel: string) (formState: Form.View.State) (dispatc
 let previousAndNextAction
     (previousLabel: string)
     (nextLabel: string)
-    (formState: Form.View.State)
+    (formState: Fable.Form.Simple.Form.View.State)
     (dispatch: Dispatch<Msg>)
     =
 
@@ -77,7 +81,7 @@ let previousAndNextAction
                         prop.onClick (fun _ -> dispatch PreviousStep)
                         prop.text previousLabel
                         // If the form is loading animate the button with the loading animation
-                        if formState = Form.View.Loading then
+                        if formState = Fable.Form.Simple.Form.View.Loading then
                             prop.disabled true
                     ]
                 ]
@@ -99,7 +103,7 @@ let previousAndNextAction
                         // )
                         prop.text nextLabel
                         // If the form is loading animate the button with the loading animation
-                        if formState = Form.View.Loading then
+                        if formState = Fable.Form.Simple.Form.View.Loading then
                             button.isLoading
                     ]
                 ]
@@ -110,7 +114,7 @@ let previousAndNextAction
 let previousAndSubmitAction
     (previousLabel: string)
     (submitLabel: string)
-    (formState: Form.View.State)
+    (formState: Fable.Form.Simple.Form.View.State)
     (dispatch: Dispatch<Msg>)
     =
     Bulma.field.div [
@@ -141,7 +145,7 @@ let previousAndSubmitAction
                         prop.onClick (fun _ -> dispatch PreviousStep)
                         prop.text previousLabel
                         // If the form is loading animate the button with the loading animation
-                        if formState = Form.View.Loading then
+                        if formState = Fable.Form.Simple.Form.View.Loading then
                             prop.disabled true
                     ]
                 ]
@@ -163,7 +167,7 @@ let previousAndSubmitAction
                         // )
                         prop.text submitLabel
                         // If the form is loading animate the button with the loading animation
-                        if formState = Form.View.Loading then
+                        if formState = Fable.Form.Simple.Form.View.Loading then
                             button.isLoading
                     ]
                 ]
@@ -171,7 +175,11 @@ let previousAndSubmitAction
         ]
     ]
 
-let simplyNextAction (nextLabel: string) (formState: Form.View.State) (dispatch: Dispatch<Msg>) =
+let simplyNextAction
+    (nextLabel: string)
+    (formState: Fable.Form.Simple.Form.View.State)
+    (dispatch: Dispatch<Msg>)
+    =
 
     Bulma.field.div [
         field.isGrouped
@@ -204,7 +212,7 @@ let simplyNextAction (nextLabel: string) (formState: Form.View.State) (dispatch:
                         ]
                         prop.text nextLabel
                         // If the form is loading animate the button with the loading animation
-                        if formState = Form.View.Loading then
+                        if formState = Fable.Form.Simple.Form.View.Loading then
                             button.isLoading
                     ]
                 ]
@@ -251,16 +259,19 @@ let simplyNextAction (nextLabel: string) (formState: Form.View.State) (dispatch:
 //             ]
 //         ]
 
+[<RequireQualifiedAccess; NoComparison; NoEquality>]
+type Action<'Msg> =
+    | SubmitOnly of string
+    | Custom of (Fable.Form.Simple.Form.View.State -> Dispatch<Msg> -> ReactElement)
+
 let formAction stepProgress isSubmitted =
+
     match stepProgress with
-    | ReadOnly -> Form.View.Action.Custom(fun _ _ -> Html.div [])
-    | First -> Form.View.Action.Custom(simplyNextAction (t Intl.Next.Key))
-    | Middle ->
-        Form.View.Action.Custom(previousAndNextAction (t Intl.Previous.Key) (t Intl.Next.Key))
+    | ReadOnly -> Action.Custom(fun _ _ -> Html.div [])
+    | First -> Action.Custom(simplyNextAction (t Intl.Next.Key))
+    | Middle -> Action.Custom(previousAndNextAction (t Intl.Previous.Key) (t Intl.Next.Key))
     | Last ->
         if isSubmitted then
-            Form.View.Action.Custom(previousAction (t Intl.Previous.Key))
+            Action.Custom(previousAction (t Intl.Previous.Key))
         else
-            Form.View.Action.Custom(
-                previousAndSubmitAction (t Intl.Previous.Key) (t Intl.Submit.Key)
-            )
+            Action.Custom(previousAndSubmitAction (t Intl.Previous.Key) (t Intl.Submit.Key))

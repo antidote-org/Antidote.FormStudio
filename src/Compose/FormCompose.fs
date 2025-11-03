@@ -4,7 +4,8 @@ open Feliz
 open Feliz.UseElmish
 open Feliz.Bulma
 open Elmish
-open Fable.Form.Antidote
+open Fable.Form
+// open Fable.Form.Antidote
 open Fable.Core.JsInterop
 open Antidote.FormStudio.Compose.Types
 open Antidote.FormStudio.Types
@@ -16,25 +17,26 @@ open Antidote.FormStudio.i18n.Util
 
 type ComposerFunc =
     DependsOn option
-        -> Form.Form<DynamicStepValues, string, IReactProperty>
-        -> Form.Form<DynamicStepValues, string, IReactProperty>
+        -> Fable.Form.Simple.Form.Form<DynamicStepValues, string, IReactProperty>
+        -> Fable.Form.Simple.Form.Form<DynamicStepValues, string, IReactProperty>
 
 type FormComposeProps<'UserField> =
     {|
         // STRING CODE TO RETRIEVE THE SPEC FROM THE DATABASE
         FormSpec: FormSpec<'UserField>
-        DynamicForm: DynamicForm<Form.View.Model<DynamicStepValues>> option //Map<int,Form.View.Model<FormValues>>
+        DynamicForm: DynamicForm<Fable.Form.Simple.Form.View.Model<DynamicStepValues>> option //Map<int,Form.View.Model<FormValues>>
         // EDIT OR READ-ONLY MODE
         Mode: FormComposeMode
         NavigateToStep: int -> unit
-        FormChanged: DynamicForm<Form.View.Model<DynamicStepValues>> -> unit
-        SaveFormValuesCallback: DynamicForm<Form.View.Model<DynamicStepValues>> -> unit
+        FormChanged: DynamicForm<Fable.Form.Simple.Form.View.Model<DynamicStepValues>> -> unit
+        SaveFormValuesCallback:
+            DynamicForm<Fable.Form.Simple.Form.View.Model<DynamicStepValues>> -> unit
         SubmissionSuccess: bool
         RenderUserField:
             bool
                 -> ComposerFunc
                 -> FormField<'UserField>
-                -> Form.Form<DynamicStepValues, string, IReactProperty>
+                -> Fable.Form.Simple.Form.Form<DynamicStepValues, string, IReactProperty>
     |}
 
 let dynamicFormInit
@@ -46,13 +48,15 @@ let dynamicFormInit
         | Some dynamicStepValues -> dynamicStepValues
         | None -> Map.empty
 
-    let output: DynamicForm<Form.View.Model<DynamicStepValues>> =
+    let output: DynamicForm<Fable.Form.Simple.Form.View.Model<DynamicStepValues>> =
         {
             Steps =
                 [
                     1 .. formSpec.Steps.Length
                 ]
-                |> List.map (fun step -> StepOrder step, dynamicStepValues |> Form.View.idle)
+                |> List.map (fun step ->
+                    StepOrder step, dynamicStepValues |> Fable.Form.Simple.Form.View.idle
+                )
                 |> Map.ofList
             DynamicFormSpecDetails =
                 {
@@ -263,17 +267,25 @@ let FormCompose (props: FormComposeProps<'UserField>) =
                 Html.div [
                     // prop.className classes.formContainer
                     prop.children [
-                        step
-                        |> Composer.compose
-                            (if state.ResultViewMode = FormComposeMode.ReadOnly then
-                                 true
-                             else
-                                 false)
-                            props.RenderUserField
-                        |> Composer.render
-                            state.DynamicForm.Steps[StepOrder state.CurrentStep]
-                            dispatch
-                            (formAction progress (state.FormSaved && props.SubmissionSuccess))
+                        let compoasedForm =
+                            step
+                            |> Composer.compose
+                                (if state.ResultViewMode = FormComposeMode.ReadOnly then
+                                     true
+                                 else
+                                     false)
+                                props.RenderUserField
+
+                        let b =
+
+                            Composer.render
+                                state.DynamicForm.Steps[StepOrder state.CurrentStep]
+                                dispatch
+                                // (formAction progress (state.FormSaved && props.SubmissionSuccess))
+                                ""
+                                compoasedForm
+
+                        b
                     ]
                 ]
             ]

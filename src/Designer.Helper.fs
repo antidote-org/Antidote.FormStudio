@@ -2,7 +2,7 @@ module Antidote.FormStudio.Helper
 
 open System
 open Antidote.FormStudio.Types
-open Fable.Form.Antidote
+// open Fable.Form.Antidote
 
 let defaultFormSpec<'UserField> : FormSpec<'UserField> =
     {
@@ -473,14 +473,14 @@ let flattenSpecSteps formSpec : FormSpec<'UserField> =
     : FormSpec<'UserField>
 
 let flattenFormSteps
-    (dynamicForm: DynamicForm<Form.View.Model<DynamicStepValues>>)
-    : DynamicForm<Form.View.Model<DynamicStepValues>>
+    (dynamicForm: DynamicForm<Fable.Form.Simple.Form.View.Model<DynamicStepValues>>)
+    : DynamicForm<Fable.Form.Simple.Form.View.Model<DynamicStepValues>>
     =
     let flatForm =
         dynamicForm.Steps
         |> Map.fold (fun acc k v -> (v.Values |> Map.toList) @ acc) []
         |> Map.ofList
-        |> Form.View.idle
+        |> Fable.Form.Simple.Form.View.idle
         |> fun x -> Map[StepOrder 1, x]
 
     { dynamicForm with
@@ -488,7 +488,7 @@ let flattenFormSteps
     }
 
 let extractDataFromFableFormsModel
-    (dynamicForm: DynamicForm<Form.View.Model<DynamicStepValues>>)
+    (dynamicForm: DynamicForm<Fable.Form.Simple.Form.View.Model<DynamicStepValues>>)
     : DynamicFormResultData
     =
     {
