@@ -178,7 +178,7 @@
         "dependencies": {
           "Antidote.Bindings": "[2.0.6, )",
           "Fable.Core": "[4.3.0, )",
-          "Fable.Form": "[2.0.0, )",
+          "Fable.Form": "[3.0.0, )",
           "Fable.Form.Simple.Bulma": "[2.0.0, )",
           "Fable.I18Next": "[0.15.2, )",
           "Feliz.Bulma": "[3.0.0, )",
@@ -202,12 +202,11 @@
       },
       "Fable.Form": {
         "type": "CentralTransitive",
-        "requested": "[2.0.0, )",
-        "resolved": "2.0.0",
-        "contentHash": "A9BteGlQJPGcGUakijYI5zcOeAhc+ZPS1pq0xfFNJIfxmenXayY582dJmCLu4QoUbk93AZBfnj6S/pqvcfLykw==",
+        "requested": "[3.0.0, )",
+        "resolved": "3.0.0",
+        "contentHash": "d9+WoIS7+IXpnXwRa4krMxS6LI5DDwGU40lW3qiVuej8cA2Y0zpCKB4zcKCwsifa4zZqHQUCKUjYX99lLg3Oiw==",
         "dependencies": {
-          "FSharp.Core": "5.0.2",
-          "Fable.Core": "4.0.0"
+          "FSharp.Core": "5.0.2"
         }
       },
       "Fable.Form.Simple.Bulma": {
