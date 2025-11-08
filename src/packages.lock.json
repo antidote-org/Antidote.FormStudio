@@ -97,9 +97,9 @@
       },
       "FSharp.Core": {
         "type": "Direct",
-        "requested": "[7.0.300, )",
-        "resolved": "7.0.300",
-        "contentHash": "8vvItREJ1l5lcp3vBCSJ1mFevVAhR48I34DuF/EoUa7o1KlFpQpagyuZkVYMAsHPIjdp47ZxM9sI4eqeXaeWkA=="
+        "requested": "[9.0.100, )",
+        "resolved": "9.0.100",
+        "contentHash": "ye8yagHGsH08H2Twno5GRWkSbrMtxK/SWiHuPcF+3nODpW65/VJ8RO0aWxp8n9+KQbmahg90wAEL3TEXjF0r6A=="
       },
       "FsToolkit.ErrorHandling": {
         "type": "Direct",
@@ -112,12 +112,12 @@
       },
       "Thoth.Json": {
         "type": "Direct",
-        "requested": "[10.2.0, )",
-        "resolved": "10.2.0",
-        "contentHash": "/I58GViwrhWgp/vvNikjeSbm33V1ng3uSB27Y0BNDSJFDK+EdntCAx1Ephsx6T1dZlsgH/Z3wGmdEOqAlJUYuQ==",
+        "requested": "[10.4.1, )",
+        "resolved": "10.4.1",
+        "contentHash": "hs76/uO+gHhvnlaxQDqbpUX2Y0L97ilEZ1Nx+LA4D6N7fuAYJmNwQWZB/KQLBE7wIeWK5oXMFHCuKdImSrF1Bg==",
         "dependencies": {
-          "FSharp.Core": "4.7.2",
-          "Fable.Core": "3.6.2"
+          "FSharp.Core": "5.0.2",
+          "Fable.Core": "4.1.0"
         }
       },
       "Fable.AST": {

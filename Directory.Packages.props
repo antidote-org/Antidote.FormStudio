@@ -18,8 +18,8 @@
     <PackageVersion Include="Feliz.Bulma" Version="3.0.0" />
     <PackageVersion Include="Feliz.Markdown" Version="2.4.0" />
     <PackageVersion Include="Feliz.UseElmish" Version="2.5.0" />
-    <PackageVersion Include="FSharp.Core" Version="7.0.300" />
+    <PackageVersion Include="FSharp.Core" Version="9.0.100" />
     <PackageVersion Include="FsToolkit.ErrorHandling" Version="4.17.0" />
-    <PackageVersion Include="Thoth.Json" Version="10.2.0" />
+    <PackageVersion Include="Thoth.Json" Version="10.4.1" />
   </ItemGroup>
 </Project>
