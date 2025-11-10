@@ -2,8 +2,8 @@ module Antidote.FormStudio.UI.FormSpecLayout
 
 open Feliz
 open Fable.Core.JsInterop
+open Fable.Form.Simple.Bulma
 
-open Antidote.FormStudio
 open Antidote.FormStudio.Types
 open Antidote.FormStudio.Helper
 open Antidote.FormStudio.UI.DynamicFormSpecDetails
@@ -27,6 +27,7 @@ type FormSpecLayoutProps<'UserField> =
         IsFieldDragging: bool
         SetFieldDragging: bool -> unit
         RegisteredFields: RegisteredFields<'UserField>
+        FieldTypePropertyEditor: 'UserField -> Form<'UserField, 'UserField>
     |}
 
 [<ReactComponent>]
@@ -110,6 +111,8 @@ let FormSpecLayout (props: FormSpecLayoutProps<'UserField>) =
                                             IsFieldDragging = props.IsFieldDragging
                                             SetFieldDragging = props.SetFieldDragging
                                             RegisteredFields = props.RegisteredFields
+                                            FieldTypePropertyEditor =
+                                                props.FieldTypePropertyEditor
                                         |}
                                 )
                                 |> React.fragment

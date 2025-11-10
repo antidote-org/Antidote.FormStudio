@@ -2,7 +2,7 @@ module Antidote.FormStudio.DynamicFormDesigner
 
 open Feliz
 open Fable.Core.JsInterop
-
+open Fable.Form.Simple.Bulma
 open Antidote.FormStudio.Types
 open Antidote.FormStudio.UI.FieldPicker
 open Antidote.FormStudio.UI.DynamicFormPreview
@@ -17,6 +17,7 @@ let DynamicFormDesigner
     (setFormSpec: FormSpec<'UserField> -> unit)
     (registeredFields: IDesignerField<'UserField> list)
     renderUserField
+    (fieldTypePropertyEditor: 'UserField -> Form<'UserField, 'UserField>)
     =
     let defaultActiveField =
         {
@@ -91,6 +92,8 @@ let DynamicFormDesigner
                                                     SetActiveField = setActiveFieldWrapper
                                                     IsFieldDragging = isFieldDragging
                                                     SetFieldDragging = setFieldDragging
+                                                    FieldTypePropertyEditor =
+                                                        fieldTypePropertyEditor
                                                 |}
                                         ]
                                     ]

@@ -6,6 +6,10 @@ open Antidote.FormStudio.DynamicFormDesigner
 open Feliz
 open Feliz.Bulma
 open Browser
+open Fable.Form.Simple
+open Fable.Form.Simple.Bulma
+open Fable.Form.Simple.Bulma.Fields
+open Fable.Form.Simple.Fields.Html
 
 importSideEffects "../node_modules/bulma/css/bulma.min.css"
 
@@ -20,10 +24,86 @@ type CheckboxInfo =
         Selection: bool option
     }
 
+type RadioItem =
+    {
+        Key: string
+        Value: string
+    }
+
 [<RequireQualifiedAccess>]
 type FieldType =
     | Text of TextInfo
     | Checkbox of CheckboxInfo
+    | Radio of RadioItem list
+
+let fieldTypePropertyEditor (fieldType : FieldType) : Form<FieldType, FieldType> =
+    match fieldType with
+    | FieldType.Text _
+    | FieldType.Checkbox _ -> Form.succeed fieldType
+    | FieldType.Radio items ->
+        let radioItemField (context: FormList.ElementContext) =
+            let keyField: Form<RadioItem,string> =
+                Form.textField
+                    {
+                        Parser = Ok
+                        Value = fun value -> value.Key
+                        Update = fun value values -> { values with Key = value }
+                        Error = fun _ -> None
+                        Attributes =
+                            TextField.create $"{context.Index}-key"
+                            |> TextField.withLabel "Key"
+                    }
+
+            let valueField =
+                Form.textField
+                    {
+                        Parser = Ok
+                        Value = fun value -> value.Value
+                        Update = fun value values -> { values with Value = value }
+                        Error = fun _ -> None
+                        Attributes =
+                            TextField.create $"{context.Index}-value"
+                            |> TextField.withLabel "Value"
+                    }
+
+            let onSubmit key value : RadioItem =
+                { Key = key; Value = value }
+
+            Form.succeed onSubmit
+            |> Form.append keyField
+            |> Form.append valueField
+            |> Form.group
+
+        let onSubmit result : FieldType =
+            FieldType.Radio result
+
+        Form.succeed onSubmit
+        |> Form.append (
+            Form.list
+                {
+                    Default =
+                        {
+                            Key = ""
+                            Value = ""
+                        }
+                    Value =
+                        fun values ->
+                            match values with
+                            | FieldType.Radio items -> items
+                            | _ -> failwith "Invalid field type"
+                    Update =
+                        fun newValue values ->
+                            match values with
+                            | FieldType.Radio items -> FieldType.Radio newValue
+                            | _ -> failwith "Invalid field type"
+                    Attributes =
+                        FormList.create "items-list"
+                        |> FormList.withLabel "Options"
+                        |> FormList.withAdd "Add item"
+                        |> FormList.withDelete "Delete item"
+                }
+                radioItemField
+        )
 
 let private defaultDesignerFields =
     [
@@ -34,13 +114,22 @@ let private defaultDesignerFields =
             member _.FieldType =
                 FieldType.Text
                     {
-                        Value = None
+                        Value = Some "dwdwdw"
                     }
 
             member _.RenderDesignerPreview props =
-                Bulma.input.text [
-                    prop.readOnly true
-                ]
+                match props.FormField.FieldType with
+                | FieldType.Text info ->
+                    Bulma.input.text [
+                        prop.readOnly true
+                        info.Value
+                        |> Option.defaultValue ""
+                        |> prop.value
+                    ]
+                | _ ->
+                    Html.div [
+                        prop.text "Invalid field type"
+                    ]
         }
 
         { new IDesignerField<FieldType> with
@@ -65,6 +154,37 @@ let private defaultDesignerFields =
                         Html.text " Checkbox"
                     ]
                 ]
+        }
+
+        { new IDesignerField<FieldType> with
+            member _.Icon = "fas fa-list"
+            member _.Key = "Option"
+
+            member _.FieldType =
+                FieldType.Radio
+                    [
+                        { Key = "option-1"; Value = "Option 1" }
+                        { Key = "option-2"; Value = "Option 2" }
+                    ]
+
+            member _.RenderDesignerPreview props =
+                match props.FormField.FieldType with
+                | FieldType.Radio items ->
+                    items
+                    |> List.map (fun item ->
+                        Bulma.input.labels.radio [
+                            Bulma.input.radio [
+                                prop.disabled true
+                            ]
+
+                            Html.text item.Value
+                        ]
+                    )
+                    |> Bulma.control.div
+                | _ ->
+                    Html.div [
+                        prop.text "Invalid field type"
+                    ]
         }
     ]
 
@@ -114,18 +234,16 @@ module Helpers =
 
 module FormSpecRender =
 
-    open Fable.Form.Antidote
-
     let renderFieldTypeFromAntidote
         (readOnly: bool)
         (dependencyMatch:
             DependsOn option
-                -> Form.Form<DynamicStepValues, string, IReactProperty>
-                -> Form.Form<'a, string, 'b>)
+                -> Form<DynamicStepValues, string>
+                -> Form<'a, string>)
         (specField: FormField<FieldType>)
         =
 
-        let optionalMatch isOptional (field: Form.Form<DynamicStepValues, string, IReactProperty>) =
+        let optionalMatch isOptional (field: Form<DynamicStepValues, string>) =
             if isOptional then
                 field
                 |> Form.optional
@@ -151,11 +269,7 @@ module FormSpecRender =
                         Update = Helpers.updateSingleFunc id specField
                         Error = fun _ -> None
                         Attributes =
-                            {
-                                Label = specField.Label
-                                Placeholder = ""
-                                HtmlAttributes = []
-                            }
+                            TextField.create specField.Label // TODO: Use a real unique field id?
                     }
                 |> Form.disableIf readOnly
                 |> optionalMatch specField.IsOptional
@@ -175,9 +289,7 @@ module FormSpecRender =
 
                         Error = fun _ -> None
                         Attributes =
-                            {
-                                Text = specField.Label
-                            }
+                            CheckboxField.create specField.Label // TODO: Use a real unique field id?
                     }
                 |> Form.disableIf readOnly
 
@@ -196,6 +308,7 @@ let App () =
                 setFormSpec
                 defaultDesignerFields
                 FormSpecRender.renderFieldTypeFromAntidote
+                fieldTypePropertyEditor
 
             Bulma.field.p [
                 field.isGrouped

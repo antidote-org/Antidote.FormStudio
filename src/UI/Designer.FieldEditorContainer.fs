@@ -9,6 +9,7 @@ open Fable.Core.JsInterop
 open Antidote.FormStudio.UI.Components.LabelEditor
 open Antidote.FormStudio.UI.FieldToolbar
 open Antidote.FormStudio.UI.Designer.MockField
+open Fable.Form.Simple.Bulma
 
 let private classes: CssModules.UI.Designer_FieldEditorContainer =
     import "default" "./Designer.FieldEditorContainer.module.scss"
@@ -26,6 +27,7 @@ type FieldEditorContainerProps<'UserField> =
         IsFieldDragging: bool
         SetFieldDragging: bool -> unit
         RegisteredFields: RegisteredFields<'UserField>
+        FieldTypePropertyEditor: 'UserField -> Form<'UserField, 'UserField>
     |}
 
 [<ReactComponent>]
@@ -202,11 +204,14 @@ let FieldEditorContainer (props: FieldEditorContainerProps<'UserField>) =
                             FieldToolbar
                                 {|
                                     FormSpec = props.FormSpec
+                                    FormStep = props.FormStep
                                     FormStepNumber = props.ActiveField.FormStepNumber
                                     FormField = props.FormField
                                     OnChange = props.OnChange
                                     ActiveField = props.ActiveField
                                     SetActiveField = props.SetActiveField
+                                    RegisteredFields = props.RegisteredFields
+                                    FieldTypePropertyEditor = props.FieldTypePropertyEditor
                                 |}
                         ]
                     ]

@@ -1,11 +1,12 @@
 module Antidote.React.Components.FormWizard.Composer
 
-open Fable.Form.Antidote
+open Fable.Form.Simple
+open Fable.Form.Simple.Bulma
 open Antidote.FormStudio.Compose.Types
 open Antidote.FormStudio.Types
 open Feliz
 
-let merge fields : Form.Form<DynamicStepValues, _, IReactProperty> =
+let merge fields : Form<DynamicStepValues, _> =
     // Produce a single merged form
     fields
     |> List.map (fun (name, form) ->
@@ -27,8 +28,8 @@ let render model dispatch formAction fields =
     let config =
         Form.View.asHtml
             {
-                Dispatch = dispatch
-                OnChange = FormChanged
+                OnChange = FormChanged >> dispatch
+                OnSubmit = dispatch // TODO: This doesn't seems correct
                 Action = formAction
                 Validation = Form.View.ValidateOnSubmit
             }

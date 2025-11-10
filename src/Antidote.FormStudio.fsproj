@@ -61,8 +61,7 @@
           <PrivateAssets>all</PrivateAssets>
         </PackageReference>
         <PackageReference Include="Fable.Core" />
-        <PackageReference Include="Fable.Form.Antidote" />
-        <PackageReference Include="Fable.Form.Antidote.View" />
+        <PackageReference Include="Fable.Form.Simple.Bulma" />
         <PackageReference Include="Fable.I18Next" />
         <PackageReference Include="Fable.Package.SDK">
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

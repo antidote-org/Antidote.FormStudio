@@ -1,7 +1,7 @@
 namespace Antidote.FormStudio.Compose
 
 open Feliz
-open Fable.Form.Antidote
+open Fable.Form.Simple
 open Antidote.FormStudio.Types
 
 module Types =
@@ -41,7 +41,7 @@ module Types =
         }
 
     type Msg =
-        | FormChanged of Fable.Form.Antidote.Form.View.Model<DynamicStepValues>
+        | FormChanged of Form.View.Model<DynamicStepValues>
         | StepCompleted of (string * string) list
         | Submit // of Form.View.Model<FormValues>
         | NextStep
